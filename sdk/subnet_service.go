@@ -4,139 +4,128 @@ import (
 	"context"
 	"errors"
 	"math/big"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 
 	subnetcontract "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/subnet"
-	subnetfactory "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/subnetfactory"
-	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/signer"
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 )
 
-// SubnetInfoSummary 汇总 SubnetFactory.getSubnetInfo 的返回值。
-type SubnetInfoSummary struct {
-	Info           subnetfactory.DataStructuresSubnetInfo
-	ValidatorCount *big.Int
-	AgentCount     *big.Int
-	Status         uint8
-}
-
-// SubnetFactoryService 封装 SubnetFactory 读写操作。
-type SubnetFactoryService struct {
-	backend  bind.ContractBackend
+// SubnetService 封装 Subnet 合约的常用调用。
+type SubnetService struct {
+	contract *subnetcontract.Subnet
 	txMgr    *txmgr.Manager
-	contract *subnetfactory.SubnetFactory
-	signer   signer.Signer
-	chainID  *big.Int
 }
 
-// NewSubnetFactoryService 构造服务。
-func NewSubnetFactoryService(backend bind.ContractBackend, txm *txmgr.Manager, contract *subnetfactory.SubnetFactory, sig signer.Signer, chainID *big.Int) *SubnetFactoryService {
-	return &SubnetFactoryService{
-		backend:  backend,
-		txMgr:    txm,
-		contract: contract,
-		signer:   sig,
-		chainID:  new(big.Int).Set(chainID),
-	}
+// NewSubnetService 使用已绑定的 Subnet 合约实例与 TxManager 构造服务。
+func NewSubnetService(contract *subnetcontract.Subnet, txm *txmgr.Manager) *SubnetService {
+	return &SubnetService{contract: contract, txMgr: txm}
 }
 
-// GetSubnetContract 返回子网合约地址。
-func (s *SubnetFactoryService) GetSubnetContract(ctx context.Context, subnetID [32]byte) (common.Address, error) {
-	return s.contract.SubnetContracts(&bind.CallOpts{Context: ctx}, subnetID)
-}
-
-// IsSubnetActive 查询子网是否处于 ACTIVE 状态。
-func (s *SubnetFactoryService) IsSubnetActive(ctx context.Context, subnetID [32]byte) (bool, error) {
-	return s.contract.IsSubnetActive(&bind.CallOpts{Context: ctx}, subnetID)
-}
-
-// GetSubnetInfo 返回子网详细信息与统计。
-func (s *SubnetFactoryService) GetSubnetInfo(ctx context.Context, subnetID [32]byte) (SubnetInfoSummary, error) {
-	resp, err := s.contract.GetSubnetInfo(&bind.CallOpts{Context: ctx}, subnetID)
-	if err != nil {
-		return SubnetInfoSummary{}, err
-	}
-	return SubnetInfoSummary{
-		Info:           resp.Info,
-		ValidatorCount: resp.ValidatorCount,
-		AgentCount:     resp.AgentCount,
-		Status:         resp.SubnetStatus,
-	}, nil
-}
-
-// TotalCreated 返回累计创建的子网数量。
-func (s *SubnetFactoryService) TotalCreated(ctx context.Context) (*big.Int, error) {
-	return s.contract.TotalCreated(&bind.CallOpts{Context: ctx})
-}
-
-// EnumerateSubnets 返回当前所有子网 ID。
-func (s *SubnetFactoryService) EnumerateSubnets(ctx context.Context) ([][32]byte, error) {
-	total, err := s.contract.TotalCreated(&bind.CallOpts{Context: ctx})
+// NewSubnetServiceByAddress 通过合约地址绑定 Subnet 并返回服务实例。
+func NewSubnetServiceByAddress(backend bind.ContractBackend, addr common.Address, txm *txmgr.Manager) (*SubnetService, error) {
+	contract, err := subnetcontract.NewSubnet(addr, backend)
 	if err != nil {
 		return nil, err
 	}
-	count := total.Uint64()
-	ids := make([][32]byte, 0, count)
-	for i := uint64(0); i < count; i++ {
-		id, err := s.contract.AllSubnets(&bind.CallOpts{Context: ctx}, new(big.Int).SetUint64(i))
-		if err != nil {
-			return nil, err
+	return &SubnetService{contract: contract, txMgr: txm}, nil
+}
+
+// RegisterParticipantParams 描述 RegisterParticipant 调用的可配置项。
+type RegisterParticipantParams struct {
+	Domain      string
+	Endpoint    string
+	MetadataURI string
+	Value       *big.Int // 可选：注册所需的原生代币数量（如有）
+}
+
+func (s *SubnetService) registerParticipant(ctx context.Context, participantType ParticipantType, params RegisterParticipantParams) (*types.Transaction, error) {
+	if s.txMgr == nil {
+		return nil, errors.New("subnet: tx manager not attached")
+	}
+	return s.txMgr.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		if params.Value != nil {
+			opts.Value = params.Value
 		}
-		ids = append(ids, id)
-	}
-	return ids, nil
-}
-
-// GetActiveSubnetCount 返回活跃子网数量。
-func (s *SubnetFactoryService) GetActiveSubnetCount(ctx context.Context) (*big.Int, error) {
-	return s.contract.GetActiveSubnetCount(&bind.CallOpts{Context: ctx})
-}
-
-// GetCreationStats 返回 totalCreated（兼容旧接口）。
-func (s *SubnetFactoryService) GetCreationStats(ctx context.Context) (*big.Int, error) {
-	return s.contract.GetCreationStats(&bind.CallOpts{Context: ctx})
-}
-
-// PredictSubnetAddress 使用 clone determinism 预测地址。
-func (s *SubnetFactoryService) PredictSubnetAddress(ctx context.Context, subnetID [32]byte) (common.Address, error) {
-	return s.contract.PredictSubnetAddress(&bind.CallOpts{Context: ctx}, subnetID)
-}
-
-// BindSubnet 返回 Subnet 合约实例，便于查询参与者等信息。
-func (s *SubnetFactoryService) BindSubnet(subnetAddr common.Address) (*subnetcontract.Subnet, error) {
-	return subnetcontract.NewSubnet(subnetAddr, s.backend)
-}
-
-// PauseSubnet 调用 pauseSubnet（需要 GUARDIAN_ROLE）。
-func (s *SubnetFactoryService) PauseSubnet(ctx context.Context, subnetID [32]byte, reason string) (*types.Transaction, error) {
-	if strings.TrimSpace(reason) == "" {
-		return nil, errors.New("subnet: pause reason required")
-	}
-	return s.txMgr.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
-		opts.Context = ctx
-		return s.contract.PauseSubnet(opts, subnetID, reason)
+		return s.contract.RegisterParticipant(opts, uint8(participantType), params.Domain, params.Endpoint, params.MetadataURI)
 	})
 }
 
-// ResumeSubnet 调用 resumeSubnet。
-func (s *SubnetFactoryService) ResumeSubnet(ctx context.Context, subnetID [32]byte) (*types.Transaction, error) {
-	return s.txMgr.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
-		opts.Context = ctx
-		return s.contract.ResumeSubnet(opts, subnetID)
-	})
+// RegisterValidator 使用 RegisterParticipant 注册验证者。
+func (s *SubnetService) RegisterValidator(ctx context.Context, params RegisterParticipantParams) (*types.Transaction, error) {
+	return s.registerParticipant(ctx, ParticipantValidator, params)
 }
 
-// DeprecateSubnet 调用 deprecateSubnet。
-func (s *SubnetFactoryService) DeprecateSubnet(ctx context.Context, subnetID [32]byte, reason string) (*types.Transaction, error) {
-	if strings.TrimSpace(reason) == "" {
-		return nil, errors.New("subnet: deprecate reason required")
+// RegisterAgent 使用 RegisterParticipant 注册代理。
+func (s *SubnetService) RegisterAgent(ctx context.Context, params RegisterParticipantParams) (*types.Transaction, error) {
+	return s.registerParticipant(ctx, ParticipantAgent, params)
+}
+
+// RegisterMatcher 使用 RegisterParticipant 注册匹配器。
+func (s *SubnetService) RegisterMatcher(ctx context.Context, params RegisterParticipantParams) (*types.Transaction, error) {
+	return s.registerParticipant(ctx, ParticipantMatcher, params)
+}
+
+// RegisterParticipantERC20Params 描述 RegisterParticipantERC20 的输入。
+type RegisterParticipantERC20Params struct {
+	Domain      string
+	Endpoint    string
+	MetadataURI string
+	Amount      *big.Int
+}
+
+func (s *SubnetService) registerParticipantERC20(ctx context.Context, participantType ParticipantType, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+	if s.txMgr == nil {
+		return nil, errors.New("subnet: tx manager not attached")
+	}
+	if params.Amount == nil {
+		return nil, errors.New("subnet: amount is required for ERC20 registration")
 	}
 	return s.txMgr.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
-		return s.contract.DeprecateSubnet(opts, subnetID, reason)
+		return s.contract.RegisterParticipantERC20(opts, uint8(participantType), params.Amount, params.Domain, params.Endpoint, params.MetadataURI)
 	})
+}
+
+// RegisterValidatorERC20 通过 ERC20 质押注册验证者。
+func (s *SubnetService) RegisterValidatorERC20(ctx context.Context, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+	return s.registerParticipantERC20(ctx, ParticipantValidator, params)
+}
+
+// RegisterAgentERC20 通过 ERC20 质押注册代理。
+func (s *SubnetService) RegisterAgentERC20(ctx context.Context, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+	return s.registerParticipantERC20(ctx, ParticipantAgent, params)
+}
+
+// RegisterMatcherERC20 通过 ERC20 质押注册匹配器。
+func (s *SubnetService) RegisterMatcherERC20(ctx context.Context, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+	return s.registerParticipantERC20(ctx, ParticipantMatcher, params)
+}
+
+// ListActiveParticipants 返回指定类型的活跃参与者列表。
+func (s *SubnetService) ListActiveParticipants(ctx context.Context, participantType ParticipantType) ([]subnetcontract.DataStructuresParticipantInfo, error) {
+	return s.contract.ListActiveParticipants(&bind.CallOpts{Context: ctx}, uint8(participantType))
+}
+
+// IsActiveParticipant 查询指定地址在某参与者类型下是否活跃。
+func (s *SubnetService) IsActiveParticipant(ctx context.Context, addr common.Address, participantType ParticipantType) (bool, error) {
+	return s.contract.IsActiveParticipant(&bind.CallOpts{Context: ctx}, addr, uint8(participantType))
+}
+
+// GetParticipantInfo 返回参与者详情。
+func (s *SubnetService) GetParticipantInfo(ctx context.Context, addr common.Address, participantType ParticipantType) (subnetcontract.DataStructuresParticipantInfo, error) {
+	return s.contract.GetParticipantInfo(&bind.CallOpts{Context: ctx}, addr, uint8(participantType))
+}
+
+// GetParticipantStakeInfo 返回参与者在子网中的质押详情。
+func (s *SubnetService) GetParticipantStakeInfo(ctx context.Context, addr common.Address, participantType ParticipantType) (subnetcontract.DataStructuresStakeInfo, error) {
+	return s.contract.GetParticipantStakeInfo(&bind.CallOpts{Context: ctx}, addr, uint8(participantType))
+}
+
+// GetParticipantCount 返回指定类型的参与者数量。
+func (s *SubnetService) GetParticipantCount(ctx context.Context, participantType ParticipantType) (*big.Int, error) {
+	return s.contract.GetParticipantCount(&bind.CallOpts{Context: ctx}, uint8(participantType))
 }

@@ -5,6 +5,7 @@ PIN AI Intent Protocol Rootlayer 智能合约 Go SDK。
 面向 RootLayer 与 Subnet 的链上交互封装，预置 Base 主网/测试网与本地开发网络的合约地址（可通过环境变量与代码覆盖），提供 EIP‑1559 交易管理与 EIP‑191 摘要签名工具，并暴露常用的高层 API（提交/批量提交 Intent、查询子网/验证器/检查点、质押操作等）。
 
 • 快速导航：`docs/README.md`
+• 示例代码: `example/`
 • 环境变量示例：`.env.example`
 
 ---
@@ -15,6 +16,7 @@ PIN AI Intent Protocol Rootlayer 智能合约 Go SDK。
 - 高层 API：
   - Intent：提交/批量签名提交、完成/失败标记、过期处理、状态查询
   - SubnetFactory：活跃状态/合约地址查询、列表、预测地址、暂停/恢复/废弃（需权限）
+  - Subnet：注册验证者/代理/匹配器（ETH 或 ERC20 质押）、查询参与者/质押信息、活跃状态
   - Staking：质押/解押/提现、质押信息查询（管理员函数不做“易用封装”，仅底层绑定）
   - Checkpoint：查询检查点与证明
 - 可配置 TxManager：EIP‑1559 费用、nonce 源、卡顿替换（gas bump）、dry‑run
@@ -113,6 +115,80 @@ tx, err := client.IntentManager.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentB
 ```
 
 更多示例见 `docs/quickstart.md`。
+
+### 示例脚本
+
+- `examples/send_intent`: 纯环境变量驱动的 CLI，默认 dry-run，演示单条提交与带签名的批量提交（需 `PIN_RPC_URL`/`PIN_PRIVATE_KEY`，可选 `SUBNET_ID`、`SIGNED_INTENT_ID` 等）。
+- `examples/register_agent`: 基于 Subnet 合约的代理注册脚本，可按需设置 `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` 以及 `AGENT_VALUE_WEI`（默认 dry-run，可覆盖 0 值质押需求）。
+- `examples/list_subnets`: 列出当前网络下的子网 ID 与活跃状态，便于在其他脚本中复用。
+
+## 连接 Subnet 与角色注册
+
+### 连接子网合约（两种方式）
+
+1) 通过子网 ID 查询地址并获取服务
+
+```go
+subnetID := sdk.MustBytes32FromHex("0x...")
+subnetSvc, err := client.SubnetServiceByID(ctx, subnetID)
+if err != nil { log.Fatal(err) }
+```
+
+2) 已知子网合约地址直接绑定
+
+```go
+subnetAddr := common.HexToAddress("0xSubnET...")
+subnetSvc, err := client.SubnetServiceByAddress(subnetAddr)
+if err != nil { log.Fatal(err) }
+```
+
+两种方式内部都会共享 `Client` 的 `TxManager` 与 `Signer`，保持一致的 nonce 与 1559 费用策略。
+
+### 注册 3 种参与者角色
+
+Subnet 合约的 `RegisterParticipant`/`RegisterParticipantERC20` 已封装为 6 个便捷方法：
+
+- `RegisterValidator` / `RegisterValidatorERC20`
+- `RegisterAgent` / `RegisterAgentERC20`
+- `RegisterMatcher` / `RegisterMatcherERC20`
+
+ETH 质押注册（向合约发送原生代币，可用于满足最小质押）：
+
+```go
+tx, err := subnetSvc.RegisterValidator(ctx, sdk.RegisterParticipantParams{
+  Domain:      "example.org",
+  Endpoint:    "https://validator.example.org",
+  MetadataURI: "ipfs://...",
+  Value:       big.NewInt(1e18), // 例如 1 ETH，按照注册费用查询
+})
+if err != nil { log.Fatal(err) }
+log.Printf("validator registered, tx=%s", tx.Hash())
+
+// 代理（Agent）与匹配器（Matcher）同理：
+_, _ = subnetSvc.RegisterAgent(ctx, sdk.RegisterParticipantParams{Domain: "...", Endpoint: "...", MetadataURI: "...", Value: big.NewInt(0)})
+_, _ = subnetSvc.RegisterMatcher(ctx, sdk.RegisterParticipantParams{Domain: "...", Endpoint: "...", MetadataURI: "...", Value: big.NewInt(0)})
+```
+
+ERC20 质押注册（使用治理配置的质押代币；调用前需确保已对需要拉取资金的合约设置 allowance）：
+
+```go
+tx, err := subnetSvc.RegisterValidatorERC20(ctx, sdk.RegisterParticipantERC20Params{
+  Amount:      big.NewInt(1_000_000_000_000_000_000), // 1 token（按代币精度）
+  Domain:      "example.org",
+  Endpoint:    "https://validator.example.org",
+  MetadataURI: "ipfs://...",
+})
+if err != nil { log.Fatal(err) }
+log.Printf("validator (ERC20) registered, tx=%s", tx.Hash())
+```
+
+提示：
+- 具体最小质押与注册审批由子网的 `StakeGovernanceConfig` 与 `autoApprove` 等参数决定；如为手动审批，注册后需要子网治理批准。
+- ERC20 路径通常需要对质押接收方（例如 `StakingManager` 或 `Subnet`，以合约实现为准）进行 `approve` 授权。
+- 可用查询：
+  - `subnetSvc.IsActiveParticipant(ctx, addr, sdk.ParticipantValidator)`
+  - `subnetSvc.ListActiveParticipants(ctx, sdk.ParticipantValidator)`
+  - `subnetSvc.GetParticipantInfo/GetParticipantStakeInfo/GetParticipantCount`
 
 ## 网络与地址
 

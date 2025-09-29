@@ -8,11 +8,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	checkpointmanager "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/checkpointmanager"
 	intentmanager "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/intentmanager"
 	stakingmanager "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/stakingmanager"
+	subnetcontract "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/subnet"
 	subnetfactory "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/subnetfactory"
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/addressbook"
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/signer"
@@ -195,4 +197,27 @@ func applyTxOptions(base *txmgr.Config, opts *TxOptions) {
 	if opts.NoSend != nil {
 		base.NoSend = *opts.NoSend
 	}
+}
+
+// SubnetServiceByAddress 直接通过子网合约地址创建 SubnetService。
+func (c *Client) SubnetServiceByAddress(addr common.Address) (*SubnetService, error) {
+	if c == nil {
+		return nil, errors.New("sdk: nil client")
+	}
+	contract, err := subnetcontract.NewSubnet(addr, c.Backend)
+	if err != nil {
+		return nil, err
+	}
+	return NewSubnetService(contract, c.TxManager), nil
+}
+
+// SubnetServiceByID 通过子网 ID 查询地址并创建 SubnetService。
+func (c *Client) SubnetServiceByID(ctx context.Context, subnetID [32]byte) (*SubnetService, error) {
+	if c == nil {
+		return nil, errors.New("sdk: nil client")
+	}
+	if c.SubnetFactory == nil {
+		return nil, errors.New("sdk: subnet factory not initialised")
+	}
+	return c.SubnetFactory.NewSubnetServiceByID(ctx, subnetID)
 }
