@@ -1,0 +1,87 @@
+package crypto
+
+import (
+	"errors"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+)
+
+var (
+	intentTypeHash = crypto.Keccak256Hash([]byte("PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)"))
+
+	typeBytes32, _ = abi.NewType("bytes32", "", nil)
+	typeAddress, _ = abi.NewType("address", "", nil)
+	typeUint256, _ = abi.NewType("uint256", "", nil)
+	// arguments: typehash, intent_id, subnet_id, requester, intent_type_hash, params_hash, deadline, payment_token, amount, contract, chainId
+	intentDigestArgs = abi.Arguments{
+		{Type: typeBytes32},
+		{Type: typeBytes32},
+		{Type: typeBytes32},
+		{Type: typeAddress},
+		{Type: typeBytes32},
+		{Type: typeBytes32},
+		{Type: typeUint256},
+		{Type: typeAddress},
+		{Type: typeUint256},
+		{Type: typeAddress},
+		{Type: typeUint256},
+	}
+)
+
+// SignedIntentInput 表示构造 Intent digest 所需的数据。
+type SignedIntentInput struct {
+	IntentID     [32]byte
+	SubnetID     [32]byte
+	Requester    common.Address
+	IntentType   string
+	ParamsHash   [32]byte
+	Deadline     *big.Int
+	PaymentToken common.Address
+	Amount       *big.Int
+}
+
+// ComputeIntentDigest 计算 submitIntentsBySignatures 所需的 digest。
+func ComputeIntentDigest(input SignedIntentInput, contract common.Address, chainID *big.Int) ([32]byte, error) {
+	var zero [32]byte
+	if chainID == nil {
+		return zero, errors.New("crypto: nil chain id")
+	}
+	if input.Deadline == nil {
+		return zero, errors.New("crypto: nil deadline")
+	}
+	if input.Amount == nil {
+		return zero, errors.New("crypto: nil amount")
+	}
+	intentTypeDigest := crypto.Keccak256Hash([]byte(input.IntentType))
+	encoded, err := intentDigestArgs.Pack(
+		intentTypeHash,
+		input.IntentID,
+		input.SubnetID,
+		input.Requester,
+		intentTypeDigest,
+		input.ParamsHash,
+		input.Deadline,
+		input.PaymentToken,
+		input.Amount,
+		contract,
+		chainID,
+	)
+	if err != nil {
+		return zero, err
+	}
+	return bytesToBytes32(crypto.Keccak256Hash(encoded).Bytes()), nil
+}
+
+// HashBytes 计算任意数据的 keccak256。
+func HashBytes(data []byte) [32]byte {
+	return bytesToBytes32(crypto.Keccak256Hash(data).Bytes())
+}
+
+func bytesToBytes32(b []byte) [32]byte {
+	var out [32]byte
+	copy(out[:], b)
+	return out
+}

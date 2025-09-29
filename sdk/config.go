@@ -1,0 +1,198 @@
+package sdk
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"math/big"
+	"strings"
+	"time"
+
+	"github.com/ethereum/go-ethereum/ethclient"
+
+	checkpointmanager "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/checkpointmanager"
+	intentmanager "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/intentmanager"
+	stakingmanager "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/stakingmanager"
+	subnetfactory "github.com/PIN-AI/intent-protocol-contract-sdk/contracts/subnetfactory"
+	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/addressbook"
+	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/signer"
+	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
+)
+
+// Config 提供初始化 Client 所需的参数。
+type Config struct {
+	RPCURL        string
+	PrivateKeyHex string
+	Network       string
+	Addresses     *addressbook.Addresses
+	Tx            *TxOptions
+	Signer        signer.Signer
+}
+
+// TxOptions 描述 TxManager 的可选项。
+type TxOptions struct {
+	Use1559            *bool
+	GasLimit           *uint64
+	GasLimitMultiplier *float64
+	MaxFeePerGas       *big.Int
+	MaxPriorityFeeCap  *big.Int
+	NonceSource        *string
+	ReplaceStuck       *bool
+	ReplaceAfter       *time.Duration
+	BumpPercent        *float64
+	NoSend             *bool
+}
+
+// Client 暴露合约高层封装与底层连接。
+type Client struct {
+	Backend   *ethclient.Client
+	ChainID   *big.Int
+	Network   addressbook.Network
+	Addresses addressbook.Addresses
+	Signer    signer.Signer
+	TxManager *txmgr.Manager
+
+	IntentManager     *IntentService
+	SubnetFactory     *SubnetFactoryService
+	StakingManager    *StakingService
+	CheckpointManager *CheckpointService
+}
+
+// NewClient 根据 Config 创建完整 SDK。
+func NewClient(ctx context.Context, cfg Config) (*Client, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if strings.TrimSpace(cfg.RPCURL) == "" {
+		return nil, errors.New("sdk: RPCURL is required")
+	}
+	backend, err := ethclient.DialContext(ctx, cfg.RPCURL)
+	if err != nil {
+		return nil, fmt.Errorf("sdk: dial rpc: %w", err)
+	}
+	chainID, err := backend.ChainID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("sdk: fetch chain id: %w", err)
+	}
+
+	var netName addressbook.Network
+	if strings.TrimSpace(cfg.Network) != "" {
+		netName, err = addressbook.NormalizeNetwork(cfg.Network)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		netName, err = addressbook.FromChainID(chainID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var signing signer.Signer
+	if cfg.Signer != nil {
+		signing = cfg.Signer
+	} else if strings.TrimSpace(cfg.PrivateKeyHex) != "" {
+		signing, err = signer.NewLocalSigner(cfg.PrivateKeyHex)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, errors.New("sdk: signer or private key required")
+	}
+
+	addresses, err := addressbook.Resolve(netName, cfg.Addresses)
+	if err != nil {
+		return nil, err
+	}
+
+	txCfg := txmgr.DefaultConfig()
+	applyTxOptions(&txCfg, cfg.Tx)
+	txManager := txmgr.New(backend, chainID, signing, txCfg)
+
+	intentContract, err := intentmanager.NewIntentManager(addresses.IntentManager, backend)
+	if err != nil {
+		txManager.Close()
+		return nil, fmt.Errorf("sdk: bind intent manager: %w", err)
+	}
+	subnetFactoryContract, err := subnetfactory.NewSubnetFactory(addresses.SubnetFactory, backend)
+	if err != nil {
+		txManager.Close()
+		return nil, fmt.Errorf("sdk: bind subnet factory: %w", err)
+	}
+	stakingContract, err := stakingmanager.NewStakingManager(addresses.StakingManager, backend)
+	if err != nil {
+		txManager.Close()
+		return nil, fmt.Errorf("sdk: bind staking manager: %w", err)
+	}
+	checkpointContract, err := checkpointmanager.NewCheckpointManager(addresses.CheckpointManager, backend)
+	if err != nil {
+		txManager.Close()
+		return nil, fmt.Errorf("sdk: bind checkpoint manager: %w", err)
+	}
+
+	stakingService := NewStakingService(stakingContract)
+	stakingService.AttachTxManager(txManager)
+
+	checkpointService := NewCheckpointService(checkpointContract, backend)
+	checkpointService.AttachTxManager(txManager)
+
+	client := &Client{
+		Backend:           backend,
+		ChainID:           chainID,
+		Network:           netName,
+		Addresses:         addresses,
+		Signer:            signing,
+		TxManager:         txManager,
+		IntentManager:     NewIntentService(backend, txManager, intentContract, signing, chainID, addresses.IntentManager),
+		SubnetFactory:     NewSubnetFactoryService(backend, txManager, subnetFactoryContract, signing, chainID),
+		StakingManager:    stakingService,
+		CheckpointManager: checkpointService,
+	}
+	return client, nil
+}
+
+// Close 关闭 TxManager（RPC 连接由调用方管理）。
+func (c *Client) Close() {
+	if c == nil {
+		return
+	}
+	if c.TxManager != nil {
+		c.TxManager.Close()
+	}
+}
+
+func applyTxOptions(base *txmgr.Config, opts *TxOptions) {
+	if base == nil || opts == nil {
+		return
+	}
+	if opts.Use1559 != nil {
+		base.Use1559 = *opts.Use1559
+	}
+	if opts.GasLimit != nil {
+		base.GasLimit = *opts.GasLimit
+	}
+	if opts.GasLimitMultiplier != nil && *opts.GasLimitMultiplier > 0 {
+		base.GasLimitMultiplier = *opts.GasLimitMultiplier
+	}
+	if opts.MaxFeePerGas != nil {
+		base.MaxFeePerGas = new(big.Int).Set(opts.MaxFeePerGas)
+	}
+	if opts.MaxPriorityFeeCap != nil {
+		base.MaxPriorityFeeCap = new(big.Int).Set(opts.MaxPriorityFeeCap)
+	}
+	if opts.NonceSource != nil && strings.TrimSpace(*opts.NonceSource) != "" {
+		base.NonceSource = strings.ToLower(strings.TrimSpace(*opts.NonceSource))
+	}
+	if opts.ReplaceStuck != nil {
+		base.ReplaceStuck = *opts.ReplaceStuck
+	}
+	if opts.ReplaceAfter != nil {
+		base.ReplaceAfter = *opts.ReplaceAfter
+	}
+	if opts.BumpPercent != nil && *opts.BumpPercent > 0 {
+		base.BumpPercent = *opts.BumpPercent
+	}
+	if opts.NoSend != nil {
+		base.NoSend = *opts.NoSend
+	}
+}
