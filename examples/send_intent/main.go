@@ -169,7 +169,7 @@ func runSendIntent(cfg runConfig) error {
 
 	// fmt.Printf("submitting intent: %#v\n", params)
 
-	tx, err := client.IntentManager.SubmitIntent(ctx, params)
+	tx, err := client.Intent.SubmitIntent(ctx, params)
 	if err != nil {
 		return fmt.Errorf("submit intent: %w", err)
 	}
@@ -209,16 +209,16 @@ func runSendIntent(cfg runConfig) error {
 		PaymentToken: paymentToken,
 		Amount:       amount,
 	}
-	digest, err := client.IntentManager.ComputeDigest(input)
+	digest, err := client.Intent.ComputeDigest(input)
 	if err != nil {
 		return fmt.Errorf("compute digest: %w", err)
 	}
-	sig, err := client.IntentManager.SignDigest(digest)
+	sig, err := client.Intent.SignDigest(digest)
 	if err != nil {
 		return fmt.Errorf("sign digest: %w", err)
 	}
 
-	btx, err := client.IntentManager.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentBatchParams{
+	btx, err := client.Intent.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentBatchParams{
 		Items: []sdk.SignedIntent{{Data: input, Signature: sig}},
 		// TotalEthValue nil -> SDK auto sums ETH when PaymentToken==0
 	})

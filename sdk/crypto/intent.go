@@ -12,9 +12,6 @@ import (
 var (
 	intentTypeHash = crypto.Keccak256Hash([]byte("PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)"))
 
-	typeBytes32, _ = abi.NewType("bytes32", "", nil)
-	typeAddress, _ = abi.NewType("address", "", nil)
-	typeUint256, _ = abi.NewType("uint256", "", nil)
 	// arguments: typehash, intent_id, subnet_id, requester, intent_type_hash, params_hash, deadline, payment_token, amount, contract, chainId
 	intentDigestArgs = abi.Arguments{
 		{Type: typeBytes32},
@@ -73,15 +70,4 @@ func ComputeIntentDigest(input SignedIntentInput, contract common.Address, chain
 		return zero, err
 	}
 	return bytesToBytes32(crypto.Keccak256Hash(encoded).Bytes()), nil
-}
-
-// HashBytes 计算任意数据的 keccak256。
-func HashBytes(data []byte) [32]byte {
-	return bytesToBytes32(crypto.Keccak256Hash(data).Bytes())
-}
-
-func bytesToBytes32(b []byte) [32]byte {
-	var out [32]byte
-	copy(out[:], b)
-	return out
 }

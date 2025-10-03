@@ -14,11 +14,13 @@ PIN AI Intent Protocol Rootlayer 智能合约 Go SDK。
 
 - 强类型合约绑定：`IntentManager`、`SubnetFactory`、`Subnet`、`StakingManager`、`CheckpointManager`
 - 高层 API：
-  - Intent：提交/批量签名提交、完成/失败标记、过期处理、状态查询
+  - Intent：提交/批量签名提交、过期处理、状态查询
+  - Assignment：批量签名分配、digest 构造、matcher 签名辅助
+  - Validation：批量验证提交、validator 签名 digest
   - SubnetFactory：活跃状态/合约地址查询、列表、预测地址、暂停/恢复/废弃（需权限）
   - Subnet：注册验证者/代理/匹配器（ETH 或 ERC20 质押）、查询参与者/质押信息、活跃状态
   - Staking：质押/解押/提现、质押信息查询（管理员函数不做“易用封装”，仅底层绑定）
-  - Checkpoint：查询检查点与证明
+  - Checkpoint：查询、digest 构造、checkpoint 提交
 - 可配置 TxManager：EIP‑1559 费用、nonce 源、卡顿替换（gas bump）、dry‑run
 - 签名与哈希：EIP‑191（eth_sign）摘要签名、批量提交 digest 构造，预留 EIP‑712
 - 网络与地址：`base`/`base_sepolia`/`local` 预置，支持环境变量和代码级覆盖
@@ -85,7 +87,7 @@ func main() {
     Amount:       big.NewInt(1e16), // 0.01 ETH
     Value:        big.NewInt(1e16), // ETH 需与 Amount 一致
   }
-  tx, err := client.IntentManager.SubmitIntent(ctx, params)
+  tx, err := client.Intent.SubmitIntent(ctx, params)
   if err != nil { log.Fatal(err) }
   log.Printf("submitted: %s", tx.Hash())
 }
@@ -105,13 +107,46 @@ input := sdkcrypto.SignedIntentInput{
   Amount:       big.NewInt(1e16),
 }
 
-digest, _ := client.IntentManager.ComputeDigest(input)
-sig, _ := client.IntentManager.SignDigest(digest)
+digest, _ := client.Intent.ComputeDigest(input)
+sig, _ := client.Intent.SignDigest(digest)
 
-tx, err := client.IntentManager.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentBatchParams{
+tx, err := client.Intent.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentBatchParams{
   Items: []sdk.SignedIntent{{Data: input, Signature: sig}},
   // ETH 总额可省略，SDK 会自动相加 PaymentToken==0 的金额
 })
+```
+
+4) 分配与验证（Matcher 与 Validator）
+
+```go
+assignment := sdk.AssignmentData{
+  AssignmentID: sdk.MustBytes32FromHex("0x..."),
+  IntentID:     sdk.MustBytes32FromHex("0x..."),
+  BidID:        sdk.MustBytes32FromHex("0x..."),
+  Agent:        common.HexToAddress("0xAgent"),
+  Status:       sdk.AssignmentStatusActive,
+  Matcher:      client.Signer.Address(),
+}
+
+digest, _ = client.Assignment.ComputeDigest(assignment)
+sig, _ = client.Assignment.SignDigest(digest)
+
+_, _ = client.Assignment.AssignIntentsBySignatures(ctx, []sdk.SignedAssignment{{Data: assignment, Signature: sig}})
+
+bundle := sdk.ValidationBundle{
+  IntentID:     assignment.IntentID,
+  AssignmentID: assignment.AssignmentID,
+  SubnetID:     sdk.MustBytes32FromHex("0x..."),
+  Agent:        assignment.Agent,
+  ResultHash:   sdk.HashBytes([]byte("result")),
+  ProofHash:    sdk.HashBytes([]byte("proof")),
+  RootHeight:   123,
+  RootHash:     sdk.HashBytes([]byte("root")),
+  Validators:   []common.Address{common.HexToAddress("0xValidator1")},
+  Signatures:   [][]byte{sig}, // 需真实 validator 签名
+}
+
+_, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle{bundle})
 ```
 
 更多示例见 `docs/quickstart.md`。
@@ -121,6 +156,7 @@ tx, err := client.IntentManager.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentB
 - `examples/send_intent`: 纯环境变量驱动的 CLI，默认 dry-run，演示单条提交与带签名的批量提交（需 `PIN_RPC_URL`/`PIN_PRIVATE_KEY`，可选 `SUBNET_ID`、`SIGNED_INTENT_ID` 等）。
 - `examples/register_agent`: 基于 Subnet 合约的代理注册脚本，可按需设置 `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` 以及 `AGENT_VALUE_WEI`（默认 dry-run，可覆盖 0 值质押需求）。
 - `examples/list_subnets`: 列出当前网络下的子网 ID 与活跃状态，便于在其他脚本中复用。
+- `examples/complete_workflow`（规划中）：演示 Intent → Assignment → Validation → Checkpoint 的端到端流程。
 
 ## 连接 Subnet 与角色注册
 
@@ -215,7 +251,8 @@ log.Printf("validator (ERC20) registered, tx=%s", tx.Hash())
   - typeHash: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
   - digest: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
 - 链下签名：EIP‑191（eth_sign 前缀），与合约 `SignatureLib.verifySingleSignature()` 对齐
-- 工具函数：`sdkcrypto.ComputeIntentDigest()`、`client.IntentManager.SignDigest()`
+- 工具函数：`sdkcrypto.ComputeIntentDigest()`、`client.Intent.SignDigest()`
+- 其他摘要：`client.Assignment.ComputeDigest()`、`client.Validation.ComputeDigest()`、`client.CheckpointManager.ComputeDigest()`
 - 详见：`docs/signing.md`
 
 ## 目录结构

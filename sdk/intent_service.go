@@ -15,16 +15,6 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 )
 
-// IntentStatus 枚举，与合约 DataStructures.IntentStatus 对应。
-type IntentStatus uint8
-
-const (
-	IntentStatusPending  IntentStatus = 0
-	IntentStatusComplete IntentStatus = 1
-	IntentStatusExpired  IntentStatus = 2
-	IntentStatusFailed   IntentStatus = 3
-)
-
 // SubmitIntentParams 描述 submitIntent 所需参数。
 type SubmitIntentParams struct {
 	IntentID     [32]byte
@@ -48,12 +38,6 @@ type SubmitIntentBatchParams struct {
 	Items         []SignedIntent
 	TotalEthValue *big.Int // 可选，未提供时自动统计 PaymentToken==0 的金额
 }
-
-// IntentResult 与合约结构体保持一致。
-type IntentResult = intentmanager.DataStructuresIntentResult
-
-// FeeDistribution 是 IntentResult 中的费用拆分。
-type FeeDistribution = intentmanager.DataStructuresFeeDistribution
 
 // IntentInfo 与合约返回结构一致。
 type IntentInfo = intentmanager.DataStructuresIntentInfo
@@ -139,14 +123,6 @@ func (s *IntentService) SubmitIntentsBySignatures(ctx context.Context, params Su
 	})
 }
 
-// CompleteIntent 调用 completeIntent。
-func (s *IntentService) CompleteIntent(ctx context.Context, intentID [32]byte, result IntentResult, validators []common.Address, signatures [][]byte) (*types.Transaction, error) {
-	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
-		opts.Context = ctx
-		return s.contract.CompleteIntent(opts, intentID, result, validators, signatures)
-	})
-}
-
 // FailIntent 调用 failIntent。
 func (s *IntentService) FailIntent(ctx context.Context, intentID [32]byte, reason string, validators []common.Address, signatures [][]byte) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
@@ -182,6 +158,11 @@ func (s *IntentService) GetIntentInfo(ctx context.Context, intentID [32]byte) (I
 // GetIntentsByStatus 根据状态读取 Intent ID 列表。
 func (s *IntentService) GetIntentsByStatus(ctx context.Context, status IntentStatus) ([][32]byte, error) {
 	return s.contract.GetIntentsByStatus(&bind.CallOpts{Context: ctx}, uint8(status))
+}
+
+// GetSubnetIntents 查询某个子网的所有 Intent ID。
+func (s *IntentService) GetSubnetIntents(ctx context.Context, subnetID [32]byte) ([][32]byte, error) {
+	return s.contract.GetSubnetIntents(&bind.CallOpts{Context: ctx}, subnetID)
 }
 
 // GetPendingIntentCount 查询待处理数量。subnetID 为 nil 时查询所有。

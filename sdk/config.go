@@ -54,7 +54,9 @@ type Client struct {
 	Signer    signer.Signer
 	TxManager *txmgr.Manager
 
-	IntentManager     *IntentService
+	Intent            *IntentService
+	Assignment        *AssignmentService
+	Validation        *ValidationService
 	SubnetFactory     *SubnetFactoryService
 	StakingManager    *StakingService
 	CheckpointManager *CheckpointService
@@ -135,8 +137,7 @@ func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 	stakingService := NewStakingService(stakingContract)
 	stakingService.AttachTxManager(txManager)
 
-	checkpointService := NewCheckpointService(checkpointContract, backend)
-	checkpointService.AttachTxManager(txManager)
+	checkpointService := NewCheckpointService(checkpointContract, backend, txManager, signing, chainID, addresses.CheckpointManager)
 
 	client := &Client{
 		Backend:           backend,
@@ -145,7 +146,9 @@ func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 		Addresses:         addresses,
 		Signer:            signing,
 		TxManager:         txManager,
-		IntentManager:     NewIntentService(backend, txManager, intentContract, signing, chainID, addresses.IntentManager),
+		Intent:            NewIntentService(backend, txManager, intentContract, signing, chainID, addresses.IntentManager),
+		Assignment:        NewAssignmentService(backend, txManager, intentContract, signing, chainID, addresses.IntentManager),
+		Validation:        NewValidationService(backend, txManager, intentContract, signing, chainID, addresses.IntentManager),
 		SubnetFactory:     NewSubnetFactoryService(backend, txManager, subnetFactoryContract, signing, chainID),
 		StakingManager:    stakingService,
 		CheckpointManager: checkpointService,
