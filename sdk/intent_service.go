@@ -193,3 +193,13 @@ func (s *IntentService) ComputeDigest(input cryptoHelpers.SignedIntentInput) ([3
 func (s *IntentService) SignDigest(digest [32]byte) ([]byte, error) {
 	return s.signer.SignDigest(digest)
 }
+
+// SignIntent 封装 ComputeDigest + SignDigest，一步完成 Intent 签名。
+// 简化批量签名流程，适用于 SubmitIntentsBySignatures 场景。
+func (s *IntentService) SignIntent(input cryptoHelpers.SignedIntentInput) ([]byte, error) {
+	digest, err := s.ComputeDigest(input)
+	if err != nil {
+		return nil, err
+	}
+	return s.SignDigest(digest)
+}
