@@ -154,6 +154,8 @@ _, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle
 ### 示例脚本
 
 - `examples/send_intent`: 纯环境变量驱动的 CLI，默认 dry-run，演示单条提交与带签名的批量提交（需 `PIN_RPC_URL`/`PIN_PRIVATE_KEY`，可选 `SUBNET_ID`、`SIGNED_INTENT_ID` 等）。
+- `examples/assign_intents`: Matcher 端批量分配脚本，支持自动签名单条分配或使用外部签名（需 `INTENT_ID`/`AGENT_ADDRESS` 等）。
+- `examples/validate_intents`: Validator 端验证脚本，可计算 digest 并签名单验证者或加载预签名的多验证者 bundle。
 - `examples/register_agent`: 基于 Subnet 合约的代理注册脚本，可按需设置 `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` 以及 `AGENT_VALUE_WEI`（默认 dry-run，可覆盖 0 值质押需求）。
 - `examples/list_subnets`: 列出当前网络下的子网 ID 与活跃状态，便于在其他脚本中复用。
 - `examples/complete_workflow`（规划中）：演示 Intent → Assignment → Validation → Checkpoint 的端到端流程。

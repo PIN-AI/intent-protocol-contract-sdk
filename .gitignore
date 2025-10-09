@@ -1,1 +1,49 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Go build artifacts - binaries
+*.test
+*.exe
+*.out
 list_subnets
+register_agent
+send_intent
+crypto.test
+
+# Go tool generated
+*.coverprofile
+coverage.txt
+coverage.html
+vendor/
+
+# IDE configuration
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# AI configuration
+.claude/
+
+# Temporary files and debug output
+issue/
+*.log
+*.tmp
+*.bak
+
+# Build output directories
+bin/
+dist/
+build/
