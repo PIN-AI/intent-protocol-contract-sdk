@@ -158,3 +158,10 @@ func (s *SubnetFactoryService) DeprecateSubnet(ctx context.Context, subnetID [32
 		return s.contract.DeprecateSubnet(opts, subnetID, reason)
 	})
 }
+
+// GetActiveParticipants 批量获取指定子网的活跃参与者信息。
+// 返回每个子网的三种活跃参与者：VALIDATOR、AGENT、MATCHER。
+// 返回数组长度始终等于输入长度，即使部分子网不存在也会返回空数组。
+func (s *SubnetFactoryService) GetActiveParticipants(ctx context.Context, subnetIDs [][32]byte) ([]subnetfactory.DataStructuresSubnetParticipants, error) {
+	return s.contract.GetActiveParticipants(&bind.CallOpts{Context: ctx}, subnetIDs)
+}

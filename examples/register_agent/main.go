@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PIN-AI/intent-protocol-contract-sdk/contracts/subnetfactory"
 	sdk "github.com/PIN-AI/intent-protocol-contract-sdk/sdk"
 )
 
@@ -27,7 +28,7 @@ func main() {
 		metadataURI: strings.TrimSpace(envOr("AGENT_METADATA_URI", "ipfs://agent-metadata")),
 		// 0.1 eth in wei
 		valueWei: strings.TrimSpace(envOr("AGENT_VALUE_WEI", "100000000000000000")),
-		dryRun:   envBool("DRY_RUN", true),
+		dryRun:   envBool("DRY_RUN", false),
 		timeout:  envDuration("TIMEOUT", 45*time.Second),
 	}
 
@@ -113,6 +114,14 @@ func runRegisterAgent(cfg runConfig) error {
 	subnetSvc, err := sdk.NewSubnetServiceByAddress(client.Backend, subnetAddr, client.TxManager)
 	if err != nil {
 		return fmt.Errorf("bind subnet service: %w", err)
+	}
+
+	participants, err := client.SubnetFactory.GetActiveParticipants(ctx, [][32]byte{subnetID})
+	if err != nil {
+		return fmt.Errorf("fetch active participants: %w", err)
+	}
+	if len(participants) > 0 {
+		printParticipants(participants[0])
 	}
 
 	value, err := parseOptionalBigInt(cfg.valueWei)
@@ -222,4 +231,42 @@ func loadDotEnv(path string) error {
 		}
 	}
 	return s.Err()
+}
+
+func printParticipants(p subnetfactory.DataStructuresSubnetParticipants) {
+	log.Printf("========== Subnet Participants ==========")
+	log.Printf("Subnet ID: %#x", p.SubnetId)
+	log.Printf("")
+
+	log.Printf("--- Validators (%d) ---", len(p.Validators))
+	for i, v := range p.Validators {
+		printParticipantInfo(i+1, v)
+	}
+
+	log.Printf("")
+	log.Printf("--- Agents (%d) ---", len(p.Agents))
+	for i, a := range p.Agents {
+		printParticipantInfo(i+1, a)
+	}
+
+	log.Printf("")
+	log.Printf("--- Matchers (%d) ---", len(p.Matchers))
+	for i, m := range p.Matchers {
+		printParticipantInfo(i+1, m)
+	}
+	log.Printf("====================================")
+}
+
+func printParticipantInfo(idx int, info subnetfactory.DataStructuresParticipantInfo) {
+	log.Printf("  [%d] Owner: %s", idx, info.Owner.Hex())
+	log.Printf("      Status: %d | Type: %d | Reputation: %s", info.Status, info.ParticipantType, info.ReputationScore.String())
+	if info.Endpoint != "" {
+		log.Printf("      Endpoint: %s", info.Endpoint)
+	}
+	if info.Domain != "" {
+		log.Printf("      Domain: %s", info.Domain)
+	}
+	if info.MetadataUri != "" {
+		log.Printf("      Metadata: %s", info.MetadataUri)
+	}
 }

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PIN-AI/intent-protocol-contract-sdk/contracts/subnetfactory"
 	sdk "github.com/PIN-AI/intent-protocol-contract-sdk/sdk"
 )
 
@@ -49,10 +50,31 @@ func main() {
 	if err != nil {
 		log.Fatalf("enumerate: %v", err)
 	}
+
+	var participants []subnetfactory.DataStructuresSubnetParticipants
+	if len(ids) > 0 {
+		participants, err = client.SubnetFactory.GetActiveParticipants(ctx, ids)
+		if err != nil {
+			log.Printf("warning: failed to fetch participants: %v", err)
+		}
+	}
+
 	for i, id := range ids {
 		active, _ := client.SubnetFactory.IsSubnetActive(ctx, id)
 		info, _ := client.SubnetFactory.GetSubnetInfo(ctx, id)
-		fmt.Printf("%d) id=%#x active=%v validators=%s agents=%s status=%d\n", i, id, active, bi(info.ValidatorCount), bi(info.AgentCount), info.Status)
+
+		matcherCount := "0"
+		if i < len(participants) {
+			matcherCount = fmt.Sprintf("%d", len(participants[i].Matchers))
+		}
+
+		fmt.Printf("\n%d) id=%#x active=%v validators=%s agents=%s matchers=%s status=%d\n",
+			i, id, active, bi(info.ValidatorCount), bi(info.AgentCount), matcherCount, info.Status)
+
+		// 展示详细参与者信息
+		if i < len(participants) {
+			printParticipantsCompact(participants[i])
+		}
 	}
 }
 
@@ -92,4 +114,37 @@ func loadDotEnv(path string) error {
 		}
 	}
 	return s.Err()
+}
+
+func printParticipantsCompact(p subnetfactory.DataStructuresSubnetParticipants) {
+	fmt.Printf("   Validators: %d active\n", len(p.Validators))
+	for i, v := range p.Validators {
+		if i >= 3 {
+			fmt.Printf("      ... and %d more\n", len(p.Validators)-3)
+			break
+		}
+		fmt.Printf("      - %s (rep: %s)\n", v.Owner.Hex(), v.ReputationScore.String())
+	}
+
+	fmt.Printf("   Agents: %d active\n", len(p.Agents))
+	for i, a := range p.Agents {
+		if i >= 3 {
+			fmt.Printf("      ... and %d more\n", len(p.Agents)-3)
+			break
+		}
+		endpoint := a.Endpoint
+		if endpoint == "" {
+			endpoint = "(no endpoint)"
+		}
+		fmt.Printf("      - %s endpoint=%s\n", a.Owner.Hex(), endpoint)
+	}
+
+	fmt.Printf("   Matchers: %d active\n", len(p.Matchers))
+	for i, m := range p.Matchers {
+		if i >= 3 {
+			fmt.Printf("      ... and %d more\n", len(p.Matchers)-3)
+			break
+		}
+		fmt.Printf("      - %s\n", m.Owner.Hex())
+	}
 }
