@@ -155,6 +155,16 @@ func (s *IntentService) GetIntentInfo(ctx context.Context, intentID [32]byte) (I
 	return s.contract.GetIntentInfo(&bind.CallOpts{Context: ctx}, intentID)
 }
 
+// BatchGetIntentInfo 批量读取意图信息。
+// 一次性获取多个 Intent 的详细信息，避免多次 RPC 调用。
+// 返回数组顺序与输入 ids 顺序一致，不存在的 Intent 返回零值结构体。
+func (s *IntentService) BatchGetIntentInfo(ctx context.Context, ids [][32]byte) ([]IntentInfo, error) {
+	if len(ids) == 0 {
+		return []IntentInfo{}, nil
+	}
+	return s.contract.BatchGetIntentInfo(&bind.CallOpts{Context: ctx}, ids)
+}
+
 // GetIntentsByStatus 根据状态读取 Intent ID 列表。
 func (s *IntentService) GetIntentsByStatus(ctx context.Context, status IntentStatus) ([][32]byte, error) {
 	return s.contract.GetIntentsByStatus(&bind.CallOpts{Context: ctx}, uint8(status))
