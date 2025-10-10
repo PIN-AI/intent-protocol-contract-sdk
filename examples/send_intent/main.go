@@ -35,7 +35,7 @@ func main() {
 		amountWei:    strings.TrimSpace(envOr("AMOUNT_WEI", "1000000000000000")), // default 0.001 ETH
 		valueWei:     strings.TrimSpace(os.Getenv("VALUE_WEI")),
 		paymentToken: strings.TrimSpace(os.Getenv("PAYMENT_TOKEN")),
-		dryRun:       envBool("DRY_RUN", true),
+		dryRun:       envBool("DRY_RUN", false),
 		timeout:      envDuration("TIMEOUT", 45*time.Second),
 	}
 

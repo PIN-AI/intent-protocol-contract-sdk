@@ -213,3 +213,155 @@ func (s *IntentService) SignIntent(input cryptoHelpers.SignedIntentInput) ([]byt
 	}
 	return s.SignDigest(digest)
 }
+
+// ======================== 只读方法：角色与权限 ========================
+
+// DefaultAdminRole 返回默认管理员角色哈希。
+func (s *IntentService) DefaultAdminRole(ctx context.Context) ([32]byte, error) {
+	return s.contract.DEFAULTADMINROLE(&bind.CallOpts{Context: ctx})
+}
+
+// GovernanceRole 返回治理角色哈希。
+func (s *IntentService) GovernanceRole(ctx context.Context) ([32]byte, error) {
+	return s.contract.GOVERNANCEROLE(&bind.CallOpts{Context: ctx})
+}
+
+// GetRoleAdmin 返回指定角色的管理员角色。
+func (s *IntentService) GetRoleAdmin(ctx context.Context, role [32]byte) ([32]byte, error) {
+	return s.contract.GetRoleAdmin(&bind.CallOpts{Context: ctx}, role)
+}
+
+// HasRole 检查账户是否拥有指定角色。
+func (s *IntentService) HasRole(ctx context.Context, role [32]byte, account common.Address) (bool, error) {
+	return s.contract.HasRole(&bind.CallOpts{Context: ctx}, role, account)
+}
+
+// ======================== 只读方法：Intent 状态查询 ========================
+
+// IntentExists 检查 Intent 是否存在。
+func (s *IntentService) IntentExists(ctx context.Context, intentID [32]byte) (bool, error) {
+	return s.contract.IntentExists(&bind.CallOpts{Context: ctx}, intentID)
+}
+
+// IsIntentExpired 检查 Intent 是否已过期。
+func (s *IntentService) IsIntentExpired(ctx context.Context, intentID [32]byte) (bool, error) {
+	return s.contract.IsIntentExpired(&bind.CallOpts{Context: ctx}, intentID)
+}
+
+// ======================== 只读方法：全局配置查询 ========================
+
+// DefaultMaxDuration 返回默认最大 Intent 持续时间。
+func (s *IntentService) DefaultMaxDuration(ctx context.Context) (*big.Int, error) {
+	return s.contract.DEFAULTMAXDURATION(&bind.CallOpts{Context: ctx})
+}
+
+// DefaultMinBudget 返回默认最小 Intent 预算。
+func (s *IntentService) DefaultMinBudget(ctx context.Context) (*big.Int, error) {
+	return s.contract.DEFAULTMINBUDGET(&bind.CallOpts{Context: ctx})
+}
+
+// GetMaxIntentDuration 返回当前最大 Intent 持续时间配置。
+func (s *IntentService) GetMaxIntentDuration(ctx context.Context) (*big.Int, error) {
+	return s.contract.GetMaxIntentDuration(&bind.CallOpts{Context: ctx})
+}
+
+// GetMinIntentBudget 返回当前最小 Intent 预算配置。
+func (s *IntentService) GetMinIntentBudget(ctx context.Context) (*big.Int, error) {
+	return s.contract.GetMinIntentBudget(&bind.CallOpts{Context: ctx})
+}
+
+// GetTotalEscrowBalance 返回指定代币的托管总余额。
+func (s *IntentService) GetTotalEscrowBalance(ctx context.Context, token common.Address) (*big.Int, error) {
+	return s.contract.GetTotalEscrowBalance(&bind.CallOpts{Context: ctx}, token)
+}
+
+// Paused 返回 IntentManager 是否处于暂停状态。
+func (s *IntentService) Paused(ctx context.Context) (bool, error) {
+	return s.contract.Paused(&bind.CallOpts{Context: ctx})
+}
+
+// SupportsInterface 检查合约是否支持指定接口（ERC165）。
+func (s *IntentService) SupportsInterface(ctx context.Context, interfaceID [4]byte) (bool, error) {
+	return s.contract.SupportsInterface(&bind.CallOpts{Context: ctx}, interfaceID)
+}
+
+// ======================== 写入方法：紧急控制 ========================
+
+// EmergencyPause 紧急暂停 IntentManager（需要 GOVERNANCE_ROLE）。
+func (s *IntentService) EmergencyPause(ctx context.Context) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.EmergencyPause(opts)
+	})
+}
+
+// EmergencyUnpause 解除 IntentManager 紧急暂停（需要 GOVERNANCE_ROLE）。
+func (s *IntentService) EmergencyUnpause(ctx context.Context) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.EmergencyUnpause(opts)
+	})
+}
+
+// EmergencyRefundBatch 紧急批量退款（需要 GOVERNANCE_ROLE）。
+func (s *IntentService) EmergencyRefundBatch(ctx context.Context, intentIDs [][32]byte, reason string) (*types.Transaction, error) {
+	if len(intentIDs) == 0 {
+		return nil, errors.New("intent: empty intent IDs")
+	}
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.EmergencyRefundBatch(opts, intentIDs, reason)
+	})
+}
+
+// ======================== 写入方法：角色管理 ========================
+
+// GrantRole 授予账户指定角色（需要角色管理员权限）。
+func (s *IntentService) GrantRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.GrantRole(opts, role, account)
+	})
+}
+
+// RevokeRole 撤销账户的指定角色（需要角色管理员权限）。
+func (s *IntentService) RevokeRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.RevokeRole(opts, role, account)
+	})
+}
+
+// RenounceRole 放弃自己的指定角色。
+func (s *IntentService) RenounceRole(ctx context.Context, role [32]byte, callerConfirmation common.Address) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.RenounceRole(opts, role, callerConfirmation)
+	})
+}
+
+// ======================== 写入方法：全局配置管理 ========================
+
+// SetMaxIntentDuration 设置最大 Intent 持续时间（需要 GOVERNANCE_ROLE）。
+func (s *IntentService) SetMaxIntentDuration(ctx context.Context, maxDuration *big.Int) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.SetMaxIntentDuration(opts, maxDuration)
+	})
+}
+
+// SetMinIntentBudget 设置最小 Intent 预算（需要 GOVERNANCE_ROLE）。
+func (s *IntentService) SetMinIntentBudget(ctx context.Context, minBudget *big.Int) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.SetMinIntentBudget(opts, minBudget)
+	})
+}
+
+// Initialize 初始化 IntentManager 合约（仅在部署后调用一次）。
+func (s *IntentService) Initialize(ctx context.Context, admin common.Address, subnetFactory common.Address) (*types.Transaction, error) {
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.Initialize(opts, admin, subnetFactory)
+	})
+}

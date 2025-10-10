@@ -44,23 +44,33 @@ func main() {
 	if err != nil {
 		log.Fatalf("total: %v", err)
 	}
-	fmt.Printf("total created: %s\n", total.String())
-
-	ids, err := client.SubnetFactory.EnumerateSubnets(ctx)
+	activeCount, err := client.SubnetFactory.GetActiveSubnetCount(ctx)
 	if err != nil {
-		log.Fatalf("enumerate: %v", err)
+		log.Fatalf("active count: %v", err)
+	}
+	fmt.Printf("total created: %s, active: %s\n", total.String(), activeCount.String())
+
+	// 使用 GetSubnetsByStatus 获取 ACTIVE 状态的子网 (status=1)
+	const SubnetStatusActive = uint8(1)
+	ids, err := client.SubnetFactory.GetSubnetsByStatus(ctx, SubnetStatusActive)
+	if err != nil {
+		log.Fatalf("get active subnets: %v", err)
+	}
+
+	if len(ids) == 0 {
+		fmt.Println("\nNo active subnets found.")
+		return
 	}
 
 	var participants []subnetfactory.DataStructuresSubnetParticipants
-	if len(ids) > 0 {
-		participants, err = client.SubnetFactory.GetActiveParticipants(ctx, ids)
-		if err != nil {
-			log.Printf("warning: failed to fetch participants: %v", err)
-		}
+	participants, err = client.SubnetFactory.GetActiveParticipants(ctx, ids)
+	if err != nil {
+		log.Printf("warning: failed to fetch participants: %v", err)
 	}
 
+	fmt.Printf("\nFound %d active subnet(s):\n", len(ids))
+
 	for i, id := range ids {
-		active, _ := client.SubnetFactory.IsSubnetActive(ctx, id)
 		info, _ := client.SubnetFactory.GetSubnetInfo(ctx, id)
 
 		matcherCount := "0"
@@ -68,8 +78,8 @@ func main() {
 			matcherCount = fmt.Sprintf("%d", len(participants[i].Matchers))
 		}
 
-		fmt.Printf("\n%d) id=%#x active=%v validators=%s agents=%s matchers=%s status=%d\n",
-			i, id, active, bi(info.ValidatorCount), bi(info.AgentCount), matcherCount, info.Status)
+		fmt.Printf("\n%d) id=%#x validators=%s agents=%s matchers=%s status=%d\n",
+			i, id, bi(info.ValidatorCount), bi(info.AgentCount), matcherCount, info.Status)
 
 		// 展示详细参与者信息
 		if i < len(participants) {
