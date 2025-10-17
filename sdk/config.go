@@ -36,6 +36,7 @@ type TxOptions struct {
 	Use1559            *bool
 	GasLimit           *uint64
 	GasLimitMultiplier *float64
+	GasCeil            *uint64 // gas 估算上限，超过则拒绝发送（0=不限制）
 	MaxFeePerGas       *big.Int
 	MaxPriorityFeeCap  *big.Int
 	NonceSource        *string
@@ -178,6 +179,9 @@ func applyTxOptions(base *txmgr.Config, opts *TxOptions) {
 	}
 	if opts.GasLimitMultiplier != nil && *opts.GasLimitMultiplier > 0 {
 		base.GasLimitMultiplier = *opts.GasLimitMultiplier
+	}
+	if opts.GasCeil != nil {
+		base.GasCeil = *opts.GasCeil
 	}
 	if opts.MaxFeePerGas != nil {
 		base.MaxFeePerGas = new(big.Int).Set(opts.MaxFeePerGas)

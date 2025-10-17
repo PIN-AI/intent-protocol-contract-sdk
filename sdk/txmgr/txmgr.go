@@ -3,6 +3,7 @@ package txmgr
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"sync"
@@ -17,11 +18,25 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/signer"
 )
 
+// ErrGasCeilExceeded 在估算 gas 超过配置上限时返回。
+type ErrGasCeilExceeded struct {
+	Raw        uint64  // 原始估算值
+	Adjusted   uint64  // 应用乘数后的值
+	Multiplier float64 // 使用的乘数
+	Ceil       uint64  // 配置的上限
+}
+
+func (e *ErrGasCeilExceeded) Error() string {
+	return fmt.Sprintf("txmgr: estimated gas %d (raw: %d, multiplier: %.2fx) exceeds ceiling %d",
+		e.Adjusted, e.Raw, e.Multiplier, e.Ceil)
+}
+
 // Config 控制 TxManager 的行为。
 type Config struct {
 	Use1559            bool
 	GasLimit           uint64
 	GasLimitMultiplier float64
+	GasCeil            uint64 // gas 估算上限，超过则拒绝发送（0=不限制）
 	MaxFeePerGas       *big.Int
 	MaxPriorityFeeCap  *big.Int
 	NonceSource        string // "pending" (default) or "latest"
@@ -35,7 +50,7 @@ type Config struct {
 func DefaultConfig() Config {
 	return Config{
 		Use1559:            true,
-		GasLimitMultiplier: 1.1,
+		GasLimitMultiplier: 1.5,
 		NonceSource:        "pending",
 		ReplaceStuck:       false,
 		ReplaceAfter:       45 * time.Second,
@@ -89,6 +104,32 @@ func (m *Manager) Send(ctx context.Context, exec TxExecutor) (*types.Transaction
 	if err != nil {
 		return nil, err
 	}
+
+	// 如果未设置固定 GasLimit 且配置了乘数，先估算再应用乘数
+	if m.cfg.GasLimit == 0 && m.cfg.GasLimitMultiplier > 1.0 {
+		estimateOpts := *opts
+		estimateOpts.NoSend = true
+		estimateTx, estimateErr := exec(&estimateOpts)
+		if estimateErr == nil && estimateTx != nil && estimateTx.Gas() > 0 {
+			// 应用 GasLimitMultiplier 安全余量
+			estimatedGas := estimateTx.Gas()
+			gasWithBuffer := uint64(float64(estimatedGas) * m.cfg.GasLimitMultiplier)
+
+			// 检查是否超过 GasCeil 上限
+			if m.cfg.GasCeil > 0 && gasWithBuffer > m.cfg.GasCeil {
+				return nil, &ErrGasCeilExceeded{
+					Raw:        estimatedGas,
+					Adjusted:   gasWithBuffer,
+					Multiplier: m.cfg.GasLimitMultiplier,
+					Ceil:       m.cfg.GasCeil,
+				}
+			}
+
+			opts.GasLimit = gasWithBuffer
+		}
+		// 如果估算失败，继续使用原 opts（让 abigen 自己估算）
+	}
+
 	if m.cfg.NoSend {
 		opts.NoSend = true
 	}

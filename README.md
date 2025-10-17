@@ -12,26 +12,39 @@ PIN AI Intent Protocol Rootlayer 智能合约 Go SDK。
 
 ## 功能特性
 
-- 强类型合约绑定：`IntentManager`、`SubnetFactory`、`Subnet`、`StakingManager`、`CheckpointManager`
-- 高层 API：
-  - Intent：提交/批量签名提交、过期处理、状态查询
-  - Assignment：批量签名分配、digest 构造、matcher 签名辅助
-  - Validation：批量验证提交、validator 签名 digest
-  - SubnetFactory：活跃状态/合约地址查询、列表、预测地址、暂停/恢复/废弃（需权限）
-  - Subnet：注册验证者/代理/匹配器（ETH 或 ERC20 质押）、查询参与者/质押信息、活跃状态
-  - Staking：质押/解押/提现、质押信息查询（管理员函数不做“易用封装”，仅底层绑定）
-  - Checkpoint：查询、digest 构造、checkpoint 提交
-- 可配置 TxManager：EIP‑1559 费用、nonce 源、卡顿替换（gas bump）、dry‑run
-- 签名与哈希：EIP‑191（eth_sign）摘要签名、批量提交 digest 构造，预留 EIP‑712
-- 网络与地址：`base`/`base_sepolia`/`local` 预置，支持环境变量和代码级覆盖
+- **强类型合约绑定**：`IntentManager`、`SubnetFactory`、`Subnet`、`StakingManager`、`CheckpointManager`
+- **完整的 Service 层封装** (2025-01 重构完成，新增 138 个方法)：
+  - **IntentService** (22个新增方法)：提交/批量签名提交、过期处理、状态查询、角色管理、紧急控制
+  - **AssignmentService**：批量签名分配、digest 构造、matcher 签名辅助
+  - **ValidationService**：批量验证提交、validator 签名 digest
+  - **SubnetFactoryService** (30个新增方法)：子网创建、按状态/所有者查询、批量获取参与者、暂停/恢复/废弃
+  - **SubnetService** (27个新增方法)：注册验证者/代理/匹配器（ETH 或 ERC20 质押）、参与者管理、配置查询
+  - **StakingService** (21个新增方法)：质押/解押/提现、质押信息查询、惩罚、角色与配置管理
+  - **CheckpointService** (18个新增方法)：查询、验证、提交、最终化、回滚
+- **可配置 TxManager**：EIP‑1559 费用、nonce 源、卡顿替换（gas bump）、dry‑run
+- **签名与哈希**：EIP‑191（eth_sign）摘要签名、批量提交 digest 构造，预留 EIP‑712
+- **网络与地址**：`base`/`base_sepolia`/`local` 预置，支持环境变量和代码级覆盖
 
 ## 安装与环境
 
-- 要求 Go：`go 1.24+`（见 `go.mod`）
-- 获取 SDK：
+- **要求 Go**：`go 1.24+`（见 `go.mod`）
+- **获取 SDK**：
 
 ```bash
 go get github.com/PIN-AI/intent-protocol-contract-sdk@latest
+```
+
+- **构建与测试**：
+
+```bash
+# 构建所有包
+go build ./...
+
+# 运行所有测试
+go test ./...
+
+# 运行特定包测试
+go test -v ./sdk/crypto/
 ```
 
 ## 快速开始
@@ -153,11 +166,11 @@ _, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle
 
 ### 示例脚本
 
+- `examples/list_subnets`: **优化版** 列出活跃子网，使用 `GetSubnetsByStatus` 高效查询，显示详细参与者信息（地址、声誉、端点等），避免冗余 RPC 调用。
 - `examples/send_intent`: 纯环境变量驱动的 CLI，默认 dry-run，演示单条提交与带签名的批量提交（需 `PIN_RPC_URL`/`PIN_PRIVATE_KEY`，可选 `SUBNET_ID`、`SIGNED_INTENT_ID` 等）。
 - `examples/assign_intents`: Matcher 端批量分配脚本，支持自动签名单条分配或使用外部签名（需 `INTENT_ID`/`AGENT_ADDRESS` 等）。
 - `examples/validate_intents`: Validator 端验证脚本，可计算 digest 并签名单验证者或加载预签名的多验证者 bundle。
 - `examples/register_agent`: 基于 Subnet 合约的代理注册脚本，可按需设置 `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` 以及 `AGENT_VALUE_WEI`（默认 dry-run，可覆盖 0 值质押需求）。
-- `examples/list_subnets`: 列出当前网络下的子网 ID 与活跃状态，便于在其他脚本中复用。
 - `examples/complete_workflow`（规划中）：演示 Intent → Assignment → Validation → Checkpoint 的端到端流程。
 
 ## 连接 Subnet 与角色注册
@@ -260,8 +273,12 @@ log.Printf("validator (ERC20) registered, tx=%s", tx.Hash())
 ## 目录结构
 
 - `sdk/`：对外 API（Client、TxManager、Signer、AddressBook、高层 Service）
+  - 7 个完整 Service：Intent、Assignment、Validation、SubnetFactory、Subnet、Staking、Checkpoint
+  - 所有 Service 实现合约 ABI 完整方法覆盖（只读 + 写入）
 - `contracts/`：按合约模块分目录的 abigen 绑定（已内置）
+- `examples/`：可运行的示例脚本
 - `docs/`：中文文档与规范
+- `CLAUDE.md`：Claude Code 项目指南（架构、命令、约定）
 
 ## 生成合约绑定（开发者）
 
@@ -276,19 +293,44 @@ for name in IntentManager SubnetFactory Subnet StakingManager CheckpointManager;
 done
 ```
 
+## Service 层方法分类
+
+所有 Service 提供完整的方法覆盖，分为以下类别：
+
+### 只读方法
+- **角色与权限**：`DefaultAdminRole()`, `GovernanceRole()`, `HasRole()`, `GetRoleAdmin()`
+- **配置查询**：`GetMinStakeCreateSubnet()`, `GetStakingManager()`, `GetMaxIntentDuration()`
+- **状态查询**：`IsSubnetActive()`, `IntentExists()`, `Paused()`, `CanFinalizeCheckpoint()`
+- **统计查询**：`GetTotalSubnetCount()`, `GetActiveSubnetCount()`, `GetParticipantCount()`
+- **批量查询**：`GetSubnetsByStatus()`, `GetSubnetsByOwner()`, `GetAllSubnetInfo()`
+
+### 写入方法
+- **角色管理**：`GrantRole()`, `RevokeRole()`, `RenounceRole()`
+- **紧急控制**：`EmergencyPause()`, `EmergencyUnpause()`, `EmergencyRefundBatch()`
+- **配置管理**：`SetMinStakeCreateSubnet()`, `SetMaxIntentDuration()`, `SetStakingToken()`
+- **子网管理**：`CreateSubnet()`, `PauseSubnet()`, `ResumeSubnet()`, `DeprecateSubnet()`
+- **参与者管理**：`ApproveParticipant()`, `RejectParticipant()`, `SuspendParticipant()`
+- **质押与惩罚**：`Slash()`, `DepositStakeFor()`, `RequestUnstake()`, `Withdraw()`
+
+详见 `CLAUDE.md` 完整说明。
+
 ## 常见问题
 
-- 地址未生效？
+- **地址未生效？**
   - 检查是否设置了匹配网络的环境变量；或使用 `sdk.Config.Addresses` 进行代码级覆盖
-- 交易卡住？
+- **交易卡住？**
   - 开启替换策略（`ReplaceStuck=true`，设置 `ReplaceAfter` 与 `BumpPercent`）
-- EIP‑191 v 值？
+- **EIP‑191 v 值？**
   - SDK 本地签名器会将 `v∈{0,1}` 归一化为 `27/28`
+- **需要更多方法？**
+  - 所有合约 ABI 方法已完整实现，参考 `CLAUDE.md` 方法分类
 
 ## 兼容性与安全
 
-- 管理员/治理函数不做“易用封装”，仅暴露底层绑定接口；请严格遵守 `GUARDIAN_ROLE`/`GOVERNANCE_ROLE` 的访问控制
-- 与合约的签名/哈希严格对齐，digest 绑定 `address(this)` 与 `chainId`，具备跨链/跨合约防重放能力
+- **完整方法覆盖**：所有管理员/治理函数已实现，包括角色管理、紧急控制、配置管理等
+- **访问控制**：请严格遵守 `GUARDIAN_ROLE`/`GOVERNANCE_ROLE`/`ADMIN_ROLE` 等权限要求
+- **签名安全**：与合约的签名/哈希严格对齐，digest 绑定 `address(this)` 与 `chainId`，具备跨链/跨合约防重放能力
+- **测试覆盖**：所有 digest 计算经过 52 个单元测试验证
 
 ## 参考文档
 

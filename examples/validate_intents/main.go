@@ -13,6 +13,7 @@ import (
 	"time"
 
 	sdk "github.com/PIN-AI/intent-protocol-contract-sdk/sdk"
+	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -96,9 +97,11 @@ func runValidateIntents(cfg runConfig) error {
 		RPCURL:        cfg.rpcURL,
 		PrivateKeyHex: cfg.privateKey,
 		Network:       cfg.network,
-	}
-	if cfg.dryRun {
-		sdkCfg.Tx = &sdk.TxOptions{NoSend: boolPtr(true)}
+		Tx: &sdk.TxOptions{
+			GasLimitMultiplier: float64Ptr(1.2),          // 20% 安全余量
+			GasCeil:            uint64Ptr(2000000),       // 200万 gas 上限（批量操作）
+			NoSend:             boolPtr(cfg.dryRun),
+		},
 	}
 
 	client, err := sdk.NewClient(ctx, sdkCfg)
@@ -165,6 +168,16 @@ func runValidateIntents(cfg runConfig) error {
 
 	tx, err := client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle{bundle})
 	if err != nil {
+		// 检查是否是 gas 超限错误
+		var gasCeilErr *txmgr.ErrGasCeilExceeded
+		if errors.As(err, &gasCeilErr) {
+			log.Printf("Gas estimation exceeds ceiling:")
+			log.Printf("  Raw estimate: %d", gasCeilErr.Raw)
+			log.Printf("  Adjusted (%.2fx): %d", gasCeilErr.Multiplier, gasCeilErr.Adjusted)
+			log.Printf("  Ceiling: %d", gasCeilErr.Ceil)
+			log.Printf("Consider: reduce batch size or increase GasCeil")
+			return fmt.Errorf("gas too high: %w", err)
+		}
 		return fmt.Errorf("submit validation bundle: %w", err)
 	}
 
@@ -330,6 +343,14 @@ func envDuration(key string, fallback time.Duration) time.Duration {
 }
 
 func boolPtr(v bool) *bool {
+	return &v
+}
+
+func float64Ptr(v float64) *float64 {
+	return &v
+}
+
+func uint64Ptr(v uint64) *uint64 {
 	return &v
 }
 
