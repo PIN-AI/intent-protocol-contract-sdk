@@ -28,7 +28,7 @@ var (
 	}
 )
 
-// SignedIntentInput 表示构造 Intent digest 所需的数据。
+// SignedIntentInput represents the data required to construct an Intent digest.
 type SignedIntentInput struct {
 	IntentID     [32]byte
 	SubnetID     [32]byte
@@ -40,7 +40,7 @@ type SignedIntentInput struct {
 	Amount       *big.Int
 }
 
-// ComputeIntentDigest 计算 submitIntentsBySignatures 所需的 digest。
+// ComputeIntentDigest computes the digest required for submitIntentsBySignatures.
 func ComputeIntentDigest(input SignedIntentInput, contract common.Address, chainID *big.Int) ([32]byte, error) {
 	var zero [32]byte
 	if chainID == nil {

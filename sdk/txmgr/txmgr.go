@@ -18,12 +18,12 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/signer"
 )
 
-// ErrGasCeilExceeded 在估算 gas 超过配置上限时返回。
+// ErrGasCeilExceeded is returned when estimated gas exceeds the configured ceiling.
 type ErrGasCeilExceeded struct {
-	Raw        uint64  // 原始估算值
-	Adjusted   uint64  // 应用乘数后的值
-	Multiplier float64 // 使用的乘数
-	Ceil       uint64  // 配置的上限
+	Raw        uint64  // Raw estimated value
+	Adjusted   uint64  // Value after applying multiplier
+	Multiplier float64 // Multiplier used
+	Ceil       uint64  // Configured ceiling
 }
 
 func (e *ErrGasCeilExceeded) Error() string {
@@ -31,12 +31,12 @@ func (e *ErrGasCeilExceeded) Error() string {
 		e.Adjusted, e.Raw, e.Multiplier, e.Ceil)
 }
 
-// Config 控制 TxManager 的行为。
+// Config controls the behavior of TxManager.
 type Config struct {
 	Use1559            bool
 	GasLimit           uint64
 	GasLimitMultiplier float64
-	GasCeil            uint64 // gas 估算上限，超过则拒绝发送（0=不限制）
+	GasCeil            uint64 // Gas estimation ceiling; rejects if exceeded (0 = no limit)
 	MaxFeePerGas       *big.Int
 	MaxPriorityFeeCap  *big.Int
 	NonceSource        string // "pending" (default) or "latest"
@@ -46,7 +46,7 @@ type Config struct {
 	NoSend             bool
 }
 
-// DefaultConfig 返回默认配置。
+// DefaultConfig returns the default configuration.
 func DefaultConfig() Config {
 	return Config{
 		Use1559:            true,
@@ -59,7 +59,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// Manager 负责交易签名、gas 参数设置与可选的替换逻辑。
+// Manager handles transaction signing, gas parameter configuration, and optional replacement logic.
 type Manager struct {
 	client  *ethclient.Client
 	signer  signer.Signer
@@ -69,7 +69,7 @@ type Manager struct {
 	wg      sync.WaitGroup
 }
 
-// New 创建 Manager。调用方需要在不使用时调用 Close。
+// New creates a Manager. The caller must call Close when done.
 func New(client *ethclient.Client, chainID *big.Int, signer signer.Signer, cfg Config) *Manager {
 	m := &Manager{
 		client:  client,
@@ -81,7 +81,7 @@ func New(client *ethclient.Client, chainID *big.Int, signer signer.Signer, cfg C
 	return m
 }
 
-// Close 释放内部 goroutine。
+// Close releases internal goroutines.
 func (m *Manager) Close() {
 	select {
 	case <-m.stopCh:
@@ -92,10 +92,10 @@ func (m *Manager) Close() {
 	m.wg.Wait()
 }
 
-// TxExecutor 是高层调用传入的执行函数。
+// TxExecutor is the execution function passed by high-level callers.
 type TxExecutor func(opts *bind.TransactOpts) (*types.Transaction, error)
 
-// Send 构造 TransactOpts，执行并可选地触发交易替换。
+// Send constructs TransactOpts, executes, and optionally triggers transaction replacement.
 func (m *Manager) Send(ctx context.Context, exec TxExecutor) (*types.Transaction, error) {
 	if exec == nil {
 		return nil, errors.New("txmgr: nil executor")
@@ -105,17 +105,17 @@ func (m *Manager) Send(ctx context.Context, exec TxExecutor) (*types.Transaction
 		return nil, err
 	}
 
-	// 如果未设置固定 GasLimit 且配置了乘数，先估算再应用乘数
+	// If no fixed GasLimit is set and a multiplier is configured, estimate first then apply multiplier
 	if m.cfg.GasLimit == 0 && m.cfg.GasLimitMultiplier > 1.0 {
 		estimateOpts := *opts
 		estimateOpts.NoSend = true
 		estimateTx, estimateErr := exec(&estimateOpts)
 		if estimateErr == nil && estimateTx != nil && estimateTx.Gas() > 0 {
-			// 应用 GasLimitMultiplier 安全余量
+			// Apply GasLimitMultiplier safety margin
 			estimatedGas := estimateTx.Gas()
 			gasWithBuffer := uint64(float64(estimatedGas) * m.cfg.GasLimitMultiplier)
 
-			// 检查是否超过 GasCeil 上限
+			// Check if GasCeil ceiling is exceeded
 			if m.cfg.GasCeil > 0 && gasWithBuffer > m.cfg.GasCeil {
 				return nil, &ErrGasCeilExceeded{
 					Raw:        estimatedGas,
@@ -127,7 +127,7 @@ func (m *Manager) Send(ctx context.Context, exec TxExecutor) (*types.Transaction
 
 			opts.GasLimit = gasWithBuffer
 		}
-		// 如果估算失败，继续使用原 opts（让 abigen 自己估算）
+		// If estimation fails, continue with original opts (let abigen estimate)
 	}
 
 	if m.cfg.NoSend {

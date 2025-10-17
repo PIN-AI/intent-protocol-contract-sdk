@@ -2,7 +2,7 @@ package crypto
 
 import "github.com/ethereum/go-ethereum/accounts/abi"
 
-// 共享的 ABI type 定义，供 intent/assignment/validation/checkpoint digest 构造使用
+// Shared ABI type definitions, used for intent/assignment/validation/checkpoint digest construction
 var (
 	typeBytes32, _ = abi.NewType("bytes32", "", nil)
 	typeAddress, _ = abi.NewType("address", "", nil)

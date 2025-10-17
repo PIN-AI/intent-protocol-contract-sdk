@@ -99,8 +99,8 @@ func (s *ValidationService) SignDigest(digest [32]byte) ([]byte, error) {
 	return s.signer.SignDigest(digest)
 }
 
-// SignValidation 封装 ComputeDigest + SignDigest，一步完成 Validation 签名。
-// 简化 Validator 签名流程，适用于 ValidateIntentsBySignatures 场景。
+// SignValidation wraps ComputeDigest + SignDigest to complete Validation signing in one step.
+// Simplifies the Validator signing flow for ValidateIntentsBySignatures scenarios.
 func (s *ValidationService) SignValidation(bundle ValidationBundle) ([]byte, error) {
 	digest, err := s.ComputeDigest(bundle)
 	if err != nil {

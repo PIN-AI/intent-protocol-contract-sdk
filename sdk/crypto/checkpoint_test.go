@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// 辅助函数：生成测试用的CommitmentRoots
+// Helper function: generates test CommitmentRoots
 func generateTestRoots() CommitmentRoots {
 	return CommitmentRoots{
 		AgentRoot:        [32]byte{0x01},
@@ -24,7 +24,7 @@ func generateTestRoots() CommitmentRoots {
 	}
 }
 
-// 辅助函数：生成测试用的DACommitment
+// Helper function: generates test DACommitments
 func generateTestDACommitments() []DACommitment {
 	return []DACommitment{
 		{
@@ -48,10 +48,10 @@ func TestEncodeCommitmentRoots(t *testing.T) {
 	roots := generateTestRoots()
 	encoded := EncodeCommitmentRoots(roots)
 
-	// 验证长度：8个根 * 32字节 = 256字节
-	assert.Equal(t, 256, len(encoded), "编码后应为256字节")
+	// Verify length: 8 roots * 32 bytes = 256 bytes
+	assert.Equal(t, 256, len(encoded), "Should be 256 bytes after encoding")
 
-	// 验证每个根的位置
+	// Verify each root's position
 	assert.Equal(t, roots.AgentRoot[:], encoded[0:32], "AgentRoot位置错误")
 	assert.Equal(t, roots.AgentServiceRoot[:], encoded[32:64], "AgentServiceRoot位置错误")
 	assert.Equal(t, roots.RankRoot[:], encoded[64:96], "RankRoot位置错误")
@@ -67,7 +67,7 @@ func TestEncodeCommitmentRoots_EmptyRoots(t *testing.T) {
 	encoded := EncodeCommitmentRoots(roots)
 
 	assert.Equal(t, 256, len(encoded))
-	// 所有字节应为0
+	// All bytes should be 0
 	for i, b := range encoded {
 		assert.Equal(t, byte(0), b, "索引%d应为0", i)
 	}
@@ -111,15 +111,15 @@ func TestEncodeDACommitments_NilBigInt(t *testing.T) {
 		{
 			Kind:          "ipfs",
 			Pointer:       "QmTest",
-			SizeHint:      nil, // nil应被normalizeBigInt处理为0
+			SizeHint:      nil, // nil should be handled by normalizeBigInt as 0
 			SegmentHashes: [][32]byte{{0x01}},
-			Expiry:        nil, // nil应被normalizeBigInt处理为0
+			Expiry:        nil, // nil should be handled by normalizeBigInt as 0
 		},
 	}
 
 	encoded, err := EncodeDACommitments(commitments)
 
-	require.NoError(t, err, "nil big.Int应被正确处理")
+	require.NoError(t, err, "nil big.Int should be handled correctly")
 	assert.NotEmpty(t, encoded)
 }
 
@@ -131,10 +131,10 @@ func TestEncodeEpochSlot(t *testing.T) {
 
 	encoded := EncodeEpochSlot(slot)
 
-	// 验证长度：2个uint64 * 32字节（左填充）= 64字节
-	assert.Equal(t, 64, len(encoded), "编码后应为64字节")
+	// Verify length: 2 uint64 * 32 bytes (left-padded) = 64 bytes
+	assert.Equal(t, 64, len(encoded), "Should be 64 bytes after encoding")
 
-	// 验证每个字段占32字节
+	// Verify each field occupies 32 bytes
 	epochBytes := encoded[0:32]
 	slotBytes := encoded[32:64]
 
@@ -147,9 +147,9 @@ func TestEncodeEpochSlot_Zero(t *testing.T) {
 	encoded := EncodeEpochSlot(slot)
 
 	assert.Equal(t, 64, len(encoded))
-	// 所有字节应为0
+	// All bytes should be 0
 	for i, b := range encoded {
-		assert.Equal(t, byte(0), b, "索引%d应为0", i)
+		assert.Equal(t, byte(0), b, "Index %d should be 0", i)
 	}
 }
 

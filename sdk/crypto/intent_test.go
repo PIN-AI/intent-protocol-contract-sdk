@@ -17,7 +17,7 @@ func TestComputeIntentDigest_Valid(t *testing.T) {
 		IntentType:   "test-intent",
 		ParamsHash:   [32]byte{0x03},
 		Deadline:     big.NewInt(1234567890),
-		PaymentToken: common.Address{}, // Zero address (ETH)
+		PaymentToken: common.Address{},                // Zero address (ETH)
 		Amount:       big.NewInt(1000000000000000000), // 1 ETH
 	}
 	contract := common.HexToAddress("0xc3333333333333333333333333333333333333")

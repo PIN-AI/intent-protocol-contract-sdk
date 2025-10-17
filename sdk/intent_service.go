@@ -15,7 +15,7 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 )
 
-// SubmitIntentParams 描述 submitIntent 所需参数。
+// SubmitIntentParams describes the parameters required for submitIntent.
 type SubmitIntentParams struct {
 	IntentID     [32]byte
 	SubnetID     [32]byte
@@ -24,25 +24,25 @@ type SubmitIntentParams struct {
 	Deadline     *big.Int
 	PaymentToken common.Address
 	Amount       *big.Int
-	Value        *big.Int // 可选，ETH 支付时缺省为 Amount
+	Value        *big.Int // Optional, defaults to Amount for ETH payments
 }
 
-// SignedIntent 描述批量提交时的单条 intent 信息与签名。
+// SignedIntent describes a single intent's information and signature for batch submission.
 type SignedIntent struct {
 	Data      cryptoHelpers.SignedIntentInput
 	Signature []byte
 }
 
-// SubmitIntentBatchParams 批量提交参数。
+// SubmitIntentBatchParams describes batch submission parameters.
 type SubmitIntentBatchParams struct {
 	Items         []SignedIntent
-	TotalEthValue *big.Int // 可选，未提供时自动统计 PaymentToken==0 的金额
+	TotalEthValue *big.Int // Optional, auto-calculates sum of PaymentToken==0 amounts if not provided
 }
 
-// IntentInfo 与合约返回结构一致。
+// IntentInfo is consistent with the contract return structure.
 type IntentInfo = intentmanager.DataStructuresIntentInfo
 
-// IntentService 提供 IntentManager 的高层封装。
+// IntentService provides high-level IntentManager operations.
 type IntentService struct {
 	backend      bind.ContractBackend
 	txManager    *txmgr.Manager
@@ -52,7 +52,7 @@ type IntentService struct {
 	contractAddr common.Address
 }
 
-// NewIntentService 构造 IntentService。
+// NewIntentService constructs an IntentService instance.
 func NewIntentService(backend bind.ContractBackend, txm *txmgr.Manager, contract *intentmanager.IntentManager, sig signer.Signer, chainID *big.Int, contractAddr common.Address) *IntentService {
 	return &IntentService{
 		backend:      backend,
@@ -64,7 +64,7 @@ func NewIntentService(backend bind.ContractBackend, txm *txmgr.Manager, contract
 	}
 }
 
-// SubmitIntent 调用合约 submitIntent。
+// SubmitIntent calls the contract's submitIntent method.
 func (s *IntentService) SubmitIntent(ctx context.Context, params SubmitIntentParams) (*types.Transaction, error) {
 	if params.Deadline == nil {
 		return nil, errors.New("intent: deadline is required")
@@ -83,7 +83,7 @@ func (s *IntentService) SubmitIntent(ctx context.Context, params SubmitIntentPar
 	})
 }
 
-// SubmitIntentsBySignatures 批量提交 Intent。
+// SubmitIntentsBySignatures submits intents in batch.
 func (s *IntentService) SubmitIntentsBySignatures(ctx context.Context, params SubmitIntentBatchParams) (*types.Transaction, error) {
 	if len(params.Items) == 0 {
 		return nil, errors.New("intent: empty batch")
@@ -123,7 +123,7 @@ func (s *IntentService) SubmitIntentsBySignatures(ctx context.Context, params Su
 	})
 }
 
-// FailIntent 调用 failIntent。
+// FailIntent calls the failIntent method.
 func (s *IntentService) FailIntent(ctx context.Context, intentID [32]byte, reason string, validators []common.Address, signatures [][]byte) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -131,7 +131,7 @@ func (s *IntentService) FailIntent(ctx context.Context, intentID [32]byte, reaso
 	})
 }
 
-// ProcessExpiredIntent 调用 processExpiredIntent。
+// ProcessExpiredIntent calls the processExpiredIntent method.
 func (s *IntentService) ProcessExpiredIntent(ctx context.Context, intentID [32]byte) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -139,7 +139,7 @@ func (s *IntentService) ProcessExpiredIntent(ctx context.Context, intentID [32]b
 	})
 }
 
-// BatchProcessExpiredIntents 调用 batchProcessExpiredIntents。
+// BatchProcessExpiredIntents calls the batchProcessExpiredIntents method.
 func (s *IntentService) BatchProcessExpiredIntents(ctx context.Context, ids [][32]byte) (*types.Transaction, error) {
 	if len(ids) == 0 {
 		return nil, errors.New("intent: empty ids")
@@ -150,14 +150,14 @@ func (s *IntentService) BatchProcessExpiredIntents(ctx context.Context, ids [][3
 	})
 }
 
-// GetIntentInfo 读取意图信息。
+// GetIntentInfo reads intent information.
 func (s *IntentService) GetIntentInfo(ctx context.Context, intentID [32]byte) (IntentInfo, error) {
 	return s.contract.GetIntentInfo(&bind.CallOpts{Context: ctx}, intentID)
 }
 
-// BatchGetIntentInfo 批量读取意图信息。
-// 一次性获取多个 Intent 的详细信息，避免多次 RPC 调用。
-// 返回数组顺序与输入 ids 顺序一致，不存在的 Intent 返回零值结构体。
+// BatchGetIntentInfo reads intent information in batch.
+// Fetches multiple Intent details in one call, avoiding multiple RPC calls.
+// Return array order matches input ids order; non-existent Intents return zero-value structs.
 func (s *IntentService) BatchGetIntentInfo(ctx context.Context, ids [][32]byte) ([]IntentInfo, error) {
 	if len(ids) == 0 {
 		return []IntentInfo{}, nil
@@ -165,17 +165,17 @@ func (s *IntentService) BatchGetIntentInfo(ctx context.Context, ids [][32]byte) 
 	return s.contract.BatchGetIntentInfo(&bind.CallOpts{Context: ctx}, ids)
 }
 
-// GetIntentsByStatus 根据状态读取 Intent ID 列表。
+// GetIntentsByStatus reads the Intent ID list by status.
 func (s *IntentService) GetIntentsByStatus(ctx context.Context, status IntentStatus) ([][32]byte, error) {
 	return s.contract.GetIntentsByStatus(&bind.CallOpts{Context: ctx}, uint8(status))
 }
 
-// GetSubnetIntents 查询某个子网的所有 Intent ID。
+// GetSubnetIntents queries all Intent IDs for a specific subnet.
 func (s *IntentService) GetSubnetIntents(ctx context.Context, subnetID [32]byte) ([][32]byte, error) {
 	return s.contract.GetSubnetIntents(&bind.CallOpts{Context: ctx}, subnetID)
 }
 
-// GetPendingIntentCount 查询待处理数量。subnetID 为 nil 时查询所有。
+// GetPendingIntentCount queries the pending intent count. Queries all if subnetID is nil.
 func (s *IntentService) GetPendingIntentCount(ctx context.Context, subnetID *[32]byte) (*big.Int, error) {
 	var id [32]byte
 	if subnetID != nil {
@@ -184,28 +184,28 @@ func (s *IntentService) GetPendingIntentCount(ctx context.Context, subnetID *[32
 	return s.contract.GetPendingIntentCount(&bind.CallOpts{Context: ctx}, id)
 }
 
-// GetTotalIntentCount 查询总 Intent 数。
+// GetTotalIntentCount queries the total intent count.
 func (s *IntentService) GetTotalIntentCount(ctx context.Context) (*big.Int, error) {
 	return s.contract.GetTotalIntentCount(&bind.CallOpts{Context: ctx})
 }
 
-// GetRequiredValidatorCount 查询子网阈值。
+// GetRequiredValidatorCount queries the subnet validator threshold.
 func (s *IntentService) GetRequiredValidatorCount(ctx context.Context, subnetID [32]byte) (*big.Int, error) {
 	return s.contract.GetRequiredValidatorCount(&bind.CallOpts{Context: ctx}, subnetID)
 }
 
-// ComputeDigest 计算单条 intent 的 digest，便于批量签名。
+// ComputeDigest computes the digest for a single intent, facilitating batch signing.
 func (s *IntentService) ComputeDigest(input cryptoHelpers.SignedIntentInput) ([32]byte, error) {
 	return cryptoHelpers.ComputeIntentDigest(input, s.contractAddr, s.chainID)
 }
 
-// SignDigest 使用 SDK signer 对 digest 执行 EIP-191 签名。
+// SignDigest performs EIP-191 signing on the digest using the SDK signer.
 func (s *IntentService) SignDigest(digest [32]byte) ([]byte, error) {
 	return s.signer.SignDigest(digest)
 }
 
-// SignIntent 封装 ComputeDigest + SignDigest，一步完成 Intent 签名。
-// 简化批量签名流程，适用于 SubmitIntentsBySignatures 场景。
+// SignIntent wraps ComputeDigest + SignDigest to complete Intent signing in one step.
+// Simplifies batch signing workflow, suitable for SubmitIntentsBySignatures scenarios.
 func (s *IntentService) SignIntent(input cryptoHelpers.SignedIntentInput) ([]byte, error) {
 	digest, err := s.ComputeDigest(input)
 	if err != nil {
@@ -214,80 +214,80 @@ func (s *IntentService) SignIntent(input cryptoHelpers.SignedIntentInput) ([]byt
 	return s.SignDigest(digest)
 }
 
-// ======================== 只读方法：角色与权限 ========================
+// ======================== Read-only methods: Roles & Permissions ========================
 
-// DefaultAdminRole 返回默认管理员角色哈希。
+// DefaultAdminRole returns the default admin role hash.
 func (s *IntentService) DefaultAdminRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.DEFAULTADMINROLE(&bind.CallOpts{Context: ctx})
 }
 
-// GovernanceRole 返回治理角色哈希。
+// GovernanceRole returns the governance role hash.
 func (s *IntentService) GovernanceRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.GOVERNANCEROLE(&bind.CallOpts{Context: ctx})
 }
 
-// GetRoleAdmin 返回指定角色的管理员角色。
+// GetRoleAdmin returns the admin role for the specified role.
 func (s *IntentService) GetRoleAdmin(ctx context.Context, role [32]byte) ([32]byte, error) {
 	return s.contract.GetRoleAdmin(&bind.CallOpts{Context: ctx}, role)
 }
 
-// HasRole 检查账户是否拥有指定角色。
+// HasRole checks if an account has the specified role.
 func (s *IntentService) HasRole(ctx context.Context, role [32]byte, account common.Address) (bool, error) {
 	return s.contract.HasRole(&bind.CallOpts{Context: ctx}, role, account)
 }
 
-// ======================== 只读方法：Intent 状态查询 ========================
+// ======================== Read-only methods: Intent state queries ========================
 
-// IntentExists 检查 Intent 是否存在。
+// IntentExists checks if an Intent exists.
 func (s *IntentService) IntentExists(ctx context.Context, intentID [32]byte) (bool, error) {
 	return s.contract.IntentExists(&bind.CallOpts{Context: ctx}, intentID)
 }
 
-// IsIntentExpired 检查 Intent 是否已过期。
+// IsIntentExpired checks if an Intent has expired.
 func (s *IntentService) IsIntentExpired(ctx context.Context, intentID [32]byte) (bool, error) {
 	return s.contract.IsIntentExpired(&bind.CallOpts{Context: ctx}, intentID)
 }
 
-// ======================== 只读方法：全局配置查询 ========================
+// ======================== Read-only methods: Global configuration queries ========================
 
-// DefaultMaxDuration 返回默认最大 Intent 持续时间。
+// DefaultMaxDuration returns the default maximum Intent duration.
 func (s *IntentService) DefaultMaxDuration(ctx context.Context) (*big.Int, error) {
 	return s.contract.DEFAULTMAXDURATION(&bind.CallOpts{Context: ctx})
 }
 
-// DefaultMinBudget 返回默认最小 Intent 预算。
+// DefaultMinBudget returns the default minimum Intent budget.
 func (s *IntentService) DefaultMinBudget(ctx context.Context) (*big.Int, error) {
 	return s.contract.DEFAULTMINBUDGET(&bind.CallOpts{Context: ctx})
 }
 
-// GetMaxIntentDuration 返回当前最大 Intent 持续时间配置。
+// GetMaxIntentDuration returns the current maximum Intent duration configuration.
 func (s *IntentService) GetMaxIntentDuration(ctx context.Context) (*big.Int, error) {
 	return s.contract.GetMaxIntentDuration(&bind.CallOpts{Context: ctx})
 }
 
-// GetMinIntentBudget 返回当前最小 Intent 预算配置。
+// GetMinIntentBudget returns the current minimum Intent budget configuration.
 func (s *IntentService) GetMinIntentBudget(ctx context.Context) (*big.Int, error) {
 	return s.contract.GetMinIntentBudget(&bind.CallOpts{Context: ctx})
 }
 
-// GetTotalEscrowBalance 返回指定代币的托管总余额。
+// GetTotalEscrowBalance returns the total escrow balance for the specified token.
 func (s *IntentService) GetTotalEscrowBalance(ctx context.Context, token common.Address) (*big.Int, error) {
 	return s.contract.GetTotalEscrowBalance(&bind.CallOpts{Context: ctx}, token)
 }
 
-// Paused 返回 IntentManager 是否处于暂停状态。
+// Paused returns whether the IntentManager is in a paused state.
 func (s *IntentService) Paused(ctx context.Context) (bool, error) {
 	return s.contract.Paused(&bind.CallOpts{Context: ctx})
 }
 
-// SupportsInterface 检查合约是否支持指定接口（ERC165）。
+// SupportsInterface checks if the contract supports the specified interface (ERC165).
 func (s *IntentService) SupportsInterface(ctx context.Context, interfaceID [4]byte) (bool, error) {
 	return s.contract.SupportsInterface(&bind.CallOpts{Context: ctx}, interfaceID)
 }
 
-// ======================== 写入方法：紧急控制 ========================
+// ======================== Write methods: Emergency control ========================
 
-// EmergencyPause 紧急暂停 IntentManager（需要 GOVERNANCE_ROLE）。
+// EmergencyPause emergency pauses the IntentManager (requires GOVERNANCE_ROLE).
 func (s *IntentService) EmergencyPause(ctx context.Context) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -295,7 +295,7 @@ func (s *IntentService) EmergencyPause(ctx context.Context) (*types.Transaction,
 	})
 }
 
-// EmergencyUnpause 解除 IntentManager 紧急暂停（需要 GOVERNANCE_ROLE）。
+// EmergencyUnpause lifts the IntentManager emergency pause (requires GOVERNANCE_ROLE).
 func (s *IntentService) EmergencyUnpause(ctx context.Context) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -303,7 +303,7 @@ func (s *IntentService) EmergencyUnpause(ctx context.Context) (*types.Transactio
 	})
 }
 
-// EmergencyRefundBatch 紧急批量退款（需要 GOVERNANCE_ROLE）。
+// EmergencyRefundBatch performs emergency batch refund (requires GOVERNANCE_ROLE).
 func (s *IntentService) EmergencyRefundBatch(ctx context.Context, intentIDs [][32]byte, reason string) (*types.Transaction, error) {
 	if len(intentIDs) == 0 {
 		return nil, errors.New("intent: empty intent IDs")
@@ -314,9 +314,9 @@ func (s *IntentService) EmergencyRefundBatch(ctx context.Context, intentIDs [][3
 	})
 }
 
-// ======================== 写入方法：角色管理 ========================
+// ======================== Write methods: Role management ========================
 
-// GrantRole 授予账户指定角色（需要角色管理员权限）。
+// GrantRole grants the specified role to an account (requires role admin permission).
 func (s *IntentService) GrantRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -324,7 +324,7 @@ func (s *IntentService) GrantRole(ctx context.Context, role [32]byte, account co
 	})
 }
 
-// RevokeRole 撤销账户的指定角色（需要角色管理员权限）。
+// RevokeRole revokes the specified role from an account (requires role admin permission).
 func (s *IntentService) RevokeRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -332,7 +332,7 @@ func (s *IntentService) RevokeRole(ctx context.Context, role [32]byte, account c
 	})
 }
 
-// RenounceRole 放弃自己的指定角色。
+// RenounceRole renounces the caller's specified role.
 func (s *IntentService) RenounceRole(ctx context.Context, role [32]byte, callerConfirmation common.Address) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -340,9 +340,9 @@ func (s *IntentService) RenounceRole(ctx context.Context, role [32]byte, callerC
 	})
 }
 
-// ======================== 写入方法：全局配置管理 ========================
+// ======================== Write methods: Global configuration management ========================
 
-// SetMaxIntentDuration 设置最大 Intent 持续时间（需要 GOVERNANCE_ROLE）。
+// SetMaxIntentDuration sets the maximum Intent duration (requires GOVERNANCE_ROLE).
 func (s *IntentService) SetMaxIntentDuration(ctx context.Context, maxDuration *big.Int) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -350,7 +350,7 @@ func (s *IntentService) SetMaxIntentDuration(ctx context.Context, maxDuration *b
 	})
 }
 
-// SetMinIntentBudget 设置最小 Intent 预算（需要 GOVERNANCE_ROLE）。
+// SetMinIntentBudget sets the minimum Intent budget (requires GOVERNANCE_ROLE).
 func (s *IntentService) SetMinIntentBudget(ctx context.Context, minBudget *big.Int) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
@@ -358,7 +358,7 @@ func (s *IntentService) SetMinIntentBudget(ctx context.Context, minBudget *big.I
 	})
 }
 
-// Initialize 初始化 IntentManager 合约（仅在部署后调用一次）。
+// Initialize initializes the IntentManager contract (call only once after deployment).
 func (s *IntentService) Initialize(ctx context.Context, admin common.Address, subnetFactory common.Address) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx

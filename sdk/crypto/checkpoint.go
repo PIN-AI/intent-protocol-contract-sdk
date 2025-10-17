@@ -22,7 +22,7 @@ var (
 	daCommitmentsArgs = abi.Arguments{{Type: daCommitmentTupleType}}
 )
 
-// CommitmentRoots 表示多种承诺的 Merkle 根。
+// CommitmentRoots represents Merkle roots for various commitments.
 type CommitmentRoots struct {
 	AgentRoot        [32]byte
 	AgentServiceRoot [32]byte
@@ -34,7 +34,7 @@ type CommitmentRoots struct {
 	CrossSubnetRoot  [32]byte
 }
 
-// DACommitment 描述数据可用性的承诺。
+// DACommitment describes a data availability commitment.
 type DACommitment struct {
 	Kind          string
 	Pointer       string
@@ -43,13 +43,13 @@ type DACommitment struct {
 	Expiry        *big.Int
 }
 
-// EpochSlot 表示检查点对应的纪元/槽位。
+// EpochSlot represents the epoch/slot corresponding to a checkpoint.
 type EpochSlot struct {
 	Epoch uint64
 	Slot  uint64
 }
 
-// CheckpointInput 聚合计算摘要所需的全部字段。
+// CheckpointInput aggregates all fields required for digest computation.
 type CheckpointInput struct {
 	SubnetID             [32]byte
 	Epoch                uint64
@@ -67,7 +67,7 @@ type CheckpointInput struct {
 	PolicyRoot           [32]byte
 }
 
-// EncodeCommitmentRoots 将 CommitmentRoots 编码为字节数组。
+// EncodeCommitmentRoots encodes CommitmentRoots into a byte array.
 func EncodeCommitmentRoots(roots CommitmentRoots) []byte {
 	encoded := make([]byte, 0, 32*8)
 	encoded = append(encoded, roots.AgentRoot[:]...)
@@ -81,7 +81,7 @@ func EncodeCommitmentRoots(roots CommitmentRoots) []byte {
 	return encoded
 }
 
-// EncodeDACommitments 将 DACommitment 数组编码为 ABI 字节。
+// EncodeDACommitments encodes a DACommitment array into ABI bytes.
 func EncodeDACommitments(commitments []DACommitment) ([]byte, error) {
 	if len(commitments) == 0 {
 		return daCommitmentsArgs.Pack([]struct {
@@ -120,7 +120,7 @@ func EncodeDACommitments(commitments []DACommitment) ([]byte, error) {
 	return daCommitmentsArgs.Pack(converted)
 }
 
-// EncodeEpochSlot 将 EpochSlot 编码为字节数组。
+// EncodeEpochSlot encodes EpochSlot into a byte array.
 func EncodeEpochSlot(slot EpochSlot) []byte {
 	encoded := make([]byte, 0, 64)
 	encoded = append(encoded, common.LeftPadBytes(new(big.Int).SetUint64(slot.Epoch).Bytes(), 32)...)
@@ -128,7 +128,7 @@ func EncodeEpochSlot(slot EpochSlot) []byte {
 	return encoded
 }
 
-// ComputeCheckpointDigest 计算提交检查点时需要签名的 digest。
+// ComputeCheckpointDigest computes the digest required for signing checkpoint submissions.
 func ComputeCheckpointDigest(input CheckpointInput, contract common.Address, chainID *big.Int) ([32]byte, error) {
 	var zero [32]byte
 	if chainID == nil {

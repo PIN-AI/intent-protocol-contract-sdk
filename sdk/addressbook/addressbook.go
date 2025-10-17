@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// Network 表示支持的链网络标识。
+// Network represents supported chain network identifiers.
 type Network string
 
 const (
@@ -19,10 +19,10 @@ const (
 	NetworkLocal       Network = "local"
 )
 
-// ErrUnsupportedNetwork 在不支持的网络名称或 chainId 时返回。
+// ErrUnsupportedNetwork is returned for unsupported network names or chainId.
 var ErrUnsupportedNetwork = errors.New("addressbook: unsupported network")
 
-// Addresses 保存一组核心合约地址。
+// Addresses holds a set of core contract addresses.
 type Addresses struct {
 	IntentManager     common.Address
 	SubnetFactory     common.Address
@@ -30,7 +30,7 @@ type Addresses struct {
 	CheckpointManager common.Address
 }
 
-// Merge 返回一个新的地址集合：优先使用 override 中的非零地址。
+// Merge returns a new address set: prioritizes non-zero addresses from override.
 func Merge(base, override Addresses) Addresses {
 	result := base
 	if override.IntentManager != (common.Address{}) {
@@ -48,7 +48,7 @@ func Merge(base, override Addresses) Addresses {
 	return result
 }
 
-// Validate 检查所有地址是否已设置（非零地址）。
+// Validate checks if all addresses are set (non-zero addresses).
 func (a Addresses) Validate() error {
 	if a.IntentManager == (common.Address{}) {
 		return errors.New("addressbook: intent manager address is zero")
@@ -65,8 +65,8 @@ func (a Addresses) Validate() error {
 	return nil
 }
 
-// Resolve 根据网络名称与可选的覆盖配置返回最终的合约地址。
-// 解析顺序：默认地址 -> 环境变量 -> 传入覆盖。
+// Resolve returns final contract addresses based on network name and optional override configuration.
+// Resolution order: default addresses -> environment variables -> passed overrides.
 func Resolve(network Network, overrides *Addresses) (Addresses, error) {
 	defaults, ok := defaultAddresses[network]
 	if !ok {
@@ -80,7 +80,7 @@ func Resolve(network Network, overrides *Addresses) (Addresses, error) {
 	return resolved, resolved.Validate()
 }
 
-// NormalizeNetwork 将大小写混合的字符串转换为标准网络名称。
+// NormalizeNetwork converts mixed-case strings to standardized network names.
 func NormalizeNetwork(name string) (Network, error) {
 	switch Network(strings.ToLower(strings.TrimSpace(name))) {
 	case NetworkBase:
@@ -94,7 +94,7 @@ func NormalizeNetwork(name string) (Network, error) {
 	}
 }
 
-// FromChainID 根据链 ID 映射网络名称。
+// FromChainID maps network names based on chain ID.
 func FromChainID(chainID *big.Int) (Network, error) {
 	if chainID == nil {
 		return "", errors.New("addressbook: nil chain id")

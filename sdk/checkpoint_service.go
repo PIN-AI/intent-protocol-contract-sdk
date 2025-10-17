@@ -15,10 +15,10 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 )
 
-// CheckpointState alias 合约返回结构。
+// CheckpointState is an alias for the contract return structure.
 type CheckpointState = checkpointmanager.DataStructuresCheckpointState
 
-// CheckpointService 提供 CheckpointManager 常用操作（读写）。
+// CheckpointService provides common CheckpointManager operations (read and write).
 type CheckpointService struct {
 	contract     *checkpointmanager.CheckpointManager
 	backend      bind.ContractBackend
@@ -28,7 +28,7 @@ type CheckpointService struct {
 	contractAddr common.Address
 }
 
-// NewCheckpointService 创建服务。
+// NewCheckpointService creates a new service instance.
 func NewCheckpointService(
 	contract *checkpointmanager.CheckpointManager,
 	backend bind.ContractBackend,
@@ -47,22 +47,22 @@ func NewCheckpointService(
 	}
 }
 
-// AttachTxManager 允许在运行时更新 TxManager。
+// AttachTxManager allows updating the TxManager at runtime.
 func (s *CheckpointService) AttachTxManager(txm *txmgr.Manager) {
 	s.txMgr = txm
 }
 
-// GetCheckpoint 查询指定子网/epoch 的检查点状态。
+// GetCheckpoint queries the checkpoint state for a specified subnet/epoch.
 func (s *CheckpointService) GetCheckpoint(ctx context.Context, subnetID [32]byte, epoch uint64) (CheckpointState, error) {
 	return s.contract.GetCheckpoint(&bind.CallOpts{Context: ctx}, subnetID, epoch)
 }
 
-// GetCheckpointProof 返回检查点对应的证明。
+// GetCheckpointProof returns the proof corresponding to the checkpoint.
 func (s *CheckpointService) GetCheckpointProof(ctx context.Context, subnetID [32]byte, epoch uint64) ([]byte, error) {
 	return s.contract.GetCheckpointProof(&bind.CallOpts{Context: ctx}, subnetID, epoch)
 }
 
-// CheckpointHeader 表示提交检查点所需的头部数据。
+// CheckpointHeader represents the header data required for checkpoint submission.
 type CheckpointHeader struct {
 	SubnetID             [32]byte
 	Epoch                uint64
@@ -80,7 +80,7 @@ type CheckpointHeader struct {
 	PolicyRoot           [32]byte
 }
 
-// SubmitCheckpoint 调用合约 submitCheckpoint。
+// SubmitCheckpoint calls the contract's submitCheckpoint method.
 func (s *CheckpointService) SubmitCheckpoint(
 	ctx context.Context,
 	header CheckpointHeader,
@@ -100,12 +100,12 @@ func (s *CheckpointService) SubmitCheckpoint(
 	})
 }
 
-// ComputeCheckpointHash 通过合约计算 checkpoint 哈希。
+// ComputeCheckpointHash computes the checkpoint hash via contract.
 func (s *CheckpointService) ComputeCheckpointHash(ctx context.Context, header CheckpointHeader) ([32]byte, error) {
 	return s.contract.ComputeCheckpointHash(&bind.CallOpts{Context: ctx}, convertCheckpointHeader(header))
 }
 
-// ComputeDigest 计算提交所需的签名 digest。
+// ComputeDigest computes the signature digest required for submission.
 func (s *CheckpointService) ComputeDigest(header CheckpointHeader) ([32]byte, error) {
 	return cryptoHelpers.ComputeCheckpointDigest(cryptoHelpers.CheckpointInput{
 		SubnetID:             header.SubnetID,
@@ -125,7 +125,7 @@ func (s *CheckpointService) ComputeDigest(header CheckpointHeader) ([32]byte, er
 	}, s.contractAddr, s.chainID)
 }
 
-// SignDigest 使用绑定的 signer 对 digest 进行签名。
+// SignDigest signs the digest using the bound signer.
 func (s *CheckpointService) SignDigest(digest [32]byte) ([]byte, error) {
 	if s.signer == nil {
 		return nil, errors.New("checkpoint: signer not configured")
@@ -193,51 +193,51 @@ func normalizeBigInt(v *big.Int) *big.Int {
 	return big.NewInt(0)
 }
 
-// ======================== 只读方法：角色与权限 ========================
+// ======================== Read-only methods: Roles & Permissions ========================
 
-// DefaultAdminRole 返回默认管理员角色哈希。
+// DefaultAdminRole returns the default admin role hash.
 func (s *CheckpointService) DefaultAdminRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.DEFAULTADMINROLE(&bind.CallOpts{Context: ctx})
 }
 
-// GovernanceRole 返回治理角色哈希。
+// GovernanceRole returns the governance role hash.
 func (s *CheckpointService) GovernanceRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.GOVERNANCEROLE(&bind.CallOpts{Context: ctx})
 }
 
-// GetRoleAdmin 返回指定角色的管理员角色。
+// GetRoleAdmin returns the admin role for the specified role.
 func (s *CheckpointService) GetRoleAdmin(ctx context.Context, role [32]byte) ([32]byte, error) {
 	return s.contract.GetRoleAdmin(&bind.CallOpts{Context: ctx}, role)
 }
 
-// HasRole 检查账户是否拥有指定角色。
+// HasRole checks if an account has the specified role.
 func (s *CheckpointService) HasRole(ctx context.Context, role [32]byte, account common.Address) (bool, error) {
 	return s.contract.HasRole(&bind.CallOpts{Context: ctx}, role, account)
 }
 
-// ======================== 只读方法：配置与状态查询 ========================
+// ======================== Read-only methods: Configuration & State queries ========================
 
-// DefaultChallengeWindow 返回默认挑战窗口期。
+// DefaultChallengeWindow returns the default challenge window.
 func (s *CheckpointService) DefaultChallengeWindow(ctx context.Context) (*big.Int, error) {
 	return s.contract.DEFAULTCHALLENGEWINDOW(&bind.CallOpts{Context: ctx})
 }
 
-// GetLatestCheckpoint 返回子网最新的 checkpoint。
+// GetLatestCheckpoint returns the subnet's latest checkpoint.
 func (s *CheckpointService) GetLatestCheckpoint(ctx context.Context, subnetID [32]byte) (CheckpointState, error) {
 	return s.contract.GetLatestCheckpoint(&bind.CallOpts{Context: ctx}, subnetID)
 }
 
-// GetLatestFinalized 返回子网最新的已最终化 checkpoint。
+// GetLatestFinalized returns the subnet's latest finalized checkpoint.
 func (s *CheckpointService) GetLatestFinalized(ctx context.Context, subnetID [32]byte) (CheckpointState, error) {
 	return s.contract.GetLatestFinalized(&bind.CallOpts{Context: ctx}, subnetID)
 }
 
-// CanFinalizeCheckpoint 检查指定 checkpoint 是否可以最终化。
+// CanFinalizeCheckpoint checks if the specified checkpoint can be finalized.
 func (s *CheckpointService) CanFinalizeCheckpoint(ctx context.Context, subnetID [32]byte, epoch uint64) (bool, error) {
 	return s.contract.CanFinalizeCheckpoint(&bind.CallOpts{Context: ctx}, subnetID, epoch)
 }
 
-// VerifyCheckpoint 验证指定 checkpoint 的完整性与签名。
+// VerifyCheckpoint verifies the integrity and signatures of the specified checkpoint.
 func (s *CheckpointService) VerifyCheckpoint(ctx context.Context, subnetID [32]byte, epoch uint64) (bool, string, error) {
 	result, err := s.contract.VerifyCheckpoint(&bind.CallOpts{Context: ctx}, subnetID, epoch)
 	if err != nil {
@@ -246,24 +246,24 @@ func (s *CheckpointService) VerifyCheckpoint(ctx context.Context, subnetID [32]b
 	return result.Valid, result.Reason, nil
 }
 
-// VerifyCheckpointContinuity 验证 checkpoint 是否与前一个 checkpoint 连续。
+// VerifyCheckpointContinuity verifies if the checkpoint is continuous with the previous checkpoint.
 func (s *CheckpointService) VerifyCheckpointContinuity(ctx context.Context, subnetID [32]byte, header CheckpointHeader) (bool, error) {
 	return s.contract.VerifyCheckpointContinuity(&bind.CallOpts{Context: ctx}, subnetID, convertCheckpointHeader(header))
 }
 
-// Paused 返回 CheckpointManager 是否处于暂停状态。
+// Paused returns whether the CheckpointManager is in a paused state.
 func (s *CheckpointService) Paused(ctx context.Context) (bool, error) {
 	return s.contract.Paused(&bind.CallOpts{Context: ctx})
 }
 
-// SupportsInterface 检查合约是否支持指定接口（ERC165）。
+// SupportsInterface checks if the contract supports the specified interface (ERC165).
 func (s *CheckpointService) SupportsInterface(ctx context.Context, interfaceID [4]byte) (bool, error) {
 	return s.contract.SupportsInterface(&bind.CallOpts{Context: ctx}, interfaceID)
 }
 
-// ======================== 写入方法：checkpoint 管理 ========================
+// ======================== Write methods: Checkpoint management ========================
 
-// FinalizeCheckpoint 最终化指定 checkpoint（需要 GOVERNANCE_ROLE）。
+// FinalizeCheckpoint finalizes the specified checkpoint (requires GOVERNANCE_ROLE).
 func (s *CheckpointService) FinalizeCheckpoint(ctx context.Context, subnetID [32]byte, epoch uint64) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("checkpoint: tx manager not configured")
@@ -274,7 +274,7 @@ func (s *CheckpointService) FinalizeCheckpoint(ctx context.Context, subnetID [32
 	})
 }
 
-// RevertCheckpoint 回滚指定 checkpoint（需要 GOVERNANCE_ROLE）。
+// RevertCheckpoint reverts the specified checkpoint (requires GOVERNANCE_ROLE).
 func (s *CheckpointService) RevertCheckpoint(ctx context.Context, subnetID [32]byte, epoch uint64, reason string) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("checkpoint: tx manager not configured")
@@ -285,9 +285,9 @@ func (s *CheckpointService) RevertCheckpoint(ctx context.Context, subnetID [32]b
 	})
 }
 
-// ======================== 写入方法：角色管理 ========================
+// ======================== Write methods: Role management ========================
 
-// GrantRole 授予账户指定角色（需要角色管理员权限）。
+// GrantRole grants the specified role to an account (requires role admin permission).
 func (s *CheckpointService) GrantRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("checkpoint: tx manager not configured")
@@ -298,7 +298,7 @@ func (s *CheckpointService) GrantRole(ctx context.Context, role [32]byte, accoun
 	})
 }
 
-// RevokeRole 撤销账户的指定角色（需要角色管理员权限）。
+// RevokeRole revokes the specified role from an account (requires role admin permission).
 func (s *CheckpointService) RevokeRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("checkpoint: tx manager not configured")
@@ -309,7 +309,7 @@ func (s *CheckpointService) RevokeRole(ctx context.Context, role [32]byte, accou
 	})
 }
 
-// RenounceRole 放弃自己的指定角色。
+// RenounceRole renounces the caller's specified role.
 func (s *CheckpointService) RenounceRole(ctx context.Context, role [32]byte, callerConfirmation common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("checkpoint: tx manager not configured")
@@ -320,7 +320,7 @@ func (s *CheckpointService) RenounceRole(ctx context.Context, role [32]byte, cal
 	})
 }
 
-// SetGovernanceRole 设置治理角色账户（需要 DEFAULT_ADMIN_ROLE）。
+// SetGovernanceRole sets the governance role account (requires DEFAULT_ADMIN_ROLE).
 func (s *CheckpointService) SetGovernanceRole(ctx context.Context, governance common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("checkpoint: tx manager not configured")
@@ -331,7 +331,7 @@ func (s *CheckpointService) SetGovernanceRole(ctx context.Context, governance co
 	})
 }
 
-// Initialize 初始化 CheckpointManager 合约（仅在部署后调用一次）。
+// Initialize initializes the CheckpointManager contract (call only once after deployment).
 func (s *CheckpointService) Initialize(ctx context.Context, admin common.Address, registry common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("checkpoint: tx manager not configured")

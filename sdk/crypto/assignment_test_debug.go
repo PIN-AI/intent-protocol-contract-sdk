@@ -10,18 +10,18 @@ import (
 )
 
 func TestComputeAssignmentDigest_DifferentContract_Debug(t *testing.T) {
-    input := AssignmentInput{
-        AssignmentID: [32]byte{0x01},
-        IntentID:     [32]byte{0x02},
-        BidID:        [32]byte{0x03},
-        Agent:        common.HexToAddress("0xa111111111111111111111111111111111111111"),
-        Status:       1,
-        Matcher:      common.HexToAddress("0xb222222222222222222222222222222222222222"),
-    }
+	input := AssignmentInput{
+		AssignmentID: [32]byte{0x01},
+		IntentID:     [32]byte{0x02},
+		BidID:        [32]byte{0x03},
+		Agent:        common.HexToAddress("0xa111111111111111111111111111111111111111"),
+		Status:       1,
+		Matcher:      common.HexToAddress("0xb222222222222222222222222222222222222222"),
+	}
 	chainID := big.NewInt(84532)
 
-    contract1 := common.HexToAddress("0x1111000000000000000000000000000000000001")
-    contract2 := common.HexToAddress("0x1111000000000000000000000000000000000002")
+	contract1 := common.HexToAddress("0x1111000000000000000000000000000000000001")
+	contract2 := common.HexToAddress("0x1111000000000000000000000000000000000002")
 
 	digest1, err1 := ComputeAssignmentDigest(input, contract1, chainID)
 	require.NoError(t, err1)

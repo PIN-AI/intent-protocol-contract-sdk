@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// Bytes32FromHex 将 0x 前缀的字符串转换为 [32]byte。
+// Bytes32FromHex converts a 0x-prefixed hex string to [32]byte.
 func Bytes32FromHex(input string) ([32]byte, error) {
 	var out [32]byte
 	trimmed := strings.TrimSpace(input)
@@ -29,7 +29,7 @@ func Bytes32FromHex(input string) ([32]byte, error) {
 	return out, nil
 }
 
-// MustBytes32FromHex panic 版本。
+// MustBytes32FromHex is the panic version of Bytes32FromHex.
 func MustBytes32FromHex(input string) [32]byte {
 	res, err := Bytes32FromHex(input)
 	if err != nil {
@@ -38,5 +38,5 @@ func MustBytes32FromHex(input string) [32]byte {
 	return res
 }
 
-// ZeroAddress 是 0 地址常量。
+// ZeroAddress is the zero address constant.
 var ZeroAddress = common.Address{}

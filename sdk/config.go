@@ -21,7 +21,7 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 )
 
-// Config 提供初始化 Client 所需的参数。
+// Config provides parameters required to initialize the Client.
 type Config struct {
 	RPCURL        string
 	PrivateKeyHex string
@@ -31,12 +31,12 @@ type Config struct {
 	Signer        signer.Signer
 }
 
-// TxOptions 描述 TxManager 的可选项。
+// TxOptions describes optional settings for TxManager.
 type TxOptions struct {
 	Use1559            *bool
 	GasLimit           *uint64
 	GasLimitMultiplier *float64
-	GasCeil            *uint64 // gas 估算上限，超过则拒绝发送（0=不限制）
+	GasCeil            *uint64 // Gas estimation ceiling; rejects if exceeded (0 = no limit)
 	MaxFeePerGas       *big.Int
 	MaxPriorityFeeCap  *big.Int
 	NonceSource        *string
@@ -46,7 +46,7 @@ type TxOptions struct {
 	NoSend             *bool
 }
 
-// Client 暴露合约高层封装与底层连接。
+// Client exposes high-level contract wrappers and low-level connections.
 type Client struct {
 	Backend   *ethclient.Client
 	ChainID   *big.Int
@@ -63,7 +63,7 @@ type Client struct {
 	CheckpointManager *CheckpointService
 }
 
-// NewClient 根据 Config 创建完整 SDK。
+// NewClient creates a complete SDK instance based on Config.
 func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 	if ctx == nil {
 		ctx = context.Background()
@@ -157,7 +157,7 @@ func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 	return client, nil
 }
 
-// Close 关闭 TxManager（RPC 连接由调用方管理）。
+// Close closes the TxManager (RPC connection is managed by the caller).
 func (c *Client) Close() {
 	if c == nil {
 		return
@@ -206,7 +206,7 @@ func applyTxOptions(base *txmgr.Config, opts *TxOptions) {
 	}
 }
 
-// SubnetServiceByAddress 直接通过子网合约地址创建 SubnetService。
+// SubnetServiceByAddress creates a SubnetService directly by subnet contract address.
 func (c *Client) SubnetServiceByAddress(addr common.Address) (*SubnetService, error) {
 	if c == nil {
 		return nil, errors.New("sdk: nil client")
@@ -218,7 +218,7 @@ func (c *Client) SubnetServiceByAddress(addr common.Address) (*SubnetService, er
 	return NewSubnetService(contract, c.TxManager), nil
 }
 
-// SubnetServiceByID 通过子网 ID 查询地址并创建 SubnetService。
+// SubnetServiceByID queries the subnet address by ID and creates a SubnetService.
 func (c *Client) SubnetServiceByID(ctx context.Context, subnetID [32]byte) (*SubnetService, error) {
 	if c == nil {
 		return nil, errors.New("sdk: nil client")

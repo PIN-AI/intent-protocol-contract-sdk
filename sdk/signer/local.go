@@ -13,13 +13,13 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-// LocalSigner 使用本地私钥实现 Signer。
+// LocalSigner implements Signer using a local private key.
 type LocalSigner struct {
 	key  *ecdsa.PrivateKey
 	addr common.Address
 }
 
-// NewLocalSigner 解析 0x 前缀的私钥字符串。
+// NewLocalSigner parses a 0x-prefixed private key string.
 func NewLocalSigner(hexKey string) (*LocalSigner, error) {
 	trimmed := strings.TrimSpace(hexKey)
 	if trimmed == "" {
@@ -36,7 +36,7 @@ func NewLocalSigner(hexKey string) (*LocalSigner, error) {
 	return &LocalSigner{key: key, addr: addr}, nil
 }
 
-// MustNewLocalSigner 是 NewLocalSigner 的 panic 包装。
+// MustNewLocalSigner is the panic wrapper for NewLocalSigner.
 func MustNewLocalSigner(hexKey string) *LocalSigner {
 	s, err := NewLocalSigner(hexKey)
 	if err != nil {
@@ -49,7 +49,7 @@ func (s *LocalSigner) Address() common.Address {
 	return s.addr
 }
 
-// SignDigest 按 EIP-191 (eth_sign) 进行签名。
+// SignDigest performs signing according to EIP-191 (eth_sign).
 func (s *LocalSigner) SignDigest(digest [32]byte) ([]byte, error) {
 	msg := accounts.TextHash(digest[:])
 	sig, err := crypto.Sign(msg, s.key)
@@ -62,7 +62,7 @@ func (s *LocalSigner) SignDigest(digest [32]byte) ([]byte, error) {
 	return sig, nil
 }
 
-// SignTransaction 对交易进行签名。
+// SignTransaction signs a transaction.
 func (s *LocalSigner) SignTransaction(_ context.Context, tx *types.Transaction, chainID *big.Int) (*types.Transaction, error) {
 	if tx == nil {
 		return nil, fmt.Errorf("signer: nil transaction")

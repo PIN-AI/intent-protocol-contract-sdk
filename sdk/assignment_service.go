@@ -107,8 +107,8 @@ func (s *AssignmentService) SignDigest(digest [32]byte) ([]byte, error) {
 	return s.signer.SignDigest(digest)
 }
 
-// SignAssignment 封装 ComputeDigest + SignDigest，一步完成 Assignment 签名。
-// 简化 Matcher 批量分配流程，适用于 AssignIntentsBySignatures 场景。
+// SignAssignment wraps ComputeDigest + SignDigest to complete Assignment signing in one step.
+// Simplifies the Matcher batch assignment flow for AssignIntentsBySignatures scenarios.
 func (s *AssignmentService) SignAssignment(data AssignmentData) ([]byte, error) {
 	digest, err := s.ComputeDigest(data)
 	if err != nil {

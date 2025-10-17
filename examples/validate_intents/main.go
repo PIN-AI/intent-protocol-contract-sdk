@@ -98,8 +98,8 @@ func runValidateIntents(cfg runConfig) error {
 		PrivateKeyHex: cfg.privateKey,
 		Network:       cfg.network,
 		Tx: &sdk.TxOptions{
-			GasLimitMultiplier: float64Ptr(1.2),          // 20% 安全余量
-			GasCeil:            uint64Ptr(2000000),       // 200万 gas 上限（批量操作）
+			GasLimitMultiplier: float64Ptr(1.2),    // 20% safety margin
+			GasCeil:            uint64Ptr(2000000), // 2M gas ceiling (batch operation)
 			NoSend:             boolPtr(cfg.dryRun),
 		},
 	}
@@ -168,7 +168,7 @@ func runValidateIntents(cfg runConfig) error {
 
 	tx, err := client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle{bundle})
 	if err != nil {
-		// 检查是否是 gas 超限错误
+		// Check if this is a gas ceiling exceeded error
 		var gasCeilErr *txmgr.ErrGasCeilExceeded
 		if errors.As(err, &gasCeilErr) {
 			log.Printf("Gas estimation exceeds ceiling:")

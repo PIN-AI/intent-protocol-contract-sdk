@@ -13,7 +13,7 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 )
 
-// ParticipantType 与 DataStructures.ParticipantType 对齐。
+// ParticipantType aligns with DataStructures.ParticipantType.
 type ParticipantType uint8
 
 const (
@@ -23,33 +23,33 @@ const (
 	ParticipantSubnetOwner ParticipantType = 3
 )
 
-// StakingService 提供 StakingManager 的常用封装。
+// StakingService provides common StakingManager operations.
 type StakingService struct {
 	contract *stakingmanager.StakingManager
 	txMgr    *txmgr.Manager
 }
 
-// NewStakingService 创建服务。
+// NewStakingService creates a new service instance.
 func NewStakingService(contract *stakingmanager.StakingManager) *StakingService {
 	return &StakingService{contract: contract}
 }
 
-// AttachTxManager 为需要写操作的场景附加 TxManager。
+// AttachTxManager attaches a TxManager for write operations.
 func (s *StakingService) AttachTxManager(txm *txmgr.Manager) {
 	s.txMgr = txm
 }
 
-// GetStakeInfo 查询 stake 信息。
+// GetStakeInfo queries stake information.
 func (s *StakingService) GetStakeInfo(ctx context.Context, user, token common.Address, role ParticipantType) (stakingmanager.DataStructuresStakeInfo, error) {
 	return s.contract.GetStakeInfo(&bind.CallOpts{Context: ctx}, user, token, uint8(role))
 }
 
-// GetUnlockPeriod 查询解锁期。
+// GetUnlockPeriod queries the unlock period.
 func (s *StakingService) GetUnlockPeriod(ctx context.Context) (*big.Int, error) {
 	return s.contract.GetUnlockPeriod(&bind.CallOpts{Context: ctx})
 }
 
-// DepositStakeFor 调用 depositStakeFor。调用者需具备额度或发送 ETH。
+// DepositStakeFor calls depositStakeFor. Caller must have allowance or send ETH.
 func (s *StakingService) DepositStakeFor(ctx context.Context, user, token common.Address, role ParticipantType, amount *big.Int) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -66,7 +66,7 @@ func (s *StakingService) DepositStakeFor(ctx context.Context, user, token common
 	})
 }
 
-// RequestUnstake 发起解押申请。
+// RequestUnstake initiates an unstake request.
 func (s *StakingService) RequestUnstake(ctx context.Context, token common.Address, role ParticipantType, amount *big.Int) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -80,7 +80,7 @@ func (s *StakingService) RequestUnstake(ctx context.Context, token common.Addres
 	})
 }
 
-// Withdraw 提取完成的解押金额。
+// Withdraw withdraws completed unstake amounts.
 func (s *StakingService) Withdraw(ctx context.Context, token common.Address, role ParticipantType) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -91,58 +91,58 @@ func (s *StakingService) Withdraw(ctx context.Context, token common.Address, rol
 	})
 }
 
-// ======================== 只读方法：角色与权限 ========================
+// ======================== Read-only methods: Roles & Permissions ========================
 
-// DefaultAdminRole 返回默认管理员角色哈希。
+// DefaultAdminRole returns the default admin role hash.
 func (s *StakingService) DefaultAdminRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.DEFAULTADMINROLE(&bind.CallOpts{Context: ctx})
 }
 
-// GovernanceRole 返回治理角色哈希。
+// GovernanceRole returns the governance role hash.
 func (s *StakingService) GovernanceRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.GOVERNANCEROLE(&bind.CallOpts{Context: ctx})
 }
 
-// SlasherRole 返回惩罚者角色哈希。
+// SlasherRole returns the slasher role hash.
 func (s *StakingService) SlasherRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.SLASHERROLE(&bind.CallOpts{Context: ctx})
 }
 
-// StakingAdminRole 返回质押管理员角色哈希。
+// StakingAdminRole returns the staking admin role hash.
 func (s *StakingService) StakingAdminRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.STAKINGADMINROLE(&bind.CallOpts{Context: ctx})
 }
 
-// GetRoleAdmin 返回指定角色的管理员角色。
+// GetRoleAdmin returns the admin role for the specified role.
 func (s *StakingService) GetRoleAdmin(ctx context.Context, role [32]byte) ([32]byte, error) {
 	return s.contract.GetRoleAdmin(&bind.CallOpts{Context: ctx}, role)
 }
 
-// HasRole 检查账户是否拥有指定角色。
+// HasRole checks if an account has the specified role.
 func (s *StakingService) HasRole(ctx context.Context, role [32]byte, account common.Address) (bool, error) {
 	return s.contract.HasRole(&bind.CallOpts{Context: ctx}, role, account)
 }
 
-// ======================== 只读方法：配置查询 ========================
+// ======================== Read-only methods: Configuration queries ========================
 
-// GetStakingToken 返回质押代币地址。
+// GetStakingToken returns the staking token address.
 func (s *StakingService) GetStakingToken(ctx context.Context) (common.Address, error) {
 	return s.contract.GetStakingToken(&bind.CallOpts{Context: ctx})
 }
 
-// Paused 返回 StakingManager 是否处于暂停状态。
+// Paused returns whether the StakingManager is in a paused state.
 func (s *StakingService) Paused(ctx context.Context) (bool, error) {
 	return s.contract.Paused(&bind.CallOpts{Context: ctx})
 }
 
-// SupportsInterface 检查合约是否支持指定接口（ERC165）。
+// SupportsInterface checks if the contract supports the specified interface (ERC165).
 func (s *StakingService) SupportsInterface(ctx context.Context, interfaceID [4]byte) (bool, error) {
 	return s.contract.SupportsInterface(&bind.CallOpts{Context: ctx}, interfaceID)
 }
 
-// ======================== 写入方法：角色管理 ========================
+// ======================== Write methods: Role management ========================
 
-// GrantRole 授予账户指定角色（需要角色管理员权限）。
+// GrantRole grants the specified role to an account (requires role admin permission).
 func (s *StakingService) GrantRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -153,7 +153,7 @@ func (s *StakingService) GrantRole(ctx context.Context, role [32]byte, account c
 	})
 }
 
-// RevokeRole 撤销账户的指定角色（需要角色管理员权限）。
+// RevokeRole revokes the specified role from an account (requires role admin permission).
 func (s *StakingService) RevokeRole(ctx context.Context, role [32]byte, account common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -164,7 +164,7 @@ func (s *StakingService) RevokeRole(ctx context.Context, role [32]byte, account 
 	})
 }
 
-// RenounceRole 放弃自己的指定角色。
+// RenounceRole renounces the caller's specified role.
 func (s *StakingService) RenounceRole(ctx context.Context, role [32]byte, callerConfirmation common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -175,7 +175,7 @@ func (s *StakingService) RenounceRole(ctx context.Context, role [32]byte, caller
 	})
 }
 
-// SetGovernanceRole 设置治理角色账户（需要 DEFAULT_ADMIN_ROLE）。
+// SetGovernanceRole sets the governance role account (requires DEFAULT_ADMIN_ROLE).
 func (s *StakingService) SetGovernanceRole(ctx context.Context, governance common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -186,7 +186,7 @@ func (s *StakingService) SetGovernanceRole(ctx context.Context, governance commo
 	})
 }
 
-// SetSlasherRole 设置惩罚者角色账户（需要 DEFAULT_ADMIN_ROLE）。
+// SetSlasherRole sets the slasher role account (requires DEFAULT_ADMIN_ROLE).
 func (s *StakingService) SetSlasherRole(ctx context.Context, slasher common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -197,9 +197,9 @@ func (s *StakingService) SetSlasherRole(ctx context.Context, slasher common.Addr
 	})
 }
 
-// ======================== 写入方法：配置管理 ========================
+// ======================== Write methods: Configuration management ========================
 
-// SetStakingToken 设置质押代币地址（需要 GOVERNANCE_ROLE）。
+// SetStakingToken sets the staking token address (requires GOVERNANCE_ROLE).
 func (s *StakingService) SetStakingToken(ctx context.Context, token common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -210,7 +210,7 @@ func (s *StakingService) SetStakingToken(ctx context.Context, token common.Addre
 	})
 }
 
-// SetUnlockPeriod 设置解锁期（需要 GOVERNANCE_ROLE）。
+// SetUnlockPeriod sets the unlock period (requires GOVERNANCE_ROLE).
 func (s *StakingService) SetUnlockPeriod(ctx context.Context, period *big.Int) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -221,9 +221,9 @@ func (s *StakingService) SetUnlockPeriod(ctx context.Context, period *big.Int) (
 	})
 }
 
-// ======================== 写入方法：紧急控制与惩罚 ========================
+// ======================== Write methods: Emergency control & Slashing ========================
 
-// Pause 暂停 StakingManager（需要 GOVERNANCE_ROLE）。
+// Pause pauses the StakingManager (requires GOVERNANCE_ROLE).
 func (s *StakingService) Pause(ctx context.Context) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -234,7 +234,7 @@ func (s *StakingService) Pause(ctx context.Context) (*types.Transaction, error) 
 	})
 }
 
-// Unpause 解除 StakingManager 暂停（需要 GOVERNANCE_ROLE）。
+// Unpause unpauses the StakingManager (requires GOVERNANCE_ROLE).
 func (s *StakingService) Unpause(ctx context.Context) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -245,7 +245,7 @@ func (s *StakingService) Unpause(ctx context.Context) (*types.Transaction, error
 	})
 }
 
-// Slash 执行质押惩罚（需要 SLASHER_ROLE）。
+// Slash executes staking penalties (requires SLASHER_ROLE).
 func (s *StakingService) Slash(ctx context.Context, user common.Address, token common.Address, role ParticipantType, amount *big.Int, reason string) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -259,7 +259,7 @@ func (s *StakingService) Slash(ctx context.Context, user common.Address, token c
 	})
 }
 
-// EmergencyWithdraw 紧急提取资金（需要 GOVERNANCE_ROLE）。
+// EmergencyWithdraw performs emergency fund withdrawal (requires GOVERNANCE_ROLE).
 func (s *StakingService) EmergencyWithdraw(ctx context.Context, recipient common.Address, token common.Address, amount *big.Int) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
@@ -273,7 +273,7 @@ func (s *StakingService) EmergencyWithdraw(ctx context.Context, recipient common
 	})
 }
 
-// Initialize 初始化 StakingManager 合约（仅在部署后调用一次）。
+// Initialize initializes the StakingManager contract (call only once after deployment).
 func (s *StakingService) Initialize(ctx context.Context, admin common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("staking: tx manager not attached")
