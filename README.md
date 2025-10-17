@@ -1,69 +1,69 @@
 # intent-protocol-contract-sdk
 
-PIN AI Intent Protocol Rootlayer 智能合约 Go SDK。
+Go SDK for PIN AI Intent Protocol RootLayer smart contracts.
 
-面向 RootLayer 与 Subnet 的链上交互封装，预置 Base 主网/测试网与本地开发网络的合约地址（可通过环境变量与代码覆盖），提供 EIP‑1559 交易管理与 EIP‑191 摘要签名工具，并暴露常用的高层 API（提交/批量提交 Intent、查询子网/验证器/检查点、质押操作等）。
+Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, with pre-configured contract addresses for Base mainnet/testnet and local development networks (configurable via environment variables or code). Features EIP-1559 transaction management, EIP-191 digest signing utilities, and exposes high-level APIs for common operations (submit/batch submit Intents, query subnets/validators/checkpoints, staking operations, etc.).
 
-• 快速导航：`docs/README.md`
-• 示例代码: `example/`
-• 环境变量示例：`.env.example`
+• Quick Navigation: `docs/README.md`
+• Examples: `examples/`
+• Environment Variables: `.env.example`
 
 ---
 
-## 功能特性
+## Features
 
-- **强类型合约绑定**：`IntentManager`、`SubnetFactory`、`Subnet`、`StakingManager`、`CheckpointManager`
-- **完整的 Service 层封装** (2025-01 重构完成，新增 138 个方法)：
-  - **IntentService** (22个新增方法)：提交/批量签名提交、过期处理、状态查询、角色管理、紧急控制
-  - **AssignmentService**：批量签名分配、digest 构造、matcher 签名辅助
-  - **ValidationService**：批量验证提交、validator 签名 digest
-  - **SubnetFactoryService** (30个新增方法)：子网创建、按状态/所有者查询、批量获取参与者、暂停/恢复/废弃
-  - **SubnetService** (27个新增方法)：注册验证者/代理/匹配器（ETH 或 ERC20 质押）、参与者管理、配置查询
-  - **StakingService** (21个新增方法)：质押/解押/提现、质押信息查询、惩罚、角色与配置管理
-  - **CheckpointService** (18个新增方法)：查询、验证、提交、最终化、回滚
-- **可配置 TxManager**：EIP‑1559 费用、nonce 源、卡顿替换（gas bump）、dry‑run
-- **签名与哈希**：EIP‑191（eth_sign）摘要签名、批量提交 digest 构造，预留 EIP‑712
-- **网络与地址**：`base`/`base_sepolia`/`local` 预置，支持环境变量和代码级覆盖
+- **Strongly-Typed Contract Bindings**: `IntentManager`, `SubnetFactory`, `Subnet`, `StakingManager`, `CheckpointManager`
+- **Complete Service Layer** (2025-01 refactor with 138 new methods):
+  - **IntentService** (22 methods): Submit/batch signed submit, expiry handling, status queries, role management, emergency controls
+  - **AssignmentService**: Batch signed assignment, digest construction, matcher signature helpers
+  - **ValidationService**: Batch validation submission, validator signature digest
+  - **SubnetFactoryService** (30 methods): Subnet creation, query by status/owner, batch participant retrieval, pause/resume/deprecate
+  - **SubnetService** (27 methods): Register validator/agent/matcher (ETH or ERC20 staking), participant management, config queries
+  - **StakingService** (21 methods): Stake/unstake/withdraw, staking info queries, slashing, role and config management
+  - **CheckpointService** (18 methods): Query, verify, submit, finalize, revert checkpoints
+- **Configurable TxManager**: EIP-1559 fees, nonce source, stuck transaction replacement (gas bump), dry-run
+- **Signing & Hashing**: EIP-191 (eth_sign) digest signing, batch submission digest construction, EIP-712 reserved
+- **Networks & Addresses**: Pre-configured for `base`/`base_sepolia`/`local`, supports environment variables and code-level overrides
 
-## 安装与环境
+## Installation & Requirements
 
-- **要求 Go**：`go 1.24+`（见 `go.mod`）
-- **获取 SDK**：
+- **Go Version**: `go 1.24+` (see `go.mod`)
+- **Get SDK**:
 
 ```bash
 go get github.com/PIN-AI/intent-protocol-contract-sdk@latest
 ```
 
-- **构建与测试**：
+- **Build & Test**:
 
 ```bash
-# 构建所有包
+# Build all packages
 go build ./...
 
-# 运行所有测试
+# Run all tests
 go test ./...
 
-# 运行特定包测试
+# Run specific package tests
 go test -v ./sdk/crypto/
 ```
 
-## 快速开始
+## Quick Start
 
-1) 准备环境变量（可参考 `.env.example`）
+1) Prepare environment variables (refer to `.env.example`)
 
 ```ini
 PIN_NETWORK=base_sepolia
 PIN_RPC_URL=https://sepolia.base.org
-PIN_PRIVATE_KEY=0x你的私钥
+PIN_PRIVATE_KEY=0xYourPrivateKey
 
-# 可选：按网络覆盖合约地址（未设置时用默认 mock 地址）
+# Optional: Override contract addresses per network (uses mock addresses if not set)
 PIN_BASE_SEPOLIA_INTENT_MANAGER=0x5555...
 PIN_BASE_SEPOLIA_SUBNET_FACTORY=0x6666...
 PIN_BASE_SEPOLIA_STAKING_MANAGER=0x7777...
 PIN_BASE_SEPOLIA_CHECKPOINT_MANAGER=0x8888...
 ```
 
-2) 初始化 Client 并提交 Intent（ETH 预算示例）
+2) Initialize Client and submit an Intent (ETH payment example)
 
 ```go
 package main
@@ -84,7 +84,7 @@ func main() {
   client, err := sdk.NewClient(ctx, sdk.Config{
     RPCURL:        os.Getenv("PIN_RPC_URL"),
     PrivateKeyHex: os.Getenv("PIN_PRIVATE_KEY"),
-    Network:       os.Getenv("PIN_NETWORK"), // 可空：自动根据 chainId 识别
+    Network:       os.Getenv("PIN_NETWORK"), // Optional: auto-detect from chainId
   })
   if err != nil { log.Fatal(err) }
   defer client.Close()
@@ -95,10 +95,10 @@ func main() {
     IntentType: "book_flight",
     ParamsHash: sdk.HashBytes([]byte("{...}")),
     Deadline:   big.NewInt(time.Now().Add(24*time.Hour).Unix()),
-    // 0 地址=ETH；ERC20 请填代币地址并将 Value 置空
+    // 0 address = ETH; for ERC20, set token address and leave Value empty
     PaymentToken: common.Address{},
     Amount:       big.NewInt(1e16), // 0.01 ETH
-    Value:        big.NewInt(1e16), // ETH 需与 Amount 一致
+    Value:        big.NewInt(1e16), // Must match Amount for ETH
   }
   tx, err := client.Intent.SubmitIntent(ctx, params)
   if err != nil { log.Fatal(err) }
@@ -106,7 +106,7 @@ func main() {
 }
 ```
 
-3) 批量签名提交（构造 digest + EIP‑191 签名）
+3) Batch submission with signatures (digest construction + EIP-191 signing)
 
 ```go
 input := sdkcrypto.SignedIntentInput{
@@ -125,11 +125,11 @@ sig, _ := client.Intent.SignDigest(digest)
 
 tx, err := client.Intent.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentBatchParams{
   Items: []sdk.SignedIntent{{Data: input, Signature: sig}},
-  // ETH 总额可省略，SDK 会自动相加 PaymentToken==0 的金额
+  // TotalEthValue optional: SDK auto-sums PaymentToken==0 amounts
 })
 ```
 
-4) 分配与验证（Matcher 与 Validator）
+4) Assignment & Validation (Matcher & Validator)
 
 ```go
 assignment := sdk.AssignmentData{
@@ -156,28 +156,28 @@ bundle := sdk.ValidationBundle{
   RootHeight:   123,
   RootHash:     sdk.HashBytes([]byte("root")),
   Validators:   []common.Address{common.HexToAddress("0xValidator1")},
-  Signatures:   [][]byte{sig}, // 需真实 validator 签名
+  Signatures:   [][]byte{sig}, // Real validator signatures required
 }
 
 _, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle{bundle})
 ```
 
-更多示例见 `docs/quickstart.md`。
+More examples in `docs/quickstart.md`.
 
-### 示例脚本
+### Example Scripts
 
-- `examples/list_subnets`: **优化版** 列出活跃子网，使用 `GetSubnetsByStatus` 高效查询，显示详细参与者信息（地址、声誉、端点等），避免冗余 RPC 调用。
-- `examples/send_intent`: 纯环境变量驱动的 CLI，默认 dry-run，演示单条提交与带签名的批量提交（需 `PIN_RPC_URL`/`PIN_PRIVATE_KEY`，可选 `SUBNET_ID`、`SIGNED_INTENT_ID` 等）。
-- `examples/assign_intents`: Matcher 端批量分配脚本，支持自动签名单条分配或使用外部签名（需 `INTENT_ID`/`AGENT_ADDRESS` 等）。
-- `examples/validate_intents`: Validator 端验证脚本，可计算 digest 并签名单验证者或加载预签名的多验证者 bundle。
-- `examples/register_agent`: 基于 Subnet 合约的代理注册脚本，可按需设置 `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` 以及 `AGENT_VALUE_WEI`（默认 dry-run，可覆盖 0 值质押需求）。
-- `examples/complete_workflow`（规划中）：演示 Intent → Assignment → Validation → Checkpoint 的端到端流程。
+- `examples/list_subnets`: **Optimized** listing of active subnets, uses `GetSubnetsByStatus` for efficient queries, displays detailed participant info (address, reputation, endpoint, etc.), avoids redundant RPC calls.
+- `examples/send_intent`: Environment-driven CLI, default dry-run, demonstrates single submission and batch submission with signatures (requires `PIN_RPC_URL`/`PIN_PRIVATE_KEY`, optional `SUBNET_ID`, `SIGNED_INTENT_ID`, etc.).
+- `examples/assign_intents`: Matcher-side batch assignment script, supports auto-signing single assignment or using external signatures (requires `INTENT_ID`/`AGENT_ADDRESS`, etc.).
+- `examples/validate_intents`: Validator-side validation script, can compute digest and sign for single validator or load pre-signed multi-validator bundles.
+- `examples/register_agent`: Agent registration script based on Subnet contract, configurable `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` and `AGENT_VALUE_WEI` (default dry-run, can override 0 stake requirement).
+- `examples/complete_workflow` (planned): Demonstrates end-to-end flow from Intent → Assignment → Validation → Checkpoint.
 
-## 连接 Subnet 与角色注册
+## Connecting to Subnet & Role Registration
 
-### 连接子网合约（两种方式）
+### Connecting to Subnet Contract (two methods)
 
-1) 通过子网 ID 查询地址并获取服务
+1) Query address by subnet ID and get service
 
 ```go
 subnetID := sdk.MustBytes32FromHex("0x...")
@@ -185,7 +185,7 @@ subnetSvc, err := client.SubnetServiceByID(ctx, subnetID)
 if err != nil { log.Fatal(err) }
 ```
 
-2) 已知子网合约地址直接绑定
+2) Bind directly if subnet contract address is known
 
 ```go
 subnetAddr := common.HexToAddress("0xSubnET...")
@@ -193,38 +193,38 @@ subnetSvc, err := client.SubnetServiceByAddress(subnetAddr)
 if err != nil { log.Fatal(err) }
 ```
 
-两种方式内部都会共享 `Client` 的 `TxManager` 与 `Signer`，保持一致的 nonce 与 1559 费用策略。
+Both methods internally share the `Client`'s `TxManager` and `Signer`, maintaining consistent nonce and 1559 fee strategy.
 
-### 注册 3 种参与者角色
+### Registering 3 Participant Roles
 
-Subnet 合约的 `RegisterParticipant`/`RegisterParticipantERC20` 已封装为 6 个便捷方法：
+The Subnet contract's `RegisterParticipant`/`RegisterParticipantERC20` are wrapped as 6 convenience methods:
 
 - `RegisterValidator` / `RegisterValidatorERC20`
 - `RegisterAgent` / `RegisterAgentERC20`
 - `RegisterMatcher` / `RegisterMatcherERC20`
 
-ETH 质押注册（向合约发送原生代币，可用于满足最小质押）：
+ETH staking registration (sends native token to contract, can satisfy minimum stake):
 
 ```go
 tx, err := subnetSvc.RegisterValidator(ctx, sdk.RegisterParticipantParams{
   Domain:      "example.org",
   Endpoint:    "https://validator.example.org",
   MetadataURI: "ipfs://...",
-  Value:       big.NewInt(1e18), // 例如 1 ETH，按照注册费用查询
+  Value:       big.NewInt(1e18), // e.g. 1 ETH, check registration fee
 })
 if err != nil { log.Fatal(err) }
 log.Printf("validator registered, tx=%s", tx.Hash())
 
-// 代理（Agent）与匹配器（Matcher）同理：
+// Same for Agent and Matcher:
 _, _ = subnetSvc.RegisterAgent(ctx, sdk.RegisterParticipantParams{Domain: "...", Endpoint: "...", MetadataURI: "...", Value: big.NewInt(0)})
 _, _ = subnetSvc.RegisterMatcher(ctx, sdk.RegisterParticipantParams{Domain: "...", Endpoint: "...", MetadataURI: "...", Value: big.NewInt(0)})
 ```
 
-ERC20 质押注册（使用治理配置的质押代币；调用前需确保已对需要拉取资金的合约设置 allowance）：
+ERC20 staking registration (uses governance-configured staking token; ensure allowance is set before calling):
 
 ```go
 tx, err := subnetSvc.RegisterValidatorERC20(ctx, sdk.RegisterParticipantERC20Params{
-  Amount:      big.NewInt(1_000_000_000_000_000_000), // 1 token（按代币精度）
+  Amount:      big.NewInt(1_000_000_000_000_000_000), // 1 token (adjust for decimals)
   Domain:      "example.org",
   Endpoint:    "https://validator.example.org",
   MetadataURI: "ipfs://...",
@@ -233,59 +233,59 @@ if err != nil { log.Fatal(err) }
 log.Printf("validator (ERC20) registered, tx=%s", tx.Hash())
 ```
 
-提示：
-- 具体最小质押与注册审批由子网的 `StakeGovernanceConfig` 与 `autoApprove` 等参数决定；如为手动审批，注册后需要子网治理批准。
-- ERC20 路径通常需要对质押接收方（例如 `StakingManager` 或 `Subnet`，以合约实现为准）进行 `approve` 授权。
-- 可用查询：
+Tips:
+- Specific minimum stake and approval requirements are determined by subnet's `StakeGovernanceConfig` and `autoApprove` settings; manual approval by subnet governance may be required if not auto-approved.
+- ERC20 path typically requires `approve` authorization to the staking receiver (e.g., `StakingManager` or `Subnet`, depending on contract implementation).
+- Query methods available:
   - `subnetSvc.IsActiveParticipant(ctx, addr, sdk.ParticipantValidator)`
   - `subnetSvc.ListActiveParticipants(ctx, sdk.ParticipantValidator)`
   - `subnetSvc.GetParticipantInfo/GetParticipantStakeInfo/GetParticipantCount`
 
-## 网络与地址
+## Networks & Addresses
 
-- 预置网络：`base`(8453)、`base_sepolia`(84532)、`local`(31337)
-- 覆盖优先级：代码级覆盖 > 环境变量 > SDK 默认（mock/local）
-- 环境变量命名（示例）：
+- Pre-configured networks: `base`(8453), `base_sepolia`(84532), `local`(31337)
+- Override priority: Code-level override > Environment variables > SDK defaults (mock/local)
+- Environment variable naming (examples):
   - `PIN_BASE_INTENT_MANAGER` / `PIN_BASE_SEPOLIA_SUBNET_FACTORY` / `PIN_LOCAL_CHECKPOINT_MANAGER`
-- 详见：`docs/addresses.md` 与 `.env.example`
+- See: `docs/addresses.md` and `.env.example`
 
-## TxManager（交易管理）
+## TxManager (Transaction Management)
 
-可配置的 EIP‑1559 交易管理器，支持：
+Configurable EIP-1559 transaction manager supporting:
 
-- nonce 源：`pending`/`latest`
-- Gas 估算与乘数、建议费率、`MaxFeePerGas`/`MaxPriorityFee`
-- 替换策略：超时 `ReplaceAfter` 后提升 `BumpPercent` 并重发
-- Dry‑run：`NoSend` 仅构造、不发送
+- Nonce source: `pending`/`latest`
+- Gas estimation with multiplier, suggested fees, `MaxFeePerGas`/`MaxPriorityFee`
+- Replacement strategy: After `ReplaceAfter` timeout, bump by `BumpPercent` and resend
+- Dry-run: `NoSend` constructs transaction without sending
 
-在 `sdk.Config.Tx` 中设置，或使用默认策略。详情见 `docs/txmanager.md`。
+Configure in `sdk.Config.Tx` or use defaults. See `docs/txmanager.md` for details.
 
-## 签名与 Digest
+## Signing & Digest
 
-- 批量签名摘要：
+- Batch signing digest:
   - typeHash: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
   - digest: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
-- 链下签名：EIP‑191（eth_sign 前缀），与合约 `SignatureLib.verifySingleSignature()` 对齐
-- 工具函数：`sdkcrypto.ComputeIntentDigest()`、`client.Intent.SignDigest()`
-- 其他摘要：`client.Assignment.ComputeDigest()`、`client.Validation.ComputeDigest()`、`client.CheckpointManager.ComputeDigest()`
-- 详见：`docs/signing.md`
+- Off-chain signing: EIP-191 (eth_sign prefix), aligned with contract `SignatureLib.verifySingleSignature()`
+- Utility functions: `sdkcrypto.ComputeIntentDigest()`, `client.Intent.SignDigest()`
+- Other digests: `client.Assignment.ComputeDigest()`, `client.Validation.ComputeDigest()`, `client.CheckpointManager.ComputeDigest()`
+- See: `docs/signing.md`
 
-## 目录结构
+## Directory Structure
 
-- `sdk/`：对外 API（Client、TxManager、Signer、AddressBook、高层 Service）
-  - 7 个完整 Service：Intent、Assignment、Validation、SubnetFactory、Subnet、Staking、Checkpoint
-  - 所有 Service 实现合约 ABI 完整方法覆盖（只读 + 写入）
-- `contracts/`：按合约模块分目录的 abigen 绑定（已内置）
-- `examples/`：可运行的示例脚本
-- `docs/`：中文文档与规范
-- `CLAUDE.md`：Claude Code 项目指南（架构、命令、约定）
+- `sdk/`: Public API (Client, TxManager, Signer, AddressBook, high-level Services)
+  - 7 complete Services: Intent, Assignment, Validation, SubnetFactory, Subnet, Staking, Checkpoint
+  - All Services implement full contract ABI method coverage (read + write)
+- `contracts/`: abigen bindings organized by contract module (pre-generated)
+- `examples/`: Runnable example scripts
+- `docs/`: Documentation and specifications
+- `CLAUDE.md`: Claude Code project guide (architecture, commands, conventions)
 
-## 生成合约绑定（开发者）
+## Generating Contract Bindings (Developers)
 
-绑定已随仓库提供。如需从 `RootLayer/artifacts` 再生，可参考：
+Bindings are provided with the repository. To regenerate from `RootLayer/artifacts`, refer to:
 
 ```bash
-# 需要 abigen 与 jq
+# Requires abigen and jq
 for name in IntentManager SubnetFactory Subnet StakingManager CheckpointManager; do
   jq -r '.abi' /path/to/RootLayer/artifacts/contracts/${name}.sol/${name}.json > /tmp/${name}.abi
   pkg=$(echo "$name" | tr '[:upper:]' '[:lower:]')
@@ -293,50 +293,53 @@ for name in IntentManager SubnetFactory Subnet StakingManager CheckpointManager;
 done
 ```
 
-## Service 层方法分类
+## Service Layer Method Categories
 
-所有 Service 提供完整的方法覆盖，分为以下类别：
+All Services provide complete method coverage, categorized as:
 
-### 只读方法
-- **角色与权限**：`DefaultAdminRole()`, `GovernanceRole()`, `HasRole()`, `GetRoleAdmin()`
-- **配置查询**：`GetMinStakeCreateSubnet()`, `GetStakingManager()`, `GetMaxIntentDuration()`
-- **状态查询**：`IsSubnetActive()`, `IntentExists()`, `Paused()`, `CanFinalizeCheckpoint()`
-- **统计查询**：`GetTotalSubnetCount()`, `GetActiveSubnetCount()`, `GetParticipantCount()`
-- **批量查询**：`GetSubnetsByStatus()`, `GetSubnetsByOwner()`, `GetAllSubnetInfo()`
+### Read-Only Methods
+- **Roles & Permissions**: `DefaultAdminRole()`, `GovernanceRole()`, `HasRole()`, `GetRoleAdmin()`
+- **Config Queries**: `GetMinStakeCreateSubnet()`, `GetStakingManager()`, `GetMaxIntentDuration()`
+- **State Queries**: `IsSubnetActive()`, `IntentExists()`, `Paused()`, `CanFinalizeCheckpoint()`
+- **Stats Queries**: `GetTotalSubnetCount()`, `GetActiveSubnetCount()`, `GetParticipantCount()`
+- **Batch Queries**: `GetSubnetsByStatus()`, `GetSubnetsByOwner()`, `GetAllSubnetInfo()`
 
-### 写入方法
-- **角色管理**：`GrantRole()`, `RevokeRole()`, `RenounceRole()`
-- **紧急控制**：`EmergencyPause()`, `EmergencyUnpause()`, `EmergencyRefundBatch()`
-- **配置管理**：`SetMinStakeCreateSubnet()`, `SetMaxIntentDuration()`, `SetStakingToken()`
-- **子网管理**：`CreateSubnet()`, `PauseSubnet()`, `ResumeSubnet()`, `DeprecateSubnet()`
-- **参与者管理**：`ApproveParticipant()`, `RejectParticipant()`, `SuspendParticipant()`
-- **质押与惩罚**：`Slash()`, `DepositStakeFor()`, `RequestUnstake()`, `Withdraw()`
+### Write Methods
+- **Role Management**: `GrantRole()`, `RevokeRole()`, `RenounceRole()`
+- **Emergency Controls**: `EmergencyPause()`, `EmergencyUnpause()`, `EmergencyRefundBatch()`
+- **Config Management**: `SetMinStakeCreateSubnet()`, `SetMaxIntentDuration()`, `SetStakingToken()`
+- **Subnet Management**: `CreateSubnet()`, `PauseSubnet()`, `ResumeSubnet()`, `DeprecateSubnet()`
+- **Participant Management**: `ApproveParticipant()`, `RejectParticipant()`, `SuspendParticipant()`
+- **Staking & Slashing**: `Slash()`, `DepositStakeFor()`, `RequestUnstake()`, `Withdraw()`
 
-详见 `CLAUDE.md` 完整说明。
+See `CLAUDE.md` for complete descriptions.
 
-## 常见问题
+## FAQ
 
-- **地址未生效？**
-  - 检查是否设置了匹配网络的环境变量；或使用 `sdk.Config.Addresses` 进行代码级覆盖
-- **交易卡住？**
-  - 开启替换策略（`ReplaceStuck=true`，设置 `ReplaceAfter` 与 `BumpPercent`）
-- **EIP‑191 v 值？**
-  - SDK 本地签名器会将 `v∈{0,1}` 归一化为 `27/28`
-- **需要更多方法？**
-  - 所有合约 ABI 方法已完整实现，参考 `CLAUDE.md` 方法分类
+- **Addresses not taking effect?**
+  - Check if network-matching environment variables are set; or use `sdk.Config.Addresses` for code-level override
+- **Transaction stuck?**
+  - Enable replacement strategy (`ReplaceStuck=true`, set `ReplaceAfter` and `BumpPercent`)
+- **EIP-191 v value?**
+  - SDK local signer normalizes `v∈{0,1}` to `27/28`
+- **Need more methods?**
+  - All contract ABI methods are fully implemented, refer to `CLAUDE.md` method categories
 
-## 兼容性与安全
+## Compatibility & Security
 
-- **完整方法覆盖**：所有管理员/治理函数已实现，包括角色管理、紧急控制、配置管理等
-- **访问控制**：请严格遵守 `GUARDIAN_ROLE`/`GOVERNANCE_ROLE`/`ADMIN_ROLE` 等权限要求
-- **签名安全**：与合约的签名/哈希严格对齐，digest 绑定 `address(this)` 与 `chainId`，具备跨链/跨合约防重放能力
-- **测试覆盖**：所有 digest 计算经过 52 个单元测试验证
+- **Complete Method Coverage**: All admin/governance functions implemented, including role management, emergency controls, config management
+- **Access Control**: Strictly follow `GUARDIAN_ROLE`/`GOVERNANCE_ROLE`/`ADMIN_ROLE` permission requirements
+- **Signature Security**: Strictly aligned with contract signature/hash, digest binds `address(this)` and `chainId`, providing cross-chain/cross-contract replay protection
+- **Test Coverage**: All digest calculations verified by 52 unit tests
 
-## 参考文档
+## Reference Documentation
 
-- 文档导航：`docs/README.md`
-- 地址与网络：`docs/addresses.md`
-- 配置与环境：`docs/config.md`
-- 签名规范：`docs/signing.md`
-- 交易管理：`docs/txmanager.md`
-- 快速开始：`docs/quickstart.md`
+- Documentation Index: `docs/README.md`
+- Addresses & Networks: `docs/addresses.md`
+- Configuration & Environment: `docs/config.md`
+- Signing Specification: `docs/signing.md`
+- Transaction Management: `docs/txmanager.md`
+- Quick Start: `docs/quickstart.md`
+- API Reference: `docs/api-reference.md`
+- Best Practices: `docs/best-practices.md`
+- Troubleshooting: `docs/troubleshooting.md`
