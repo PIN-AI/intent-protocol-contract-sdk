@@ -38,16 +38,9 @@ type DataStructuresCheckpointPolicy struct {
 
 // DataStructuresParticipantInfo is an auto generated low-level Go binding around an user-defined struct.
 type DataStructuresParticipantInfo struct {
-	Owner           common.Address
-	ParticipantType uint8
-	Status          uint8
-	ReputationScore *big.Int
-	RegisteredAt    *big.Int
-	LastActive      *big.Int
-	Reserved        *big.Int
-	Endpoint        string
-	Domain          string
-	MetadataUri     string
+	Status       uint8
+	AgentId      *big.Int
+	RegisteredAt uint64
 }
 
 // DataStructuresSignatureThreshold is an auto generated low-level Go binding around an user-defined struct.
@@ -97,7 +90,7 @@ type DataStructuresSubnetInfo struct {
 
 // SubnetMetaData contains all meta data concerning the Subnet contract.
 var SubnetMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[],\"name\":\"AccessControlBadConfirmation\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"neededRole\",\"type\":\"bytes32\"}],\"name\":\"AccessControlUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EnforcedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ExpectedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidInitialization\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotInitializing\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ReentrancyGuardReentrantCall\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"feedback_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from_addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to_agent\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.FeedbackType\",\"name\":\"feedback_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"rating\",\"type\":\"uint8\"}],\"name\":\"FeedbackSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"version\",\"type\":\"uint64\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint128\",\"name\":\"last_active\",\"type\":\"uint128\"}],\"name\":\"ParticipantActivityUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participantType\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approver\",\"type\":\"address\"}],\"name\":\"ParticipantApproved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"}],\"name\":\"ParticipantRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participantType\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"rejector\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"ParticipantRejected\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participantType\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"stakedAmount\",\"type\":\"uint256\"}],\"name\":\"ParticipantStaked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"name\":\"ParticipantStatusChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"}],\"name\":\"SubnetConfigUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"\",\"type\":\"uint8\"}],\"name\":\"activeParticipantCounts\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"approveParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deprecate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getActiveParticipantCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getBidFrequencyLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCheckpointPolicy\",\"outputs\":[{\"components\":[{\"internalType\":\"uint128\",\"name\":\"challenge_window\",\"type\":\"uint128\"},{\"internalType\":\"uint64\",\"name\":\"min_epoch_interval\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"max_epoch_interval\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.CheckpointPolicy\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getMinimumStakeByType\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getParticipantCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getParticipantInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint80\",\"name\":\"reputation_score\",\"type\":\"uint80\"},{\"internalType\":\"uint128\",\"name\":\"registered_at\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"last_active\",\"type\":\"uint128\"},{\"internalType\":\"uint256\",\"name\":\"reserved\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"}],\"internalType\":\"structDataStructures.ParticipantInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getParticipantStakeInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"stakedAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeRequestTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeRequestAmount\",\"type\":\"uint256\"}],\"internalType\":\"structDataStructures.StakeInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRequireKYC\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSignatureThreshold\",\"outputs\":[{\"components\":[{\"internalType\":\"uint32\",\"name\":\"threshold_numerator\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"threshold_denominator\",\"type\":\"uint32\"}],\"internalType\":\"structDataStructures.SignatureThreshold\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSlashingRates\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getStakeGovernanceConfig\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getStakingToken\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSubnetInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"canonical_name\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint16\",\"name\":\"version\",\"type\":\"uint16\"},{\"internalType\":\"string\",\"name\":\"da_kind\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"sig_scheme\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"autoApprove\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"requireKYC\",\"type\":\"bool\"},{\"internalType\":\"enumDataStructures.SubnetStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"components\":[{\"internalType\":\"uint128\",\"name\":\"challenge_window\",\"type\":\"uint128\"},{\"internalType\":\"uint64\",\"name\":\"min_epoch_interval\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"max_epoch_interval\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.CheckpointPolicy\",\"name\":\"cp_policy\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"threshold_numerator\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"threshold_denominator\",\"type\":\"uint32\"}],\"internalType\":\"structDataStructures.SignatureThreshold\",\"name\":\"sig_threshold\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"stake_cfg\",\"type\":\"tuple\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"updated_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"bidFrequencyLimit\",\"type\":\"uint256\"}],\"internalType\":\"structDataStructures.SubnetInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalParticipantCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getUnstakeLockPeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"hasAvailableSlots\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"canonical_name\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint16\",\"name\":\"version\",\"type\":\"uint16\"},{\"internalType\":\"string\",\"name\":\"da_kind\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"sig_scheme\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"autoApprove\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"requireKYC\",\"type\":\"bool\"},{\"internalType\":\"enumDataStructures.SubnetStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"components\":[{\"internalType\":\"uint128\",\"name\":\"challenge_window\",\"type\":\"uint128\"},{\"internalType\":\"uint64\",\"name\":\"min_epoch_interval\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"max_epoch_interval\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.CheckpointPolicy\",\"name\":\"cp_policy\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"threshold_numerator\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"threshold_denominator\",\"type\":\"uint32\"}],\"internalType\":\"structDataStructures.SignatureThreshold\",\"name\":\"sig_threshold\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"stake_cfg\",\"type\":\"tuple\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"updated_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"bidFrequencyLimit\",\"type\":\"uint256\"}],\"internalType\":\"structDataStructures.SubnetInfo\",\"name\":\"_subnetInfo\",\"type\":\"tuple\"},{\"internalType\":\"address\",\"name\":\"_factory\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"stakingManager_\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"isActiveParticipant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"listActiveParticipants\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint80\",\"name\":\"reputation_score\",\"type\":\"uint80\"},{\"internalType\":\"uint128\",\"name\":\"registered_at\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"last_active\",\"type\":\"uint128\"},{\"internalType\":\"uint256\",\"name\":\"reserved\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"}],\"internalType\":\"structDataStructures.ParticipantInfo[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"participantListByType\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"\",\"type\":\"uint8\"}],\"name\":\"participants\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint80\",\"name\":\"reputation_score\",\"type\":\"uint80\"},{\"internalType\":\"uint128\",\"name\":\"registered_at\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"last_active\",\"type\":\"uint128\"},{\"internalType\":\"uint256\",\"name\":\"reserved\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"}],\"name\":\"registerParticipant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"}],\"name\":\"registerParticipantERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"rejectParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"callerConfirmation\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"resumeParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"_stakeConfig\",\"type\":\"tuple\"}],\"name\":\"setStakeConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"name\":\"suspendParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"unpause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"updateParticipantActivity\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[],\"name\":\"AccessControlBadConfirmation\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"neededRole\",\"type\":\"bytes32\"}],\"name\":\"AccessControlUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AgentIdUsedByOtherParticipant\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AlreadyDeprecatedSubnet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AlreadyRegisteredForRole\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ArrayLengthMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EnforcedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ExpectedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InsufficientStake\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidIdentityRegistry\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidInitialization\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidParticipant\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidStatus\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MaxParticipantsReached\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotActive\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotAgentNFTOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotInitializing\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotPending\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotRegisteredInSubnet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotSuspended\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ParticipantNotExists\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ReentrancyGuardReentrantCall\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"StakingManagerNotSet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"SubnetCannotBePaused\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"SubnetCannotBeUnpaused\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"registry\",\"type\":\"address\"}],\"name\":\"AgentIdentityRegistrySet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"feedback_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from_addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to_agent\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.FeedbackType\",\"name\":\"feedback_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"rating\",\"type\":\"uint8\"}],\"name\":\"FeedbackSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"version\",\"type\":\"uint64\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint128\",\"name\":\"last_active\",\"type\":\"uint128\"}],\"name\":\"ParticipantActivityUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participantType\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approver\",\"type\":\"address\"}],\"name\":\"ParticipantApproved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"name\":\"ParticipantIdentityBound\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"}],\"name\":\"ParticipantIdentityRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"}],\"name\":\"ParticipantRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participantType\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"rejector\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"ParticipantRejected\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"participant\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participantType\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"stakedAmount\",\"type\":\"uint256\"}],\"name\":\"ParticipantStaked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"name\":\"ParticipantStatusChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"}],\"name\":\"SubnetConfigUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"\",\"type\":\"uint8\"}],\"name\":\"activeParticipantCounts\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"approveParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deprecate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getActiveParticipantCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAgentIdentityRegistry\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getBidFrequencyLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCheckpointPolicy\",\"outputs\":[{\"components\":[{\"internalType\":\"uint128\",\"name\":\"challenge_window\",\"type\":\"uint128\"},{\"internalType\":\"uint64\",\"name\":\"min_epoch_interval\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"max_epoch_interval\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.CheckpointPolicy\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getMinimumStakeByType\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"}],\"name\":\"getParticipantAgentIds\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"name\":\"getParticipantByAgentId\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getParticipantCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"}],\"name\":\"getParticipantDomain\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"}],\"name\":\"getParticipantEndpoint\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getParticipantInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"agent_id\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"registered_at\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.ParticipantInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"}],\"name\":\"getParticipantMetadataUri\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"getParticipantStakeInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"stakedAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeRequestTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeRequestAmount\",\"type\":\"uint256\"}],\"internalType\":\"structDataStructures.StakeInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRequireKYC\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSignatureThreshold\",\"outputs\":[{\"components\":[{\"internalType\":\"uint32\",\"name\":\"threshold_numerator\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"threshold_denominator\",\"type\":\"uint32\"}],\"internalType\":\"structDataStructures.SignatureThreshold\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSlashingRates\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getStakeGovernanceConfig\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getStakingToken\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSubnetInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"canonical_name\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint16\",\"name\":\"version\",\"type\":\"uint16\"},{\"internalType\":\"string\",\"name\":\"da_kind\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"sig_scheme\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"autoApprove\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"requireKYC\",\"type\":\"bool\"},{\"internalType\":\"enumDataStructures.SubnetStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"components\":[{\"internalType\":\"uint128\",\"name\":\"challenge_window\",\"type\":\"uint128\"},{\"internalType\":\"uint64\",\"name\":\"min_epoch_interval\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"max_epoch_interval\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.CheckpointPolicy\",\"name\":\"cp_policy\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"threshold_numerator\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"threshold_denominator\",\"type\":\"uint32\"}],\"internalType\":\"structDataStructures.SignatureThreshold\",\"name\":\"sig_threshold\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"stake_cfg\",\"type\":\"tuple\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"updated_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"bidFrequencyLimit\",\"type\":\"uint256\"}],\"internalType\":\"structDataStructures.SubnetInfo\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalParticipantCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getUnstakeLockPeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"hasAvailableSlots\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"canonical_name\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint16\",\"name\":\"version\",\"type\":\"uint16\"},{\"internalType\":\"string\",\"name\":\"da_kind\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"sig_scheme\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"autoApprove\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"requireKYC\",\"type\":\"bool\"},{\"internalType\":\"enumDataStructures.SubnetStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"components\":[{\"internalType\":\"uint128\",\"name\":\"challenge_window\",\"type\":\"uint128\"},{\"internalType\":\"uint64\",\"name\":\"min_epoch_interval\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"max_epoch_interval\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.CheckpointPolicy\",\"name\":\"cp_policy\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint32\",\"name\":\"threshold_numerator\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"threshold_denominator\",\"type\":\"uint32\"}],\"internalType\":\"structDataStructures.SignatureThreshold\",\"name\":\"sig_threshold\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"stake_cfg\",\"type\":\"tuple\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"updated_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"bidFrequencyLimit\",\"type\":\"uint256\"}],\"internalType\":\"structDataStructures.SubnetInfo\",\"name\":\"_subnetInfo\",\"type\":\"tuple\"},{\"internalType\":\"address\",\"name\":\"_factory\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"stakingManager_\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"identityRegistry_\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"isActiveParticipant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"listActiveParticipants\",\"outputs\":[{\"components\":[{\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"agent_id\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"registered_at\",\"type\":\"uint64\"}],\"internalType\":\"structDataStructures.ParticipantInfo[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC721Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"\",\"type\":\"uint8\"}],\"name\":\"participants\",\"outputs\":[{\"internalType\":\"enumDataStructures.ParticipantStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"agent_id\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"registered_at\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"}],\"name\":\"registerParticipant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"domain\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"endpoint\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"metadata_uri\",\"type\":\"string\"}],\"name\":\"registerParticipantERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"rejectParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"callerConfirmation\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"participant_addrs\",\"type\":\"address[]\"},{\"internalType\":\"enumDataStructures.ParticipantType[]\",\"name\":\"participant_types\",\"type\":\"uint8[]\"}],\"name\":\"requireActiveParticipants\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"resumeParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"minValidatorStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minAgentStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"minMatcherStake\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxValidators\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxAgents\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maxMatchers\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakeLockPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"slashingRates\",\"type\":\"uint256[]\"}],\"internalType\":\"structDataStructures.StakeGovernanceConfig\",\"name\":\"_stakeConfig\",\"type\":\"tuple\"}],\"name\":\"setStakeConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"participant_addr\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"suspendParticipant\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"unpause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.ParticipantType\",\"name\":\"participant_type\",\"type\":\"uint8\"}],\"name\":\"updateParticipantActivity\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // SubnetABI is the input ABI used to generate the binding from.
@@ -370,6 +363,37 @@ func (_Subnet *SubnetCallerSession) GetActiveParticipantCount(participant_type u
 	return _Subnet.Contract.GetActiveParticipantCount(&_Subnet.CallOpts, participant_type)
 }
 
+// GetAgentIdentityRegistry is a free data retrieval call binding the contract method 0x03b9f732.
+//
+// Solidity: function getAgentIdentityRegistry() view returns(address)
+func (_Subnet *SubnetCaller) GetAgentIdentityRegistry(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _Subnet.contract.Call(opts, &out, "getAgentIdentityRegistry")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// GetAgentIdentityRegistry is a free data retrieval call binding the contract method 0x03b9f732.
+//
+// Solidity: function getAgentIdentityRegistry() view returns(address)
+func (_Subnet *SubnetSession) GetAgentIdentityRegistry() (common.Address, error) {
+	return _Subnet.Contract.GetAgentIdentityRegistry(&_Subnet.CallOpts)
+}
+
+// GetAgentIdentityRegistry is a free data retrieval call binding the contract method 0x03b9f732.
+//
+// Solidity: function getAgentIdentityRegistry() view returns(address)
+func (_Subnet *SubnetCallerSession) GetAgentIdentityRegistry() (common.Address, error) {
+	return _Subnet.Contract.GetAgentIdentityRegistry(&_Subnet.CallOpts)
+}
+
 // GetBidFrequencyLimit is a free data retrieval call binding the contract method 0x4aee0b92.
 //
 // Solidity: function getBidFrequencyLimit() view returns(uint256)
@@ -463,6 +487,68 @@ func (_Subnet *SubnetCallerSession) GetMinimumStakeByType(participant_type uint8
 	return _Subnet.Contract.GetMinimumStakeByType(&_Subnet.CallOpts, participant_type)
 }
 
+// GetParticipantAgentIds is a free data retrieval call binding the contract method 0x4064422e.
+//
+// Solidity: function getParticipantAgentIds(address participant_addr) view returns(uint256[])
+func (_Subnet *SubnetCaller) GetParticipantAgentIds(opts *bind.CallOpts, participant_addr common.Address) ([]*big.Int, error) {
+	var out []interface{}
+	err := _Subnet.contract.Call(opts, &out, "getParticipantAgentIds", participant_addr)
+
+	if err != nil {
+		return *new([]*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]*big.Int)).(*[]*big.Int)
+
+	return out0, err
+
+}
+
+// GetParticipantAgentIds is a free data retrieval call binding the contract method 0x4064422e.
+//
+// Solidity: function getParticipantAgentIds(address participant_addr) view returns(uint256[])
+func (_Subnet *SubnetSession) GetParticipantAgentIds(participant_addr common.Address) ([]*big.Int, error) {
+	return _Subnet.Contract.GetParticipantAgentIds(&_Subnet.CallOpts, participant_addr)
+}
+
+// GetParticipantAgentIds is a free data retrieval call binding the contract method 0x4064422e.
+//
+// Solidity: function getParticipantAgentIds(address participant_addr) view returns(uint256[])
+func (_Subnet *SubnetCallerSession) GetParticipantAgentIds(participant_addr common.Address) ([]*big.Int, error) {
+	return _Subnet.Contract.GetParticipantAgentIds(&_Subnet.CallOpts, participant_addr)
+}
+
+// GetParticipantByAgentId is a free data retrieval call binding the contract method 0x78dc8e62.
+//
+// Solidity: function getParticipantByAgentId(uint256 agentId) view returns(address)
+func (_Subnet *SubnetCaller) GetParticipantByAgentId(opts *bind.CallOpts, agentId *big.Int) (common.Address, error) {
+	var out []interface{}
+	err := _Subnet.contract.Call(opts, &out, "getParticipantByAgentId", agentId)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// GetParticipantByAgentId is a free data retrieval call binding the contract method 0x78dc8e62.
+//
+// Solidity: function getParticipantByAgentId(uint256 agentId) view returns(address)
+func (_Subnet *SubnetSession) GetParticipantByAgentId(agentId *big.Int) (common.Address, error) {
+	return _Subnet.Contract.GetParticipantByAgentId(&_Subnet.CallOpts, agentId)
+}
+
+// GetParticipantByAgentId is a free data retrieval call binding the contract method 0x78dc8e62.
+//
+// Solidity: function getParticipantByAgentId(uint256 agentId) view returns(address)
+func (_Subnet *SubnetCallerSession) GetParticipantByAgentId(agentId *big.Int) (common.Address, error) {
+	return _Subnet.Contract.GetParticipantByAgentId(&_Subnet.CallOpts, agentId)
+}
+
 // GetParticipantCount is a free data retrieval call binding the contract method 0xc0a63671.
 //
 // Solidity: function getParticipantCount(uint8 participant_type) view returns(uint256)
@@ -494,9 +580,71 @@ func (_Subnet *SubnetCallerSession) GetParticipantCount(participant_type uint8) 
 	return _Subnet.Contract.GetParticipantCount(&_Subnet.CallOpts, participant_type)
 }
 
+// GetParticipantDomain is a free data retrieval call binding the contract method 0x96c586c2.
+//
+// Solidity: function getParticipantDomain(address participant_addr) view returns(string)
+func (_Subnet *SubnetCaller) GetParticipantDomain(opts *bind.CallOpts, participant_addr common.Address) (string, error) {
+	var out []interface{}
+	err := _Subnet.contract.Call(opts, &out, "getParticipantDomain", participant_addr)
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// GetParticipantDomain is a free data retrieval call binding the contract method 0x96c586c2.
+//
+// Solidity: function getParticipantDomain(address participant_addr) view returns(string)
+func (_Subnet *SubnetSession) GetParticipantDomain(participant_addr common.Address) (string, error) {
+	return _Subnet.Contract.GetParticipantDomain(&_Subnet.CallOpts, participant_addr)
+}
+
+// GetParticipantDomain is a free data retrieval call binding the contract method 0x96c586c2.
+//
+// Solidity: function getParticipantDomain(address participant_addr) view returns(string)
+func (_Subnet *SubnetCallerSession) GetParticipantDomain(participant_addr common.Address) (string, error) {
+	return _Subnet.Contract.GetParticipantDomain(&_Subnet.CallOpts, participant_addr)
+}
+
+// GetParticipantEndpoint is a free data retrieval call binding the contract method 0xce1245c4.
+//
+// Solidity: function getParticipantEndpoint(address participant_addr) view returns(string)
+func (_Subnet *SubnetCaller) GetParticipantEndpoint(opts *bind.CallOpts, participant_addr common.Address) (string, error) {
+	var out []interface{}
+	err := _Subnet.contract.Call(opts, &out, "getParticipantEndpoint", participant_addr)
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// GetParticipantEndpoint is a free data retrieval call binding the contract method 0xce1245c4.
+//
+// Solidity: function getParticipantEndpoint(address participant_addr) view returns(string)
+func (_Subnet *SubnetSession) GetParticipantEndpoint(participant_addr common.Address) (string, error) {
+	return _Subnet.Contract.GetParticipantEndpoint(&_Subnet.CallOpts, participant_addr)
+}
+
+// GetParticipantEndpoint is a free data retrieval call binding the contract method 0xce1245c4.
+//
+// Solidity: function getParticipantEndpoint(address participant_addr) view returns(string)
+func (_Subnet *SubnetCallerSession) GetParticipantEndpoint(participant_addr common.Address) (string, error) {
+	return _Subnet.Contract.GetParticipantEndpoint(&_Subnet.CallOpts, participant_addr)
+}
+
 // GetParticipantInfo is a free data retrieval call binding the contract method 0x735d23e8.
 //
-// Solidity: function getParticipantInfo(address participant_addr, uint8 participant_type) view returns((address,uint8,uint8,uint80,uint128,uint128,uint256,string,string,string))
+// Solidity: function getParticipantInfo(address participant_addr, uint8 participant_type) view returns((uint8,uint256,uint64))
 func (_Subnet *SubnetCaller) GetParticipantInfo(opts *bind.CallOpts, participant_addr common.Address, participant_type uint8) (DataStructuresParticipantInfo, error) {
 	var out []interface{}
 	err := _Subnet.contract.Call(opts, &out, "getParticipantInfo", participant_addr, participant_type)
@@ -513,16 +661,47 @@ func (_Subnet *SubnetCaller) GetParticipantInfo(opts *bind.CallOpts, participant
 
 // GetParticipantInfo is a free data retrieval call binding the contract method 0x735d23e8.
 //
-// Solidity: function getParticipantInfo(address participant_addr, uint8 participant_type) view returns((address,uint8,uint8,uint80,uint128,uint128,uint256,string,string,string))
+// Solidity: function getParticipantInfo(address participant_addr, uint8 participant_type) view returns((uint8,uint256,uint64))
 func (_Subnet *SubnetSession) GetParticipantInfo(participant_addr common.Address, participant_type uint8) (DataStructuresParticipantInfo, error) {
 	return _Subnet.Contract.GetParticipantInfo(&_Subnet.CallOpts, participant_addr, participant_type)
 }
 
 // GetParticipantInfo is a free data retrieval call binding the contract method 0x735d23e8.
 //
-// Solidity: function getParticipantInfo(address participant_addr, uint8 participant_type) view returns((address,uint8,uint8,uint80,uint128,uint128,uint256,string,string,string))
+// Solidity: function getParticipantInfo(address participant_addr, uint8 participant_type) view returns((uint8,uint256,uint64))
 func (_Subnet *SubnetCallerSession) GetParticipantInfo(participant_addr common.Address, participant_type uint8) (DataStructuresParticipantInfo, error) {
 	return _Subnet.Contract.GetParticipantInfo(&_Subnet.CallOpts, participant_addr, participant_type)
+}
+
+// GetParticipantMetadataUri is a free data retrieval call binding the contract method 0x75c6bbe2.
+//
+// Solidity: function getParticipantMetadataUri(address participant_addr) view returns(string)
+func (_Subnet *SubnetCaller) GetParticipantMetadataUri(opts *bind.CallOpts, participant_addr common.Address) (string, error) {
+	var out []interface{}
+	err := _Subnet.contract.Call(opts, &out, "getParticipantMetadataUri", participant_addr)
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// GetParticipantMetadataUri is a free data retrieval call binding the contract method 0x75c6bbe2.
+//
+// Solidity: function getParticipantMetadataUri(address participant_addr) view returns(string)
+func (_Subnet *SubnetSession) GetParticipantMetadataUri(participant_addr common.Address) (string, error) {
+	return _Subnet.Contract.GetParticipantMetadataUri(&_Subnet.CallOpts, participant_addr)
+}
+
+// GetParticipantMetadataUri is a free data retrieval call binding the contract method 0x75c6bbe2.
+//
+// Solidity: function getParticipantMetadataUri(address participant_addr) view returns(string)
+func (_Subnet *SubnetCallerSession) GetParticipantMetadataUri(participant_addr common.Address) (string, error) {
+	return _Subnet.Contract.GetParticipantMetadataUri(&_Subnet.CallOpts, participant_addr)
 }
 
 // GetParticipantStakeInfo is a free data retrieval call binding the contract method 0xfa736600.
@@ -930,7 +1109,7 @@ func (_Subnet *SubnetCallerSession) IsActiveParticipant(participant_addr common.
 
 // ListActiveParticipants is a free data retrieval call binding the contract method 0x5caecd9c.
 //
-// Solidity: function listActiveParticipants(uint8 participant_type) view returns((address,uint8,uint8,uint80,uint128,uint128,uint256,string,string,string)[])
+// Solidity: function listActiveParticipants(uint8 participant_type) view returns((uint8,uint256,uint64)[])
 func (_Subnet *SubnetCaller) ListActiveParticipants(opts *bind.CallOpts, participant_type uint8) ([]DataStructuresParticipantInfo, error) {
 	var out []interface{}
 	err := _Subnet.contract.Call(opts, &out, "listActiveParticipants", participant_type)
@@ -947,93 +1126,72 @@ func (_Subnet *SubnetCaller) ListActiveParticipants(opts *bind.CallOpts, partici
 
 // ListActiveParticipants is a free data retrieval call binding the contract method 0x5caecd9c.
 //
-// Solidity: function listActiveParticipants(uint8 participant_type) view returns((address,uint8,uint8,uint80,uint128,uint128,uint256,string,string,string)[])
+// Solidity: function listActiveParticipants(uint8 participant_type) view returns((uint8,uint256,uint64)[])
 func (_Subnet *SubnetSession) ListActiveParticipants(participant_type uint8) ([]DataStructuresParticipantInfo, error) {
 	return _Subnet.Contract.ListActiveParticipants(&_Subnet.CallOpts, participant_type)
 }
 
 // ListActiveParticipants is a free data retrieval call binding the contract method 0x5caecd9c.
 //
-// Solidity: function listActiveParticipants(uint8 participant_type) view returns((address,uint8,uint8,uint80,uint128,uint128,uint256,string,string,string)[])
+// Solidity: function listActiveParticipants(uint8 participant_type) view returns((uint8,uint256,uint64)[])
 func (_Subnet *SubnetCallerSession) ListActiveParticipants(participant_type uint8) ([]DataStructuresParticipantInfo, error) {
 	return _Subnet.Contract.ListActiveParticipants(&_Subnet.CallOpts, participant_type)
 }
 
-// ParticipantListByType is a free data retrieval call binding the contract method 0xac6c2a45.
+// OnERC721Received is a free data retrieval call binding the contract method 0x150b7a02.
 //
-// Solidity: function participantListByType(uint8 , uint256 ) view returns(address)
-func (_Subnet *SubnetCaller) ParticipantListByType(opts *bind.CallOpts, arg0 uint8, arg1 *big.Int) (common.Address, error) {
+// Solidity: function onERC721Received(address , address , uint256 , bytes ) pure returns(bytes4)
+func (_Subnet *SubnetCaller) OnERC721Received(opts *bind.CallOpts, arg0 common.Address, arg1 common.Address, arg2 *big.Int, arg3 []byte) ([4]byte, error) {
 	var out []interface{}
-	err := _Subnet.contract.Call(opts, &out, "participantListByType", arg0, arg1)
+	err := _Subnet.contract.Call(opts, &out, "onERC721Received", arg0, arg1, arg2, arg3)
 
 	if err != nil {
-		return *new(common.Address), err
+		return *new([4]byte), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+	out0 := *abi.ConvertType(out[0], new([4]byte)).(*[4]byte)
 
 	return out0, err
 
 }
 
-// ParticipantListByType is a free data retrieval call binding the contract method 0xac6c2a45.
+// OnERC721Received is a free data retrieval call binding the contract method 0x150b7a02.
 //
-// Solidity: function participantListByType(uint8 , uint256 ) view returns(address)
-func (_Subnet *SubnetSession) ParticipantListByType(arg0 uint8, arg1 *big.Int) (common.Address, error) {
-	return _Subnet.Contract.ParticipantListByType(&_Subnet.CallOpts, arg0, arg1)
+// Solidity: function onERC721Received(address , address , uint256 , bytes ) pure returns(bytes4)
+func (_Subnet *SubnetSession) OnERC721Received(arg0 common.Address, arg1 common.Address, arg2 *big.Int, arg3 []byte) ([4]byte, error) {
+	return _Subnet.Contract.OnERC721Received(&_Subnet.CallOpts, arg0, arg1, arg2, arg3)
 }
 
-// ParticipantListByType is a free data retrieval call binding the contract method 0xac6c2a45.
+// OnERC721Received is a free data retrieval call binding the contract method 0x150b7a02.
 //
-// Solidity: function participantListByType(uint8 , uint256 ) view returns(address)
-func (_Subnet *SubnetCallerSession) ParticipantListByType(arg0 uint8, arg1 *big.Int) (common.Address, error) {
-	return _Subnet.Contract.ParticipantListByType(&_Subnet.CallOpts, arg0, arg1)
+// Solidity: function onERC721Received(address , address , uint256 , bytes ) pure returns(bytes4)
+func (_Subnet *SubnetCallerSession) OnERC721Received(arg0 common.Address, arg1 common.Address, arg2 *big.Int, arg3 []byte) ([4]byte, error) {
+	return _Subnet.Contract.OnERC721Received(&_Subnet.CallOpts, arg0, arg1, arg2, arg3)
 }
 
 // Participants is a free data retrieval call binding the contract method 0xca8cf966.
 //
-// Solidity: function participants(address , uint8 ) view returns(address owner, uint8 participant_type, uint8 status, uint80 reputation_score, uint128 registered_at, uint128 last_active, uint256 reserved, string endpoint, string domain, string metadata_uri)
+// Solidity: function participants(address , uint8 ) view returns(uint8 status, uint256 agent_id, uint64 registered_at)
 func (_Subnet *SubnetCaller) Participants(opts *bind.CallOpts, arg0 common.Address, arg1 uint8) (struct {
-	Owner           common.Address
-	ParticipantType uint8
-	Status          uint8
-	ReputationScore *big.Int
-	RegisteredAt    *big.Int
-	LastActive      *big.Int
-	Reserved        *big.Int
-	Endpoint        string
-	Domain          string
-	MetadataUri     string
+	Status       uint8
+	AgentId      *big.Int
+	RegisteredAt uint64
 }, error) {
 	var out []interface{}
 	err := _Subnet.contract.Call(opts, &out, "participants", arg0, arg1)
 
 	outstruct := new(struct {
-		Owner           common.Address
-		ParticipantType uint8
-		Status          uint8
-		ReputationScore *big.Int
-		RegisteredAt    *big.Int
-		LastActive      *big.Int
-		Reserved        *big.Int
-		Endpoint        string
-		Domain          string
-		MetadataUri     string
+		Status       uint8
+		AgentId      *big.Int
+		RegisteredAt uint64
 	})
 	if err != nil {
 		return *outstruct, err
 	}
 
-	outstruct.Owner = *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-	outstruct.ParticipantType = *abi.ConvertType(out[1], new(uint8)).(*uint8)
-	outstruct.Status = *abi.ConvertType(out[2], new(uint8)).(*uint8)
-	outstruct.ReputationScore = *abi.ConvertType(out[3], new(*big.Int)).(**big.Int)
-	outstruct.RegisteredAt = *abi.ConvertType(out[4], new(*big.Int)).(**big.Int)
-	outstruct.LastActive = *abi.ConvertType(out[5], new(*big.Int)).(**big.Int)
-	outstruct.Reserved = *abi.ConvertType(out[6], new(*big.Int)).(**big.Int)
-	outstruct.Endpoint = *abi.ConvertType(out[7], new(string)).(*string)
-	outstruct.Domain = *abi.ConvertType(out[8], new(string)).(*string)
-	outstruct.MetadataUri = *abi.ConvertType(out[9], new(string)).(*string)
+	outstruct.Status = *abi.ConvertType(out[0], new(uint8)).(*uint8)
+	outstruct.AgentId = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
+	outstruct.RegisteredAt = *abi.ConvertType(out[2], new(uint64)).(*uint64)
 
 	return *outstruct, err
 
@@ -1041,36 +1199,22 @@ func (_Subnet *SubnetCaller) Participants(opts *bind.CallOpts, arg0 common.Addre
 
 // Participants is a free data retrieval call binding the contract method 0xca8cf966.
 //
-// Solidity: function participants(address , uint8 ) view returns(address owner, uint8 participant_type, uint8 status, uint80 reputation_score, uint128 registered_at, uint128 last_active, uint256 reserved, string endpoint, string domain, string metadata_uri)
+// Solidity: function participants(address , uint8 ) view returns(uint8 status, uint256 agent_id, uint64 registered_at)
 func (_Subnet *SubnetSession) Participants(arg0 common.Address, arg1 uint8) (struct {
-	Owner           common.Address
-	ParticipantType uint8
-	Status          uint8
-	ReputationScore *big.Int
-	RegisteredAt    *big.Int
-	LastActive      *big.Int
-	Reserved        *big.Int
-	Endpoint        string
-	Domain          string
-	MetadataUri     string
+	Status       uint8
+	AgentId      *big.Int
+	RegisteredAt uint64
 }, error) {
 	return _Subnet.Contract.Participants(&_Subnet.CallOpts, arg0, arg1)
 }
 
 // Participants is a free data retrieval call binding the contract method 0xca8cf966.
 //
-// Solidity: function participants(address , uint8 ) view returns(address owner, uint8 participant_type, uint8 status, uint80 reputation_score, uint128 registered_at, uint128 last_active, uint256 reserved, string endpoint, string domain, string metadata_uri)
+// Solidity: function participants(address , uint8 ) view returns(uint8 status, uint256 agent_id, uint64 registered_at)
 func (_Subnet *SubnetCallerSession) Participants(arg0 common.Address, arg1 uint8) (struct {
-	Owner           common.Address
-	ParticipantType uint8
-	Status          uint8
-	ReputationScore *big.Int
-	RegisteredAt    *big.Int
-	LastActive      *big.Int
-	Reserved        *big.Int
-	Endpoint        string
-	Domain          string
-	MetadataUri     string
+	Status       uint8
+	AgentId      *big.Int
+	RegisteredAt uint64
 }, error) {
 	return _Subnet.Contract.Participants(&_Subnet.CallOpts, arg0, arg1)
 }
@@ -1104,6 +1248,35 @@ func (_Subnet *SubnetSession) Paused() (bool, error) {
 // Solidity: function paused() view returns(bool)
 func (_Subnet *SubnetCallerSession) Paused() (bool, error) {
 	return _Subnet.Contract.Paused(&_Subnet.CallOpts)
+}
+
+// RequireActiveParticipants is a free data retrieval call binding the contract method 0xd12630c1.
+//
+// Solidity: function requireActiveParticipants(address[] participant_addrs, uint8[] participant_types) view returns()
+func (_Subnet *SubnetCaller) RequireActiveParticipants(opts *bind.CallOpts, participant_addrs []common.Address, participant_types []uint8) error {
+	var out []interface{}
+	err := _Subnet.contract.Call(opts, &out, "requireActiveParticipants", participant_addrs, participant_types)
+
+	if err != nil {
+		return err
+	}
+
+	return err
+
+}
+
+// RequireActiveParticipants is a free data retrieval call binding the contract method 0xd12630c1.
+//
+// Solidity: function requireActiveParticipants(address[] participant_addrs, uint8[] participant_types) view returns()
+func (_Subnet *SubnetSession) RequireActiveParticipants(participant_addrs []common.Address, participant_types []uint8) error {
+	return _Subnet.Contract.RequireActiveParticipants(&_Subnet.CallOpts, participant_addrs, participant_types)
+}
+
+// RequireActiveParticipants is a free data retrieval call binding the contract method 0xd12630c1.
+//
+// Solidity: function requireActiveParticipants(address[] participant_addrs, uint8[] participant_types) view returns()
+func (_Subnet *SubnetCallerSession) RequireActiveParticipants(participant_addrs []common.Address, participant_types []uint8) error {
+	return _Subnet.Contract.RequireActiveParticipants(&_Subnet.CallOpts, participant_addrs, participant_types)
 }
 
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
@@ -1200,25 +1373,25 @@ func (_Subnet *SubnetTransactorSession) GrantRole(role [32]byte, account common.
 	return _Subnet.Contract.GrantRole(&_Subnet.TransactOpts, role, account)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x708b73a2.
+// Initialize is a paid mutator transaction binding the contract method 0x8729ff46.
 //
-// Solidity: function initialize((bytes32,string,address,uint16,string,string,bool,bool,uint8,(uint128,uint64,uint64),(uint32,uint32),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[]),string,uint256,uint256,uint256) _subnetInfo, address _factory, address stakingManager_) returns()
-func (_Subnet *SubnetTransactor) Initialize(opts *bind.TransactOpts, _subnetInfo DataStructuresSubnetInfo, _factory common.Address, stakingManager_ common.Address) (*types.Transaction, error) {
-	return _Subnet.contract.Transact(opts, "initialize", _subnetInfo, _factory, stakingManager_)
+// Solidity: function initialize((bytes32,string,address,uint16,string,string,bool,bool,uint8,(uint128,uint64,uint64),(uint32,uint32),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[]),string,uint256,uint256,uint256) _subnetInfo, address _factory, address stakingManager_, address identityRegistry_) returns()
+func (_Subnet *SubnetTransactor) Initialize(opts *bind.TransactOpts, _subnetInfo DataStructuresSubnetInfo, _factory common.Address, stakingManager_ common.Address, identityRegistry_ common.Address) (*types.Transaction, error) {
+	return _Subnet.contract.Transact(opts, "initialize", _subnetInfo, _factory, stakingManager_, identityRegistry_)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x708b73a2.
+// Initialize is a paid mutator transaction binding the contract method 0x8729ff46.
 //
-// Solidity: function initialize((bytes32,string,address,uint16,string,string,bool,bool,uint8,(uint128,uint64,uint64),(uint32,uint32),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[]),string,uint256,uint256,uint256) _subnetInfo, address _factory, address stakingManager_) returns()
-func (_Subnet *SubnetSession) Initialize(_subnetInfo DataStructuresSubnetInfo, _factory common.Address, stakingManager_ common.Address) (*types.Transaction, error) {
-	return _Subnet.Contract.Initialize(&_Subnet.TransactOpts, _subnetInfo, _factory, stakingManager_)
+// Solidity: function initialize((bytes32,string,address,uint16,string,string,bool,bool,uint8,(uint128,uint64,uint64),(uint32,uint32),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[]),string,uint256,uint256,uint256) _subnetInfo, address _factory, address stakingManager_, address identityRegistry_) returns()
+func (_Subnet *SubnetSession) Initialize(_subnetInfo DataStructuresSubnetInfo, _factory common.Address, stakingManager_ common.Address, identityRegistry_ common.Address) (*types.Transaction, error) {
+	return _Subnet.Contract.Initialize(&_Subnet.TransactOpts, _subnetInfo, _factory, stakingManager_, identityRegistry_)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x708b73a2.
+// Initialize is a paid mutator transaction binding the contract method 0x8729ff46.
 //
-// Solidity: function initialize((bytes32,string,address,uint16,string,string,bool,bool,uint8,(uint128,uint64,uint64),(uint32,uint32),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[]),string,uint256,uint256,uint256) _subnetInfo, address _factory, address stakingManager_) returns()
-func (_Subnet *SubnetTransactorSession) Initialize(_subnetInfo DataStructuresSubnetInfo, _factory common.Address, stakingManager_ common.Address) (*types.Transaction, error) {
-	return _Subnet.Contract.Initialize(&_Subnet.TransactOpts, _subnetInfo, _factory, stakingManager_)
+// Solidity: function initialize((bytes32,string,address,uint16,string,string,bool,bool,uint8,(uint128,uint64,uint64),(uint32,uint32),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[]),string,uint256,uint256,uint256) _subnetInfo, address _factory, address stakingManager_, address identityRegistry_) returns()
+func (_Subnet *SubnetTransactorSession) Initialize(_subnetInfo DataStructuresSubnetInfo, _factory common.Address, stakingManager_ common.Address, identityRegistry_ common.Address) (*types.Transaction, error) {
+	return _Subnet.Contract.Initialize(&_Subnet.TransactOpts, _subnetInfo, _factory, stakingManager_, identityRegistry_)
 }
 
 // Pause is a paid mutator transaction binding the contract method 0x8456cb59.
@@ -1242,46 +1415,46 @@ func (_Subnet *SubnetTransactorSession) Pause() (*types.Transaction, error) {
 	return _Subnet.Contract.Pause(&_Subnet.TransactOpts)
 }
 
-// RegisterParticipant is a paid mutator transaction binding the contract method 0x8941382a.
+// RegisterParticipant is a paid mutator transaction binding the contract method 0x6636fd2e.
 //
-// Solidity: function registerParticipant(uint8 participant_type, string domain, string endpoint, string metadata_uri) payable returns(bool)
-func (_Subnet *SubnetTransactor) RegisterParticipant(opts *bind.TransactOpts, participant_type uint8, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
-	return _Subnet.contract.Transact(opts, "registerParticipant", participant_type, domain, endpoint, metadata_uri)
+// Solidity: function registerParticipant(uint8 participant_type, uint256 agentId, string domain, string endpoint, string metadata_uri) payable returns(bool)
+func (_Subnet *SubnetTransactor) RegisterParticipant(opts *bind.TransactOpts, participant_type uint8, agentId *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
+	return _Subnet.contract.Transact(opts, "registerParticipant", participant_type, agentId, domain, endpoint, metadata_uri)
 }
 
-// RegisterParticipant is a paid mutator transaction binding the contract method 0x8941382a.
+// RegisterParticipant is a paid mutator transaction binding the contract method 0x6636fd2e.
 //
-// Solidity: function registerParticipant(uint8 participant_type, string domain, string endpoint, string metadata_uri) payable returns(bool)
-func (_Subnet *SubnetSession) RegisterParticipant(participant_type uint8, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
-	return _Subnet.Contract.RegisterParticipant(&_Subnet.TransactOpts, participant_type, domain, endpoint, metadata_uri)
+// Solidity: function registerParticipant(uint8 participant_type, uint256 agentId, string domain, string endpoint, string metadata_uri) payable returns(bool)
+func (_Subnet *SubnetSession) RegisterParticipant(participant_type uint8, agentId *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
+	return _Subnet.Contract.RegisterParticipant(&_Subnet.TransactOpts, participant_type, agentId, domain, endpoint, metadata_uri)
 }
 
-// RegisterParticipant is a paid mutator transaction binding the contract method 0x8941382a.
+// RegisterParticipant is a paid mutator transaction binding the contract method 0x6636fd2e.
 //
-// Solidity: function registerParticipant(uint8 participant_type, string domain, string endpoint, string metadata_uri) payable returns(bool)
-func (_Subnet *SubnetTransactorSession) RegisterParticipant(participant_type uint8, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
-	return _Subnet.Contract.RegisterParticipant(&_Subnet.TransactOpts, participant_type, domain, endpoint, metadata_uri)
+// Solidity: function registerParticipant(uint8 participant_type, uint256 agentId, string domain, string endpoint, string metadata_uri) payable returns(bool)
+func (_Subnet *SubnetTransactorSession) RegisterParticipant(participant_type uint8, agentId *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
+	return _Subnet.Contract.RegisterParticipant(&_Subnet.TransactOpts, participant_type, agentId, domain, endpoint, metadata_uri)
 }
 
-// RegisterParticipantERC20 is a paid mutator transaction binding the contract method 0x73a6d7c5.
+// RegisterParticipantERC20 is a paid mutator transaction binding the contract method 0x765bf529.
 //
-// Solidity: function registerParticipantERC20(uint8 participant_type, uint256 amount, string domain, string endpoint, string metadata_uri) returns(bool)
-func (_Subnet *SubnetTransactor) RegisterParticipantERC20(opts *bind.TransactOpts, participant_type uint8, amount *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
-	return _Subnet.contract.Transact(opts, "registerParticipantERC20", participant_type, amount, domain, endpoint, metadata_uri)
+// Solidity: function registerParticipantERC20(uint8 participant_type, uint256 agentId, uint256 amount, string domain, string endpoint, string metadata_uri) returns(bool)
+func (_Subnet *SubnetTransactor) RegisterParticipantERC20(opts *bind.TransactOpts, participant_type uint8, agentId *big.Int, amount *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
+	return _Subnet.contract.Transact(opts, "registerParticipantERC20", participant_type, agentId, amount, domain, endpoint, metadata_uri)
 }
 
-// RegisterParticipantERC20 is a paid mutator transaction binding the contract method 0x73a6d7c5.
+// RegisterParticipantERC20 is a paid mutator transaction binding the contract method 0x765bf529.
 //
-// Solidity: function registerParticipantERC20(uint8 participant_type, uint256 amount, string domain, string endpoint, string metadata_uri) returns(bool)
-func (_Subnet *SubnetSession) RegisterParticipantERC20(participant_type uint8, amount *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
-	return _Subnet.Contract.RegisterParticipantERC20(&_Subnet.TransactOpts, participant_type, amount, domain, endpoint, metadata_uri)
+// Solidity: function registerParticipantERC20(uint8 participant_type, uint256 agentId, uint256 amount, string domain, string endpoint, string metadata_uri) returns(bool)
+func (_Subnet *SubnetSession) RegisterParticipantERC20(participant_type uint8, agentId *big.Int, amount *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
+	return _Subnet.Contract.RegisterParticipantERC20(&_Subnet.TransactOpts, participant_type, agentId, amount, domain, endpoint, metadata_uri)
 }
 
-// RegisterParticipantERC20 is a paid mutator transaction binding the contract method 0x73a6d7c5.
+// RegisterParticipantERC20 is a paid mutator transaction binding the contract method 0x765bf529.
 //
-// Solidity: function registerParticipantERC20(uint8 participant_type, uint256 amount, string domain, string endpoint, string metadata_uri) returns(bool)
-func (_Subnet *SubnetTransactorSession) RegisterParticipantERC20(participant_type uint8, amount *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
-	return _Subnet.Contract.RegisterParticipantERC20(&_Subnet.TransactOpts, participant_type, amount, domain, endpoint, metadata_uri)
+// Solidity: function registerParticipantERC20(uint8 participant_type, uint256 agentId, uint256 amount, string domain, string endpoint, string metadata_uri) returns(bool)
+func (_Subnet *SubnetTransactorSession) RegisterParticipantERC20(participant_type uint8, agentId *big.Int, amount *big.Int, domain string, endpoint string, metadata_uri string) (*types.Transaction, error) {
+	return _Subnet.Contract.RegisterParticipantERC20(&_Subnet.TransactOpts, participant_type, agentId, amount, domain, endpoint, metadata_uri)
 }
 
 // RejectParticipant is a paid mutator transaction binding the contract method 0x6ee88b16.
@@ -1389,25 +1562,25 @@ func (_Subnet *SubnetTransactorSession) SetStakeConfig(_stakeConfig DataStructur
 	return _Subnet.Contract.SetStakeConfig(&_Subnet.TransactOpts, _stakeConfig)
 }
 
-// SuspendParticipant is a paid mutator transaction binding the contract method 0x96611afd.
+// SuspendParticipant is a paid mutator transaction binding the contract method 0x932b4a5a.
 //
-// Solidity: function suspendParticipant(uint8 participant_type, string ) returns()
-func (_Subnet *SubnetTransactor) SuspendParticipant(opts *bind.TransactOpts, participant_type uint8, arg1 string) (*types.Transaction, error) {
-	return _Subnet.contract.Transact(opts, "suspendParticipant", participant_type, arg1)
+// Solidity: function suspendParticipant(address participant_addr, uint8 participant_type) returns()
+func (_Subnet *SubnetTransactor) SuspendParticipant(opts *bind.TransactOpts, participant_addr common.Address, participant_type uint8) (*types.Transaction, error) {
+	return _Subnet.contract.Transact(opts, "suspendParticipant", participant_addr, participant_type)
 }
 
-// SuspendParticipant is a paid mutator transaction binding the contract method 0x96611afd.
+// SuspendParticipant is a paid mutator transaction binding the contract method 0x932b4a5a.
 //
-// Solidity: function suspendParticipant(uint8 participant_type, string ) returns()
-func (_Subnet *SubnetSession) SuspendParticipant(participant_type uint8, arg1 string) (*types.Transaction, error) {
-	return _Subnet.Contract.SuspendParticipant(&_Subnet.TransactOpts, participant_type, arg1)
+// Solidity: function suspendParticipant(address participant_addr, uint8 participant_type) returns()
+func (_Subnet *SubnetSession) SuspendParticipant(participant_addr common.Address, participant_type uint8) (*types.Transaction, error) {
+	return _Subnet.Contract.SuspendParticipant(&_Subnet.TransactOpts, participant_addr, participant_type)
 }
 
-// SuspendParticipant is a paid mutator transaction binding the contract method 0x96611afd.
+// SuspendParticipant is a paid mutator transaction binding the contract method 0x932b4a5a.
 //
-// Solidity: function suspendParticipant(uint8 participant_type, string ) returns()
-func (_Subnet *SubnetTransactorSession) SuspendParticipant(participant_type uint8, arg1 string) (*types.Transaction, error) {
-	return _Subnet.Contract.SuspendParticipant(&_Subnet.TransactOpts, participant_type, arg1)
+// Solidity: function suspendParticipant(address participant_addr, uint8 participant_type) returns()
+func (_Subnet *SubnetTransactorSession) SuspendParticipant(participant_addr common.Address, participant_type uint8) (*types.Transaction, error) {
+	return _Subnet.Contract.SuspendParticipant(&_Subnet.TransactOpts, participant_addr, participant_type)
 }
 
 // Unpause is a paid mutator transaction binding the contract method 0x3f4ba83a.
@@ -1450,6 +1623,150 @@ func (_Subnet *SubnetSession) UpdateParticipantActivity(participant_type uint8) 
 // Solidity: function updateParticipantActivity(uint8 participant_type) returns()
 func (_Subnet *SubnetTransactorSession) UpdateParticipantActivity(participant_type uint8) (*types.Transaction, error) {
 	return _Subnet.Contract.UpdateParticipantActivity(&_Subnet.TransactOpts, participant_type)
+}
+
+// SubnetAgentIdentityRegistrySetIterator is returned from FilterAgentIdentityRegistrySet and is used to iterate over the raw logs and unpacked data for AgentIdentityRegistrySet events raised by the Subnet contract.
+type SubnetAgentIdentityRegistrySetIterator struct {
+	Event *SubnetAgentIdentityRegistrySet // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *SubnetAgentIdentityRegistrySetIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(SubnetAgentIdentityRegistrySet)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(SubnetAgentIdentityRegistrySet)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *SubnetAgentIdentityRegistrySetIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *SubnetAgentIdentityRegistrySetIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// SubnetAgentIdentityRegistrySet represents a AgentIdentityRegistrySet event raised by the Subnet contract.
+type SubnetAgentIdentityRegistrySet struct {
+	Registry common.Address
+	Raw      types.Log // Blockchain specific contextual infos
+}
+
+// FilterAgentIdentityRegistrySet is a free log retrieval operation binding the contract event 0x320f157b4b262e9289d2b57973872e6e058cb44ba465f5271d57287afdcc1adc.
+//
+// Solidity: event AgentIdentityRegistrySet(address indexed registry)
+func (_Subnet *SubnetFilterer) FilterAgentIdentityRegistrySet(opts *bind.FilterOpts, registry []common.Address) (*SubnetAgentIdentityRegistrySetIterator, error) {
+
+	var registryRule []interface{}
+	for _, registryItem := range registry {
+		registryRule = append(registryRule, registryItem)
+	}
+
+	logs, sub, err := _Subnet.contract.FilterLogs(opts, "AgentIdentityRegistrySet", registryRule)
+	if err != nil {
+		return nil, err
+	}
+	return &SubnetAgentIdentityRegistrySetIterator{contract: _Subnet.contract, event: "AgentIdentityRegistrySet", logs: logs, sub: sub}, nil
+}
+
+// WatchAgentIdentityRegistrySet is a free log subscription operation binding the contract event 0x320f157b4b262e9289d2b57973872e6e058cb44ba465f5271d57287afdcc1adc.
+//
+// Solidity: event AgentIdentityRegistrySet(address indexed registry)
+func (_Subnet *SubnetFilterer) WatchAgentIdentityRegistrySet(opts *bind.WatchOpts, sink chan<- *SubnetAgentIdentityRegistrySet, registry []common.Address) (event.Subscription, error) {
+
+	var registryRule []interface{}
+	for _, registryItem := range registry {
+		registryRule = append(registryRule, registryItem)
+	}
+
+	logs, sub, err := _Subnet.contract.WatchLogs(opts, "AgentIdentityRegistrySet", registryRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(SubnetAgentIdentityRegistrySet)
+				if err := _Subnet.contract.UnpackLog(event, "AgentIdentityRegistrySet", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseAgentIdentityRegistrySet is a log parse operation binding the contract event 0x320f157b4b262e9289d2b57973872e6e058cb44ba465f5271d57287afdcc1adc.
+//
+// Solidity: event AgentIdentityRegistrySet(address indexed registry)
+func (_Subnet *SubnetFilterer) ParseAgentIdentityRegistrySet(log types.Log) (*SubnetAgentIdentityRegistrySet, error) {
+	event := new(SubnetAgentIdentityRegistrySet)
+	if err := _Subnet.contract.UnpackLog(event, "AgentIdentityRegistrySet", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
 }
 
 // SubnetFeedbackSubmittedIterator is returned from FilterFeedbackSubmitted and is used to iterate over the raw logs and unpacked data for FeedbackSubmitted events raised by the Subnet contract.
@@ -2060,6 +2377,313 @@ func (_Subnet *SubnetFilterer) WatchParticipantApproved(opts *bind.WatchOpts, si
 func (_Subnet *SubnetFilterer) ParseParticipantApproved(log types.Log) (*SubnetParticipantApproved, error) {
 	event := new(SubnetParticipantApproved)
 	if err := _Subnet.contract.UnpackLog(event, "ParticipantApproved", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// SubnetParticipantIdentityBoundIterator is returned from FilterParticipantIdentityBound and is used to iterate over the raw logs and unpacked data for ParticipantIdentityBound events raised by the Subnet contract.
+type SubnetParticipantIdentityBoundIterator struct {
+	Event *SubnetParticipantIdentityBound // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *SubnetParticipantIdentityBoundIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(SubnetParticipantIdentityBound)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(SubnetParticipantIdentityBound)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *SubnetParticipantIdentityBoundIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *SubnetParticipantIdentityBoundIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// SubnetParticipantIdentityBound represents a ParticipantIdentityBound event raised by the Subnet contract.
+type SubnetParticipantIdentityBound struct {
+	Participant common.Address
+	AgentId     *big.Int
+	Raw         types.Log // Blockchain specific contextual infos
+}
+
+// FilterParticipantIdentityBound is a free log retrieval operation binding the contract event 0xd54ee5b46503fad8a00f45ed58660ef98a860ed5ace41d9b5795f91b3d0dc6d5.
+//
+// Solidity: event ParticipantIdentityBound(address indexed participant, uint256 indexed agentId)
+func (_Subnet *SubnetFilterer) FilterParticipantIdentityBound(opts *bind.FilterOpts, participant []common.Address, agentId []*big.Int) (*SubnetParticipantIdentityBoundIterator, error) {
+
+	var participantRule []interface{}
+	for _, participantItem := range participant {
+		participantRule = append(participantRule, participantItem)
+	}
+	var agentIdRule []interface{}
+	for _, agentIdItem := range agentId {
+		agentIdRule = append(agentIdRule, agentIdItem)
+	}
+
+	logs, sub, err := _Subnet.contract.FilterLogs(opts, "ParticipantIdentityBound", participantRule, agentIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return &SubnetParticipantIdentityBoundIterator{contract: _Subnet.contract, event: "ParticipantIdentityBound", logs: logs, sub: sub}, nil
+}
+
+// WatchParticipantIdentityBound is a free log subscription operation binding the contract event 0xd54ee5b46503fad8a00f45ed58660ef98a860ed5ace41d9b5795f91b3d0dc6d5.
+//
+// Solidity: event ParticipantIdentityBound(address indexed participant, uint256 indexed agentId)
+func (_Subnet *SubnetFilterer) WatchParticipantIdentityBound(opts *bind.WatchOpts, sink chan<- *SubnetParticipantIdentityBound, participant []common.Address, agentId []*big.Int) (event.Subscription, error) {
+
+	var participantRule []interface{}
+	for _, participantItem := range participant {
+		participantRule = append(participantRule, participantItem)
+	}
+	var agentIdRule []interface{}
+	for _, agentIdItem := range agentId {
+		agentIdRule = append(agentIdRule, agentIdItem)
+	}
+
+	logs, sub, err := _Subnet.contract.WatchLogs(opts, "ParticipantIdentityBound", participantRule, agentIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(SubnetParticipantIdentityBound)
+				if err := _Subnet.contract.UnpackLog(event, "ParticipantIdentityBound", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseParticipantIdentityBound is a log parse operation binding the contract event 0xd54ee5b46503fad8a00f45ed58660ef98a860ed5ace41d9b5795f91b3d0dc6d5.
+//
+// Solidity: event ParticipantIdentityBound(address indexed participant, uint256 indexed agentId)
+func (_Subnet *SubnetFilterer) ParseParticipantIdentityBound(log types.Log) (*SubnetParticipantIdentityBound, error) {
+	event := new(SubnetParticipantIdentityBound)
+	if err := _Subnet.contract.UnpackLog(event, "ParticipantIdentityBound", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// SubnetParticipantIdentityRegisteredIterator is returned from FilterParticipantIdentityRegistered and is used to iterate over the raw logs and unpacked data for ParticipantIdentityRegistered events raised by the Subnet contract.
+type SubnetParticipantIdentityRegisteredIterator struct {
+	Event *SubnetParticipantIdentityRegistered // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *SubnetParticipantIdentityRegisteredIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(SubnetParticipantIdentityRegistered)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(SubnetParticipantIdentityRegistered)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *SubnetParticipantIdentityRegisteredIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *SubnetParticipantIdentityRegisteredIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// SubnetParticipantIdentityRegistered represents a ParticipantIdentityRegistered event raised by the Subnet contract.
+type SubnetParticipantIdentityRegistered struct {
+	Participant common.Address
+	AgentId     *big.Int
+	Endpoint    string
+	Raw         types.Log // Blockchain specific contextual infos
+}
+
+// FilterParticipantIdentityRegistered is a free log retrieval operation binding the contract event 0x1cc884a47420b53b8bef39857ab08f65c5fa32e1b66d04efcbb602f3253492f1.
+//
+// Solidity: event ParticipantIdentityRegistered(address indexed participant, uint256 indexed agentId, string endpoint)
+func (_Subnet *SubnetFilterer) FilterParticipantIdentityRegistered(opts *bind.FilterOpts, participant []common.Address, agentId []*big.Int) (*SubnetParticipantIdentityRegisteredIterator, error) {
+
+	var participantRule []interface{}
+	for _, participantItem := range participant {
+		participantRule = append(participantRule, participantItem)
+	}
+	var agentIdRule []interface{}
+	for _, agentIdItem := range agentId {
+		agentIdRule = append(agentIdRule, agentIdItem)
+	}
+
+	logs, sub, err := _Subnet.contract.FilterLogs(opts, "ParticipantIdentityRegistered", participantRule, agentIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return &SubnetParticipantIdentityRegisteredIterator{contract: _Subnet.contract, event: "ParticipantIdentityRegistered", logs: logs, sub: sub}, nil
+}
+
+// WatchParticipantIdentityRegistered is a free log subscription operation binding the contract event 0x1cc884a47420b53b8bef39857ab08f65c5fa32e1b66d04efcbb602f3253492f1.
+//
+// Solidity: event ParticipantIdentityRegistered(address indexed participant, uint256 indexed agentId, string endpoint)
+func (_Subnet *SubnetFilterer) WatchParticipantIdentityRegistered(opts *bind.WatchOpts, sink chan<- *SubnetParticipantIdentityRegistered, participant []common.Address, agentId []*big.Int) (event.Subscription, error) {
+
+	var participantRule []interface{}
+	for _, participantItem := range participant {
+		participantRule = append(participantRule, participantItem)
+	}
+	var agentIdRule []interface{}
+	for _, agentIdItem := range agentId {
+		agentIdRule = append(agentIdRule, agentIdItem)
+	}
+
+	logs, sub, err := _Subnet.contract.WatchLogs(opts, "ParticipantIdentityRegistered", participantRule, agentIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(SubnetParticipantIdentityRegistered)
+				if err := _Subnet.contract.UnpackLog(event, "ParticipantIdentityRegistered", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseParticipantIdentityRegistered is a log parse operation binding the contract event 0x1cc884a47420b53b8bef39857ab08f65c5fa32e1b66d04efcbb602f3253492f1.
+//
+// Solidity: event ParticipantIdentityRegistered(address indexed participant, uint256 indexed agentId, string endpoint)
+func (_Subnet *SubnetFilterer) ParseParticipantIdentityRegistered(log types.Log) (*SubnetParticipantIdentityRegistered, error) {
+	event := new(SubnetParticipantIdentityRegistered)
+	if err := _Subnet.contract.UnpackLog(event, "ParticipantIdentityRegistered", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

@@ -41,7 +41,7 @@ type RegisterParticipantParams struct {
 	Value       *big.Int // Optional: native token amount required for registration (if any)
 }
 
-func (s *SubnetService) registerParticipant(ctx context.Context, participantType ParticipantType, params RegisterParticipantParams) (*types.Transaction, error) {
+func (s *SubnetService) registerParticipant(ctx context.Context, participantType ParticipantType, agentId *big.Int, params RegisterParticipantParams) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("subnet: tx manager not attached")
 	}
@@ -50,23 +50,26 @@ func (s *SubnetService) registerParticipant(ctx context.Context, participantType
 		if params.Value != nil {
 			opts.Value = params.Value
 		}
-		return s.contract.RegisterParticipant(opts, uint8(participantType), params.Domain, params.Endpoint, params.MetadataURI)
+		return s.contract.RegisterParticipant(opts, uint8(participantType), agentId, params.Domain, params.Endpoint, params.MetadataURI)
 	})
 }
 
-// RegisterValidator registers a validator using RegisterParticipant.
+// RegisterValidator registers a validator using RegisterParticipant (auto-creates NFT with agentId=0).
+// Gas cost: ~184k. For lower cost (~90k), use RegisterValidatorWithAgentId to bind existing NFT.
 func (s *SubnetService) RegisterValidator(ctx context.Context, params RegisterParticipantParams) (*types.Transaction, error) {
-	return s.registerParticipant(ctx, ParticipantValidator, params)
+	return s.registerParticipant(ctx, ParticipantValidator, big.NewInt(0), params)
 }
 
-// RegisterAgent registers an agent using RegisterParticipant.
+// RegisterAgent registers an agent using RegisterParticipant (auto-creates NFT with agentId=0).
+// Gas cost: ~184k. For lower cost (~90k), use RegisterAgentWithAgentId to bind existing NFT.
 func (s *SubnetService) RegisterAgent(ctx context.Context, params RegisterParticipantParams) (*types.Transaction, error) {
-	return s.registerParticipant(ctx, ParticipantAgent, params)
+	return s.registerParticipant(ctx, ParticipantAgent, big.NewInt(0), params)
 }
 
-// RegisterMatcher registers a matcher using RegisterParticipant.
+// RegisterMatcher registers a matcher using RegisterParticipant (auto-creates NFT with agentId=0).
+// Gas cost: ~184k. For lower cost (~90k), use RegisterMatcherWithAgentId to bind existing NFT.
 func (s *SubnetService) RegisterMatcher(ctx context.Context, params RegisterParticipantParams) (*types.Transaction, error) {
-	return s.registerParticipant(ctx, ParticipantMatcher, params)
+	return s.registerParticipant(ctx, ParticipantMatcher, big.NewInt(0), params)
 }
 
 // RegisterParticipantERC20Params describes input for RegisterParticipantERC20.
@@ -77,7 +80,7 @@ type RegisterParticipantERC20Params struct {
 	Amount      *big.Int
 }
 
-func (s *SubnetService) registerParticipantERC20(ctx context.Context, participantType ParticipantType, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+func (s *SubnetService) registerParticipantERC20(ctx context.Context, participantType ParticipantType, agentId *big.Int, params RegisterParticipantERC20Params) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("subnet: tx manager not attached")
 	}
@@ -86,24 +89,79 @@ func (s *SubnetService) registerParticipantERC20(ctx context.Context, participan
 	}
 	return s.txMgr.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
-		return s.contract.RegisterParticipantERC20(opts, uint8(participantType), params.Amount, params.Domain, params.Endpoint, params.MetadataURI)
+		return s.contract.RegisterParticipantERC20(opts, uint8(participantType), agentId, params.Amount, params.Domain, params.Endpoint, params.MetadataURI)
 	})
 }
 
-// RegisterValidatorERC20 registers a validator via ERC20 staking.
+// RegisterValidatorERC20 registers a validator via ERC20 staking (auto-creates NFT with agentId=0).
+// Gas cost: ~184k. For lower cost (~90k), use RegisterValidatorERC20WithAgentId to bind existing NFT.
 func (s *SubnetService) RegisterValidatorERC20(ctx context.Context, params RegisterParticipantERC20Params) (*types.Transaction, error) {
-	return s.registerParticipantERC20(ctx, ParticipantValidator, params)
+	return s.registerParticipantERC20(ctx, ParticipantValidator, big.NewInt(0), params)
 }
 
-// RegisterAgentERC20 registers an agent via ERC20 staking.
+// RegisterAgentERC20 registers an agent via ERC20 staking (auto-creates NFT with agentId=0).
+// Gas cost: ~184k. For lower cost (~90k), use RegisterAgentERC20WithAgentId to bind existing NFT.
 func (s *SubnetService) RegisterAgentERC20(ctx context.Context, params RegisterParticipantERC20Params) (*types.Transaction, error) {
-	return s.registerParticipantERC20(ctx, ParticipantAgent, params)
+	return s.registerParticipantERC20(ctx, ParticipantAgent, big.NewInt(0), params)
 }
 
-// RegisterMatcherERC20 registers a matcher via ERC20 staking.
+// RegisterMatcherERC20 registers a matcher via ERC20 staking (auto-creates NFT with agentId=0).
+// Gas cost: ~184k. For lower cost (~90k), use RegisterMatcherERC20WithAgentId to bind existing NFT.
 func (s *SubnetService) RegisterMatcherERC20(ctx context.Context, params RegisterParticipantERC20Params) (*types.Transaction, error) {
-	return s.registerParticipantERC20(ctx, ParticipantMatcher, params)
+	return s.registerParticipantERC20(ctx, ParticipantMatcher, big.NewInt(0), params)
 }
+
+// ======================== Advanced registration methods with explicit agentId ========================
+
+// RegisterValidatorWithAgentId registers a validator with explicit agentId.
+// - agentId=0: Auto-create NFT (same as RegisterValidator, ~184k gas)
+// - agentId>0: Bind existing NFT (~90k gas, requires caller to own the NFT)
+// When binding (agentId>0), leave params.Domain/Endpoint/MetadataURI empty.
+func (s *SubnetService) RegisterValidatorWithAgentId(ctx context.Context, agentId *big.Int, params RegisterParticipantParams) (*types.Transaction, error) {
+	return s.registerParticipant(ctx, ParticipantValidator, agentId, params)
+}
+
+// RegisterAgentWithAgentId registers an agent with explicit agentId.
+// - agentId=0: Auto-create NFT (same as RegisterAgent, ~184k gas)
+// - agentId>0: Bind existing NFT (~90k gas, requires caller to own the NFT)
+// When binding (agentId>0), leave params.Domain/Endpoint/MetadataURI empty.
+func (s *SubnetService) RegisterAgentWithAgentId(ctx context.Context, agentId *big.Int, params RegisterParticipantParams) (*types.Transaction, error) {
+	return s.registerParticipant(ctx, ParticipantAgent, agentId, params)
+}
+
+// RegisterMatcherWithAgentId registers a matcher with explicit agentId.
+// - agentId=0: Auto-create NFT (same as RegisterMatcher, ~184k gas)
+// - agentId>0: Bind existing NFT (~90k gas, requires caller to own the NFT)
+// When binding (agentId>0), leave params.Domain/Endpoint/MetadataURI empty.
+func (s *SubnetService) RegisterMatcherWithAgentId(ctx context.Context, agentId *big.Int, params RegisterParticipantParams) (*types.Transaction, error) {
+	return s.registerParticipant(ctx, ParticipantMatcher, agentId, params)
+}
+
+// RegisterValidatorERC20WithAgentId registers a validator via ERC20 staking with explicit agentId.
+// - agentId=0: Auto-create NFT (same as RegisterValidatorERC20, ~184k gas)
+// - agentId>0: Bind existing NFT (~90k gas, requires caller to own the NFT)
+// When binding (agentId>0), leave params.Domain/Endpoint/MetadataURI empty.
+func (s *SubnetService) RegisterValidatorERC20WithAgentId(ctx context.Context, agentId *big.Int, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+	return s.registerParticipantERC20(ctx, ParticipantValidator, agentId, params)
+}
+
+// RegisterAgentERC20WithAgentId registers an agent via ERC20 staking with explicit agentId.
+// - agentId=0: Auto-create NFT (same as RegisterAgentERC20, ~184k gas)
+// - agentId>0: Bind existing NFT (~90k gas, requires caller to own the NFT)
+// When binding (agentId>0), leave params.Domain/Endpoint/MetadataURI empty.
+func (s *SubnetService) RegisterAgentERC20WithAgentId(ctx context.Context, agentId *big.Int, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+	return s.registerParticipantERC20(ctx, ParticipantAgent, agentId, params)
+}
+
+// RegisterMatcherERC20WithAgentId registers a matcher via ERC20 staking with explicit agentId.
+// - agentId=0: Auto-create NFT (same as RegisterMatcherERC20, ~184k gas)
+// - agentId>0: Bind existing NFT (~90k gas, requires caller to own the NFT)
+// When binding (agentId>0), leave params.Domain/Endpoint/MetadataURI empty.
+func (s *SubnetService) RegisterMatcherERC20WithAgentId(ctx context.Context, agentId *big.Int, params RegisterParticipantERC20Params) (*types.Transaction, error) {
+	return s.registerParticipantERC20(ctx, ParticipantMatcher, agentId, params)
+}
+
+// ======================== Read-only methods: Participant queries ========================
 
 // ListActiveParticipants returns a list of active participants of the specified type.
 func (s *SubnetService) ListActiveParticipants(ctx context.Context, participantType ParticipantType) ([]subnetcontract.DataStructuresParticipantInfo, error) {
@@ -236,11 +294,6 @@ func (s *SubnetService) SupportsInterface(ctx context.Context, interfaceID [4]by
 	return s.contract.SupportsInterface(&bind.CallOpts{Context: ctx}, interfaceID)
 }
 
-// ParticipantListByType returns the address at the specified index in the participant list of the specified type (mapping accessor).
-func (s *SubnetService) ParticipantListByType(ctx context.Context, participantType ParticipantType, index *big.Int) (common.Address, error) {
-	return s.contract.ParticipantListByType(&bind.CallOpts{Context: ctx}, uint8(participantType), index)
-}
-
 // ======================== Write methods: Participant management ========================
 
 // ApproveParticipant approves participant registration (requires ADMIN_ROLE).
@@ -265,14 +318,14 @@ func (s *SubnetService) RejectParticipant(ctx context.Context, participantAddr c
 	})
 }
 
-// SuspendParticipant suspends a participant (requires ADMIN_ROLE).
-func (s *SubnetService) SuspendParticipant(ctx context.Context, participantType ParticipantType, reason string) (*types.Transaction, error) {
+// SuspendParticipant suspends a participant (requires ADMIN_ROLE or NFT owner).
+func (s *SubnetService) SuspendParticipant(ctx context.Context, participantAddr common.Address, participantType ParticipantType) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("subnet: tx manager not attached")
 	}
 	return s.txMgr.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
-		return s.contract.SuspendParticipant(opts, uint8(participantType), reason)
+		return s.contract.SuspendParticipant(opts, participantAddr, uint8(participantType))
 	})
 }
 
@@ -380,12 +433,12 @@ func (s *SubnetService) SetStakeConfig(ctx context.Context, stakeConfig subnetco
 }
 
 // Initialize initializes the subnet contract (call only once after deployment).
-func (s *SubnetService) Initialize(ctx context.Context, subnetInfo subnetcontract.DataStructuresSubnetInfo, factory common.Address, stakingManager common.Address) (*types.Transaction, error) {
+func (s *SubnetService) Initialize(ctx context.Context, subnetInfo subnetcontract.DataStructuresSubnetInfo, factory common.Address, stakingManager common.Address, identityRegistry common.Address) (*types.Transaction, error) {
 	if s.txMgr == nil {
 		return nil, errors.New("subnet: tx manager not attached")
 	}
 	return s.txMgr.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
-		return s.contract.Initialize(opts, subnetInfo, factory, stakingManager)
+		return s.contract.Initialize(opts, subnetInfo, factory, stakingManager, identityRegistry)
 	})
 }
