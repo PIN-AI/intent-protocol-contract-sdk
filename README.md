@@ -162,20 +162,47 @@ bundle := sdk.ValidationBundle{
 _, _ = client.Validation.ValidateIntentBySignature(ctx, bundle)
 
 // Option 2: Batch validation with shared signatures (v2.3, 90% signature data reduction)
-items := []sdk.ValidationItem{
-  {IntentID: intentID1, AssignmentID: assignmentID1, Agent: agent1, ResultHash: result1, ProofHash: proof1},
-  {IntentID: intentID2, AssignmentID: assignmentID2, Agent: agent2, ResultHash: result2, ProofHash: proof2},
+// Step 1: Prepare ValidationItems
+subnetID := sdk.MustBytes32FromHex("0x...")
+rootHash := sdk.MustBytes32FromHex("0x...")
+
+// Determine result/proof hash based on validation outcome
+var resultHash, proofHash common.Hash
+if validationSuccess {
+  resultHash = crypto.Keccak256Hash([]byte("execution_success_result"))
+  proofHash = crypto.Keccak256Hash([]byte("execution_success_proof"))
+} else {
+  // Failed validation: both hashes are zero
+  resultHash = common.Hash{}
+  proofHash = common.Hash{}
 }
+
+items := []sdk.ValidationItem{
+  {IntentID: intentID1, AssignmentID: assignmentID1, Agent: agent1, ResultHash: resultHash, ProofHash: proofHash},
+  {IntentID: intentID2, AssignmentID: assignmentID2, Agent: agent2, ResultHash: resultHash, ProofHash: proofHash},
+}
+
+// Step 2: Compute items_hash (required for signature)
 itemsHash, _ := client.Validation.ComputeItemsHash(items)
+
+// Step 3: Construct ValidationBatch and compute digest
 batch := sdk.ValidationBatch{
-  SubnetID:   sdk.MustBytes32FromHex("0x..."),
+  SubnetID:   subnetID,
   ItemsHash:  itemsHash,
   RootHeight: 123,
-  RootHash:   sdk.HashBytes([]byte("root")),
+  RootHash:   rootHash,
   Items:      items,
-  Validators: []common.Address{v1, v2, v3},
-  Signatures: [][]byte{sig1, sig2, sig3}, // Only 3 signatures for 2 intents
 }
+
+// Step 4: Sign the batch digest (shared signature for all items)
+digest, _ := client.Validation.ComputeBatchDigest(batch)
+signature, _ := client.Validation.SignDigest(digest)
+
+// Step 5: Add validators and signatures
+batch.Validators = []common.Address{client.Signer.Address()}
+batch.Signatures = [][]byte{signature}
+
+// Step 6: Submit to chain (or skip and sync to RootLayer directly)
 _, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBatch{batch})
 ```
 
