@@ -44,39 +44,77 @@ func NewValidationService(
 	}
 }
 
-// ValidateIntentsBySignatures submits validator bundles to finalize intents.
-func (s *ValidationService) ValidateIntentsBySignatures(ctx context.Context, bundles []ValidationBundle) (*types.Transaction, error) {
-	if len(bundles) == 0 {
-		return nil, errors.New("validation: empty bundle batch")
+// ValidateIntentsBySignatures submits batch validation bundles to finalize multiple intents (v2.3+).
+// Each ValidationBatch contains multiple ValidationItems sharing the same validator signatures.
+func (s *ValidationService) ValidateIntentsBySignatures(ctx context.Context, batches []ValidationBatch) (*types.Transaction, error) {
+	if len(batches) == 0 {
+		return nil, errors.New("validation: empty batch array")
 	}
 
-	contractBundles := make([]intentmanager.IIntentManagerValidationBundleData, len(bundles))
-
-	for i, b := range bundles {
+	contractBatches := make([]intentmanager.IIntentManagerValidationBatchData, len(batches))
+	for i, b := range batches {
 		if len(b.Validators) != len(b.Signatures) {
 			return nil, errors.New("validation: validator/signature length mismatch")
 		}
-		contractBundles[i] = intentmanager.IIntentManagerValidationBundleData{
-			IntentId:     b.IntentID,
-			AssignmentId: b.AssignmentID,
-			SubnetId:     b.SubnetID,
-			Agent:        b.Agent,
-			ResultHash:   b.ResultHash,
-			ProofHash:    b.ProofHash,
-			RootHeight:   b.RootHeight,
-			RootHash:     b.RootHash,
-			Validators:   b.Validators,
-			Signatures:   b.Signatures,
+		if len(b.Items) == 0 {
+			return nil, errors.New("validation: batch has no items")
+		}
+
+		// Convert ValidationItems to contract items
+		contractItems := make([]intentmanager.IIntentManagerValidationItemData, len(b.Items))
+		for j, item := range b.Items {
+			contractItems[j] = intentmanager.IIntentManagerValidationItemData{
+				IntentId:     item.IntentID,
+				AssignmentId: item.AssignmentID,
+				Agent:        item.Agent,
+				ResultHash:   item.ResultHash,
+				ProofHash:    item.ProofHash,
+			}
+		}
+
+		contractBatches[i] = intentmanager.IIntentManagerValidationBatchData{
+			SubnetId:   b.SubnetID,
+			ItemsHash:  b.ItemsHash,
+			RootHeight: b.RootHeight,
+			RootHash:   b.RootHash,
+			Items:      contractItems,
+			Validators: b.Validators,
+			Signatures: b.Signatures,
 		}
 	}
 
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
-		return s.contract.ValidateIntentsBySignatures(opts, contractBundles)
+		return s.contract.ValidateIntentsBySignatures(opts, contractBatches)
 	})
 }
 
-// ComputeDigest builds the validation digest for a bundle.
+// ValidateIntentBySignature submits a single validation bundle (backward compatible, v2.2 and earlier).
+func (s *ValidationService) ValidateIntentBySignature(ctx context.Context, bundle ValidationBundle) (*types.Transaction, error) {
+	if len(bundle.Validators) != len(bundle.Signatures) {
+		return nil, errors.New("validation: validator/signature length mismatch")
+	}
+
+	contractBundle := intentmanager.IIntentManagerValidationBundleData{
+		IntentId:     bundle.IntentID,
+		AssignmentId: bundle.AssignmentID,
+		SubnetId:     bundle.SubnetID,
+		Agent:        bundle.Agent,
+		ResultHash:   bundle.ResultHash,
+		ProofHash:    bundle.ProofHash,
+		RootHeight:   bundle.RootHeight,
+		RootHash:     bundle.RootHash,
+		Validators:   bundle.Validators,
+		Signatures:   bundle.Signatures,
+	}
+
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		return s.contract.ValidateIntentBySignature(opts, contractBundle)
+	})
+}
+
+// ComputeDigest builds the validation digest for a single validation bundle (backward compatible).
 func (s *ValidationService) ComputeDigest(bundle ValidationBundle) ([32]byte, error) {
 	return cryptoHelpers.ComputeValidationDigest(cryptoHelpers.ValidationInput{
 		IntentID:     bundle.IntentID,
@@ -88,6 +126,32 @@ func (s *ValidationService) ComputeDigest(bundle ValidationBundle) ([32]byte, er
 		RootHeight:   bundle.RootHeight,
 		RootHash:     bundle.RootHash,
 	}, s.contractAddr, s.chainID)
+}
+
+// ComputeBatchDigest builds the validation digest for a batch validation (v2.3+).
+func (s *ValidationService) ComputeBatchDigest(batch ValidationBatch) ([32]byte, error) {
+	return cryptoHelpers.ComputeValidationBatchDigest(cryptoHelpers.ValidationBatchInput{
+		SubnetID:   batch.SubnetID,
+		ItemsHash:  batch.ItemsHash,
+		RootHeight: batch.RootHeight,
+		RootHash:   batch.RootHash,
+	}, s.contractAddr, s.chainID)
+}
+
+// ComputeItemsHash computes keccak256(abi.encode(items)) for validation batch.
+// This is required for constructing ValidationBatch.ItemsHash.
+func (s *ValidationService) ComputeItemsHash(items []ValidationItem) ([32]byte, error) {
+	cryptoItems := make([]cryptoHelpers.ValidationItem, len(items))
+	for i, item := range items {
+		cryptoItems[i] = cryptoHelpers.ValidationItem{
+			IntentID:     item.IntentID,
+			AssignmentID: item.AssignmentID,
+			Agent:        item.Agent,
+			ResultHash:   item.ResultHash,
+			ProofHash:    item.ProofHash,
+		}
+	}
+	return cryptoHelpers.ComputeItemsHash(cryptoItems)
 }
 
 // SignDigest signs the validation digest using the configured SDK signer.

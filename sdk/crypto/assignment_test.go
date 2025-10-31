@@ -64,7 +64,7 @@ func TestComputeAssignmentDigest_Deterministic(t *testing.T) {
 	digest2, err2 := ComputeAssignmentDigest(input, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.Equal(t, digest1, digest2, "相同输入应产生相同的digest")
+	assert.Equal(t, digest1, digest2, "same input should produce the same digest")
 }
 
 func TestComputeAssignmentDigest_DifferentStatus(t *testing.T) {
@@ -90,7 +90,7 @@ func TestComputeAssignmentDigest_DifferentStatus(t *testing.T) {
 	digest2, err2 := ComputeAssignmentDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同Status应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different Status should produce different digest")
 }
 
 func TestComputeAssignmentDigest_DifferentAgent(t *testing.T) {
@@ -121,7 +121,7 @@ func TestComputeAssignmentDigest_DifferentAgent(t *testing.T) {
 	digest2, err2 := ComputeAssignmentDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同Agent应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different Agent should produce different digest")
 }
 
 func TestComputeAssignmentDigest_DifferentMatcher(t *testing.T) {
@@ -152,7 +152,7 @@ func TestComputeAssignmentDigest_DifferentMatcher(t *testing.T) {
 	digest2, err2 := ComputeAssignmentDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同Matcher应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different Matcher should produce different digest")
 }
 
 func TestComputeAssignmentDigest_DifferentChainID(t *testing.T) {
@@ -172,7 +172,7 @@ func TestComputeAssignmentDigest_DifferentChainID(t *testing.T) {
 	digest2, err2 := ComputeAssignmentDigest(input, contract, big.NewInt(11155111))
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同chain_id应产生不同的digest（防重放）")
+	assert.NotEqual(t, digest1, digest2, "different chain_id should produce different digest (replay protection)")
 }
 
 func TestComputeAssignmentDigest_DifferentContract(t *testing.T) {
@@ -201,7 +201,7 @@ func TestComputeAssignmentDigest_DifferentContract(t *testing.T) {
 	t.Logf("Digest1: %x", digest1)
 	t.Logf("Digest2: %x", digest2)
 
-	assert.NotEqual(t, digest1, digest2, "不同contract应产生不同的digest（防跨合约重放）")
+	assert.NotEqual(t, digest1, digest2, "different contract should produce different digest (cross-contract replay protection)")
 }
 
 func TestComputeAssignmentDigest_AllIDs(t *testing.T) {
@@ -213,7 +213,7 @@ func TestComputeAssignmentDigest_AllIDs(t *testing.T) {
 	contract := common.HexToAddress("0xc3333333333333333333333333333333333333")
 	chainID := big.NewInt(84532)
 
-	// 测试不同的AssignmentID
+	// test different AssignmentID
 	input1 := baseInput
 	input1.AssignmentID = [32]byte{0x01}
 	input1.IntentID = [32]byte{0x02}
@@ -230,9 +230,9 @@ func TestComputeAssignmentDigest_AllIDs(t *testing.T) {
 	digest2, err2 := ComputeAssignmentDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同AssignmentID应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different AssignmentID should produce different digest")
 
-	// 测试不同的IntentID
+	// test different IntentID
 	input3 := baseInput
 	input3.AssignmentID = [32]byte{0x01}
 	input3.IntentID = [32]byte{0xFF}
@@ -241,9 +241,9 @@ func TestComputeAssignmentDigest_AllIDs(t *testing.T) {
 	digest3, err3 := ComputeAssignmentDigest(input3, contract, chainID)
 	require.NoError(t, err3)
 
-	assert.NotEqual(t, digest1, digest3, "不同IntentID应产生不同的digest")
+	assert.NotEqual(t, digest1, digest3, "different IntentID should produce different digest")
 
-	// 测试不同的BidID
+	// test different BidID
 	input4 := baseInput
 	input4.AssignmentID = [32]byte{0x01}
 	input4.IntentID = [32]byte{0x02}
@@ -252,5 +252,5 @@ func TestComputeAssignmentDigest_AllIDs(t *testing.T) {
 	digest4, err4 := ComputeAssignmentDigest(input4, contract, chainID)
 	require.NoError(t, err4)
 
-	assert.NotEqual(t, digest1, digest4, "不同BidID应产生不同的digest")
+	assert.NotEqual(t, digest1, digest4, "different BidID should produce different digest")
 }

@@ -65,6 +65,17 @@ type IIntentManagerIntentData struct {
 	Amount       *big.Int
 }
 
+// IIntentManagerValidationBatchData is an auto generated low-level Go binding around an user-defined struct.
+type IIntentManagerValidationBatchData struct {
+	SubnetId   [32]byte
+	ItemsHash  [32]byte
+	RootHeight uint64
+	RootHash   [32]byte
+	Items      []IIntentManagerValidationItemData
+	Validators []common.Address
+	Signatures [][]byte
+}
+
 // IIntentManagerValidationBundleData is an auto generated low-level Go binding around an user-defined struct.
 type IIntentManagerValidationBundleData struct {
 	IntentId     [32]byte
@@ -79,9 +90,18 @@ type IIntentManagerValidationBundleData struct {
 	Signatures   [][]byte
 }
 
+// IIntentManagerValidationItemData is an auto generated low-level Go binding around an user-defined struct.
+type IIntentManagerValidationItemData struct {
+	IntentId     [32]byte
+	AssignmentId [32]byte
+	Agent        common.Address
+	ResultHash   [32]byte
+	ProofHash    [32]byte
+}
+
 // IntentManagerMetaData contains all meta data concerning the IntentManager contract.
 var IntentManagerMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[],\"name\":\"AccessControlBadConfirmation\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"neededRole\",\"type\":\"bytes32\"}],\"name\":\"AccessControlUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AgentIdMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ArrayLengthMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AssignmentIdMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"DuplicateDigest\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ECDSAInvalidSignature\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"length\",\"type\":\"uint256\"}],\"name\":\"ECDSAInvalidSignatureLength\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"ECDSAInvalidSignatureS\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EmptyArray\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EnforcedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ExpectedPause\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"provided\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"required\",\"type\":\"uint256\"}],\"name\":\"InsufficientBudget\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"IntentAlreadyExists\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"current_time\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"IntentNotExpired\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"IntentNotFound\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"current_status\",\"type\":\"uint8\"}],\"name\":\"IntentNotPending\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"}],\"name\":\"InvalidBudget\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"InvalidDeadline\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"}],\"name\":\"InvalidDuration\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidInitialization\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidIntentStatus\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"}],\"name\":\"InvalidSubnet\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"}],\"name\":\"InvalidValidator\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"provided\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"required\",\"type\":\"uint256\"}],\"name\":\"InvalidValidatorCount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotInitializing\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ReentrancyGuardReentrantCall\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"SafeERC20FailedOperation\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"SignatureVerificationFailed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TransferFailed\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"version\",\"type\":\"uint64\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"assignment_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"matcher\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"}],\"name\":\"IntentAssigned\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"result_hash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"}],\"name\":\"IntentCompleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"refund_amount\",\"type\":\"uint256\"}],\"name\":\"IntentExpired\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"refund_amount\",\"type\":\"uint256\"}],\"name\":\"IntentFailed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"old_status\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"new_status\",\"type\":\"uint8\"}],\"name\":\"IntentStatusUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"IntentSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEFAULT_MAX_DURATION\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEFAULT_MIN_BUDGET\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"GOVERNANCE_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"assignment_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"bid_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.AssignmentStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"matcher\",\"type\":\"address\"}],\"internalType\":\"structIIntentManager.AssignmentData[]\",\"name\":\"assignments\",\"type\":\"tuple[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"assignIntentsBySignatures\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"assignment_ids\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"name\":\"batchGetIntentInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"intent_type\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"payment_token\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"internalType\":\"structDataStructures.IntentInfo[]\",\"name\":\"infos\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"name\":\"batchProcessExpiredIntents\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emergencyPause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"emergencyRefundBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emergencyUnpause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"internalType\":\"address[]\",\"name\":\"validators\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"failIntent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"getIntentInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"intent_type\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"payment_token\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"internalType\":\"structDataStructures.IntentInfo\",\"name\":\"info\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"name\":\"getIntentsByStatus\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMaxIntentDuration\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMinIntentBudget\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"}],\"name\":\"getPendingIntentCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"}],\"name\":\"getRequiredValidatorCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"required_validators\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"}],\"name\":\"getSubnetIntents\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getTotalEscrowBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalIntentCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"subnet_factory\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"intentExists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"isIntentExpired\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"expired\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"processExpiredIntent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"callerConfirmation\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"max_duration\",\"type\":\"uint256\"}],\"name\":\"setMaxIntentDuration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"min_budget\",\"type\":\"uint256\"}],\"name\":\"setMinIntentBudget\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"intent_type\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"payment_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"submitIntent\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"intent_type\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"payment_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"internalType\":\"structIIntentManager.IntentData[]\",\"name\":\"intents\",\"type\":\"tuple[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"submitIntentsBySignatures\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"assignment_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"result_hash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"proof_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"root_height\",\"type\":\"uint64\"},{\"internalType\":\"bytes32\",\"name\":\"root_hash\",\"type\":\"bytes32\"},{\"internalType\":\"address[]\",\"name\":\"validators\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"internalType\":\"structIIntentManager.ValidationBundleData[]\",\"name\":\"validations\",\"type\":\"tuple[]\"}],\"name\":\"validateIntentsBySignatures\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[],\"name\":\"AccessControlBadConfirmation\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"neededRole\",\"type\":\"bytes32\"}],\"name\":\"AccessControlUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"}],\"name\":\"AddressEmptyCode\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AgentIdMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ArrayLengthMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AssignmentIdMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"DuplicateDigest\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"DuplicateSigner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ECDSAInvalidSignature\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"length\",\"type\":\"uint256\"}],\"name\":\"ECDSAInvalidSignatureLength\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"ECDSAInvalidSignatureS\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"ERC1967InvalidImplementation\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ERC1967NonPayable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EmptyArray\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EnforcedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ExpectedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FailedCall\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InsufficientBudget\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IntentAlreadyExists\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IntentNotExpired\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IntentNotFound\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IntentNotPending\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidDeadline\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidDuration\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidInitialization\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidIntentStatus\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidItemsHash\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidSubnet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidValidator\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidValidatorCount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NoActiveValidators\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotInitializing\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ReentrancyGuardReentrantCall\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"SafeERC20FailedOperation\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"SignatureVerificationFailed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferFailed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"UUPSUnauthorizedCallContext\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"slot\",\"type\":\"bytes32\"}],\"name\":\"UUPSUnsupportedProxiableUUID\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"version\",\"type\":\"uint64\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"assignment_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"matcher\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"}],\"name\":\"IntentAssigned\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"result_hash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"}],\"name\":\"IntentCompleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"refund_amount\",\"type\":\"uint256\"}],\"name\":\"IntentExpired\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"refund_amount\",\"type\":\"uint256\"}],\"name\":\"IntentFailed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"old_status\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"new_status\",\"type\":\"uint8\"}],\"name\":\"IntentStatusUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"IntentSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"ASSIGNMENT_TYPEHASH\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEFAULT_MAX_DURATION\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"GOVERNANCE_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"INTENT_TYPEHASH\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"LEADER_VALIDATOR_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"UPGRADE_INTERFACE_VERSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"VALIDATION_BATCH_TYPEHASH\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"VALIDATION_TYPEHASH\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"assignment_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"bid_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.AssignmentStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"matcher\",\"type\":\"address\"}],\"internalType\":\"structIIntentManager.AssignmentData[]\",\"name\":\"assignments\",\"type\":\"tuple[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"assignIntentsBySignatures\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"assignment_ids\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"name\":\"batchGetIntentInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"intent_type\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"payment_token\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"internalType\":\"structDataStructures.IntentInfo[]\",\"name\":\"infos\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"name\":\"batchProcessExpiredIntents\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emergencyPause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"emergencyRefundBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emergencyUnpause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"internalType\":\"address[]\",\"name\":\"validators\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"failIntent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"name\":\"getIntentCountByStatus\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"getIntentInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"intent_type\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"created_at\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"payment_token\",\"type\":\"address\"},{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"internalType\":\"structDataStructures.IntentInfo\",\"name\":\"info\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMaxIntentDuration\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"}],\"name\":\"getRequiredValidatorCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"required_validators\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalIntentCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"subnet_factory\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"intentExists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"isIntentExpired\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"expired\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"enumDataStructures.IntentStatus\",\"name\":\"status\",\"type\":\"uint8\"}],\"name\":\"isIntentInStatus\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"}],\"name\":\"processExpiredIntent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxiableUUID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"callerConfirmation\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"max_duration\",\"type\":\"uint256\"}],\"name\":\"setMaxIntentDuration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"intent_type\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"params_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"payment_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"internalType\":\"structIIntentManager.IntentData[]\",\"name\":\"intents\",\"type\":\"tuple[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"submitIntentsBySignatures\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"intent_ids\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"upgradeToAndCall\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"assignment_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"result_hash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"proof_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"root_height\",\"type\":\"uint64\"},{\"internalType\":\"bytes32\",\"name\":\"root_hash\",\"type\":\"bytes32\"},{\"internalType\":\"address[]\",\"name\":\"validators\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"internalType\":\"structIIntentManager.ValidationBundleData\",\"name\":\"validation\",\"type\":\"tuple\"}],\"name\":\"validateIntentBySignature\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"subnet_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"items_hash\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"root_height\",\"type\":\"uint64\"},{\"internalType\":\"bytes32\",\"name\":\"root_hash\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"intent_id\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"assignment_id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"result_hash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"proof_hash\",\"type\":\"bytes32\"}],\"internalType\":\"structIIntentManager.ValidationItemData[]\",\"name\":\"items\",\"type\":\"tuple[]\"},{\"internalType\":\"address[]\",\"name\":\"validators\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"internalType\":\"structIIntentManager.ValidationBatchData[]\",\"name\":\"batches\",\"type\":\"tuple[]\"}],\"name\":\"validateIntentsBySignatures\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // IntentManagerABI is the input ABI used to generate the binding from.
@@ -230,6 +250,37 @@ func (_IntentManager *IntentManagerTransactorRaw) Transact(opts *bind.TransactOp
 	return _IntentManager.Contract.contract.Transact(opts, method, params...)
 }
 
+// ASSIGNMENTTYPEHASH is a free data retrieval call binding the contract method 0x60d4f5a3.
+//
+// Solidity: function ASSIGNMENT_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCaller) ASSIGNMENTTYPEHASH(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "ASSIGNMENT_TYPEHASH")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// ASSIGNMENTTYPEHASH is a free data retrieval call binding the contract method 0x60d4f5a3.
+//
+// Solidity: function ASSIGNMENT_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerSession) ASSIGNMENTTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.ASSIGNMENTTYPEHASH(&_IntentManager.CallOpts)
+}
+
+// ASSIGNMENTTYPEHASH is a free data retrieval call binding the contract method 0x60d4f5a3.
+//
+// Solidity: function ASSIGNMENT_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCallerSession) ASSIGNMENTTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.ASSIGNMENTTYPEHASH(&_IntentManager.CallOpts)
+}
+
 // DEFAULTADMINROLE is a free data retrieval call binding the contract method 0xa217fddf.
 //
 // Solidity: function DEFAULT_ADMIN_ROLE() view returns(bytes32)
@@ -292,37 +343,6 @@ func (_IntentManager *IntentManagerCallerSession) DEFAULTMAXDURATION() (*big.Int
 	return _IntentManager.Contract.DEFAULTMAXDURATION(&_IntentManager.CallOpts)
 }
 
-// DEFAULTMINBUDGET is a free data retrieval call binding the contract method 0xda6290a1.
-//
-// Solidity: function DEFAULT_MIN_BUDGET() view returns(uint256)
-func (_IntentManager *IntentManagerCaller) DEFAULTMINBUDGET(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := _IntentManager.contract.Call(opts, &out, "DEFAULT_MIN_BUDGET")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-// DEFAULTMINBUDGET is a free data retrieval call binding the contract method 0xda6290a1.
-//
-// Solidity: function DEFAULT_MIN_BUDGET() view returns(uint256)
-func (_IntentManager *IntentManagerSession) DEFAULTMINBUDGET() (*big.Int, error) {
-	return _IntentManager.Contract.DEFAULTMINBUDGET(&_IntentManager.CallOpts)
-}
-
-// DEFAULTMINBUDGET is a free data retrieval call binding the contract method 0xda6290a1.
-//
-// Solidity: function DEFAULT_MIN_BUDGET() view returns(uint256)
-func (_IntentManager *IntentManagerCallerSession) DEFAULTMINBUDGET() (*big.Int, error) {
-	return _IntentManager.Contract.DEFAULTMINBUDGET(&_IntentManager.CallOpts)
-}
-
 // GOVERNANCEROLE is a free data retrieval call binding the contract method 0xf36c8f5c.
 //
 // Solidity: function GOVERNANCE_ROLE() view returns(bytes32)
@@ -352,6 +372,161 @@ func (_IntentManager *IntentManagerSession) GOVERNANCEROLE() ([32]byte, error) {
 // Solidity: function GOVERNANCE_ROLE() view returns(bytes32)
 func (_IntentManager *IntentManagerCallerSession) GOVERNANCEROLE() ([32]byte, error) {
 	return _IntentManager.Contract.GOVERNANCEROLE(&_IntentManager.CallOpts)
+}
+
+// INTENTTYPEHASH is a free data retrieval call binding the contract method 0xb082a274.
+//
+// Solidity: function INTENT_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCaller) INTENTTYPEHASH(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "INTENT_TYPEHASH")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// INTENTTYPEHASH is a free data retrieval call binding the contract method 0xb082a274.
+//
+// Solidity: function INTENT_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerSession) INTENTTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.INTENTTYPEHASH(&_IntentManager.CallOpts)
+}
+
+// INTENTTYPEHASH is a free data retrieval call binding the contract method 0xb082a274.
+//
+// Solidity: function INTENT_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCallerSession) INTENTTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.INTENTTYPEHASH(&_IntentManager.CallOpts)
+}
+
+// LEADERVALIDATORROLE is a free data retrieval call binding the contract method 0x9b883110.
+//
+// Solidity: function LEADER_VALIDATOR_ROLE() view returns(bytes32)
+func (_IntentManager *IntentManagerCaller) LEADERVALIDATORROLE(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "LEADER_VALIDATOR_ROLE")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// LEADERVALIDATORROLE is a free data retrieval call binding the contract method 0x9b883110.
+//
+// Solidity: function LEADER_VALIDATOR_ROLE() view returns(bytes32)
+func (_IntentManager *IntentManagerSession) LEADERVALIDATORROLE() ([32]byte, error) {
+	return _IntentManager.Contract.LEADERVALIDATORROLE(&_IntentManager.CallOpts)
+}
+
+// LEADERVALIDATORROLE is a free data retrieval call binding the contract method 0x9b883110.
+//
+// Solidity: function LEADER_VALIDATOR_ROLE() view returns(bytes32)
+func (_IntentManager *IntentManagerCallerSession) LEADERVALIDATORROLE() ([32]byte, error) {
+	return _IntentManager.Contract.LEADERVALIDATORROLE(&_IntentManager.CallOpts)
+}
+
+// UPGRADEINTERFACEVERSION is a free data retrieval call binding the contract method 0xad3cb1cc.
+//
+// Solidity: function UPGRADE_INTERFACE_VERSION() view returns(string)
+func (_IntentManager *IntentManagerCaller) UPGRADEINTERFACEVERSION(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "UPGRADE_INTERFACE_VERSION")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// UPGRADEINTERFACEVERSION is a free data retrieval call binding the contract method 0xad3cb1cc.
+//
+// Solidity: function UPGRADE_INTERFACE_VERSION() view returns(string)
+func (_IntentManager *IntentManagerSession) UPGRADEINTERFACEVERSION() (string, error) {
+	return _IntentManager.Contract.UPGRADEINTERFACEVERSION(&_IntentManager.CallOpts)
+}
+
+// UPGRADEINTERFACEVERSION is a free data retrieval call binding the contract method 0xad3cb1cc.
+//
+// Solidity: function UPGRADE_INTERFACE_VERSION() view returns(string)
+func (_IntentManager *IntentManagerCallerSession) UPGRADEINTERFACEVERSION() (string, error) {
+	return _IntentManager.Contract.UPGRADEINTERFACEVERSION(&_IntentManager.CallOpts)
+}
+
+// VALIDATIONBATCHTYPEHASH is a free data retrieval call binding the contract method 0x80f69fe9.
+//
+// Solidity: function VALIDATION_BATCH_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCaller) VALIDATIONBATCHTYPEHASH(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "VALIDATION_BATCH_TYPEHASH")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// VALIDATIONBATCHTYPEHASH is a free data retrieval call binding the contract method 0x80f69fe9.
+//
+// Solidity: function VALIDATION_BATCH_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerSession) VALIDATIONBATCHTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.VALIDATIONBATCHTYPEHASH(&_IntentManager.CallOpts)
+}
+
+// VALIDATIONBATCHTYPEHASH is a free data retrieval call binding the contract method 0x80f69fe9.
+//
+// Solidity: function VALIDATION_BATCH_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCallerSession) VALIDATIONBATCHTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.VALIDATIONBATCHTYPEHASH(&_IntentManager.CallOpts)
+}
+
+// VALIDATIONTYPEHASH is a free data retrieval call binding the contract method 0x2bec6e43.
+//
+// Solidity: function VALIDATION_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCaller) VALIDATIONTYPEHASH(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "VALIDATION_TYPEHASH")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// VALIDATIONTYPEHASH is a free data retrieval call binding the contract method 0x2bec6e43.
+//
+// Solidity: function VALIDATION_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerSession) VALIDATIONTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.VALIDATIONTYPEHASH(&_IntentManager.CallOpts)
+}
+
+// VALIDATIONTYPEHASH is a free data retrieval call binding the contract method 0x2bec6e43.
+//
+// Solidity: function VALIDATION_TYPEHASH() view returns(bytes32)
+func (_IntentManager *IntentManagerCallerSession) VALIDATIONTYPEHASH() ([32]byte, error) {
+	return _IntentManager.Contract.VALIDATIONTYPEHASH(&_IntentManager.CallOpts)
 }
 
 // BatchGetIntentInfo is a free data retrieval call binding the contract method 0xb6d1124e.
@@ -385,6 +560,37 @@ func (_IntentManager *IntentManagerCallerSession) BatchGetIntentInfo(intent_ids 
 	return _IntentManager.Contract.BatchGetIntentInfo(&_IntentManager.CallOpts, intent_ids)
 }
 
+// GetIntentCountByStatus is a free data retrieval call binding the contract method 0x1f9debe9.
+//
+// Solidity: function getIntentCountByStatus(uint8 status) view returns(uint256 count)
+func (_IntentManager *IntentManagerCaller) GetIntentCountByStatus(opts *bind.CallOpts, status uint8) (*big.Int, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "getIntentCountByStatus", status)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetIntentCountByStatus is a free data retrieval call binding the contract method 0x1f9debe9.
+//
+// Solidity: function getIntentCountByStatus(uint8 status) view returns(uint256 count)
+func (_IntentManager *IntentManagerSession) GetIntentCountByStatus(status uint8) (*big.Int, error) {
+	return _IntentManager.Contract.GetIntentCountByStatus(&_IntentManager.CallOpts, status)
+}
+
+// GetIntentCountByStatus is a free data retrieval call binding the contract method 0x1f9debe9.
+//
+// Solidity: function getIntentCountByStatus(uint8 status) view returns(uint256 count)
+func (_IntentManager *IntentManagerCallerSession) GetIntentCountByStatus(status uint8) (*big.Int, error) {
+	return _IntentManager.Contract.GetIntentCountByStatus(&_IntentManager.CallOpts, status)
+}
+
 // GetIntentInfo is a free data retrieval call binding the contract method 0x283ea6bb.
 //
 // Solidity: function getIntentInfo(bytes32 intent_id) view returns((bytes32,bytes32,address,string,uint256,uint256,bytes32,uint256,address,uint8) info)
@@ -416,37 +622,6 @@ func (_IntentManager *IntentManagerCallerSession) GetIntentInfo(intent_id [32]by
 	return _IntentManager.Contract.GetIntentInfo(&_IntentManager.CallOpts, intent_id)
 }
 
-// GetIntentsByStatus is a free data retrieval call binding the contract method 0x9fd71f61.
-//
-// Solidity: function getIntentsByStatus(uint8 status) view returns(bytes32[] intent_ids)
-func (_IntentManager *IntentManagerCaller) GetIntentsByStatus(opts *bind.CallOpts, status uint8) ([][32]byte, error) {
-	var out []interface{}
-	err := _IntentManager.contract.Call(opts, &out, "getIntentsByStatus", status)
-
-	if err != nil {
-		return *new([][32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([][32]byte)).(*[][32]byte)
-
-	return out0, err
-
-}
-
-// GetIntentsByStatus is a free data retrieval call binding the contract method 0x9fd71f61.
-//
-// Solidity: function getIntentsByStatus(uint8 status) view returns(bytes32[] intent_ids)
-func (_IntentManager *IntentManagerSession) GetIntentsByStatus(status uint8) ([][32]byte, error) {
-	return _IntentManager.Contract.GetIntentsByStatus(&_IntentManager.CallOpts, status)
-}
-
-// GetIntentsByStatus is a free data retrieval call binding the contract method 0x9fd71f61.
-//
-// Solidity: function getIntentsByStatus(uint8 status) view returns(bytes32[] intent_ids)
-func (_IntentManager *IntentManagerCallerSession) GetIntentsByStatus(status uint8) ([][32]byte, error) {
-	return _IntentManager.Contract.GetIntentsByStatus(&_IntentManager.CallOpts, status)
-}
-
 // GetMaxIntentDuration is a free data retrieval call binding the contract method 0x12fcd0ec.
 //
 // Solidity: function getMaxIntentDuration() view returns(uint256 duration)
@@ -476,68 +651,6 @@ func (_IntentManager *IntentManagerSession) GetMaxIntentDuration() (*big.Int, er
 // Solidity: function getMaxIntentDuration() view returns(uint256 duration)
 func (_IntentManager *IntentManagerCallerSession) GetMaxIntentDuration() (*big.Int, error) {
 	return _IntentManager.Contract.GetMaxIntentDuration(&_IntentManager.CallOpts)
-}
-
-// GetMinIntentBudget is a free data retrieval call binding the contract method 0x072c9176.
-//
-// Solidity: function getMinIntentBudget() view returns(uint256 budget)
-func (_IntentManager *IntentManagerCaller) GetMinIntentBudget(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := _IntentManager.contract.Call(opts, &out, "getMinIntentBudget")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-// GetMinIntentBudget is a free data retrieval call binding the contract method 0x072c9176.
-//
-// Solidity: function getMinIntentBudget() view returns(uint256 budget)
-func (_IntentManager *IntentManagerSession) GetMinIntentBudget() (*big.Int, error) {
-	return _IntentManager.Contract.GetMinIntentBudget(&_IntentManager.CallOpts)
-}
-
-// GetMinIntentBudget is a free data retrieval call binding the contract method 0x072c9176.
-//
-// Solidity: function getMinIntentBudget() view returns(uint256 budget)
-func (_IntentManager *IntentManagerCallerSession) GetMinIntentBudget() (*big.Int, error) {
-	return _IntentManager.Contract.GetMinIntentBudget(&_IntentManager.CallOpts)
-}
-
-// GetPendingIntentCount is a free data retrieval call binding the contract method 0x00161b7c.
-//
-// Solidity: function getPendingIntentCount(bytes32 subnet_id) view returns(uint256 count)
-func (_IntentManager *IntentManagerCaller) GetPendingIntentCount(opts *bind.CallOpts, subnet_id [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := _IntentManager.contract.Call(opts, &out, "getPendingIntentCount", subnet_id)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-// GetPendingIntentCount is a free data retrieval call binding the contract method 0x00161b7c.
-//
-// Solidity: function getPendingIntentCount(bytes32 subnet_id) view returns(uint256 count)
-func (_IntentManager *IntentManagerSession) GetPendingIntentCount(subnet_id [32]byte) (*big.Int, error) {
-	return _IntentManager.Contract.GetPendingIntentCount(&_IntentManager.CallOpts, subnet_id)
-}
-
-// GetPendingIntentCount is a free data retrieval call binding the contract method 0x00161b7c.
-//
-// Solidity: function getPendingIntentCount(bytes32 subnet_id) view returns(uint256 count)
-func (_IntentManager *IntentManagerCallerSession) GetPendingIntentCount(subnet_id [32]byte) (*big.Int, error) {
-	return _IntentManager.Contract.GetPendingIntentCount(&_IntentManager.CallOpts, subnet_id)
 }
 
 // GetRequiredValidatorCount is a free data retrieval call binding the contract method 0x9a240f43.
@@ -600,68 +713,6 @@ func (_IntentManager *IntentManagerSession) GetRoleAdmin(role [32]byte) ([32]byt
 // Solidity: function getRoleAdmin(bytes32 role) view returns(bytes32)
 func (_IntentManager *IntentManagerCallerSession) GetRoleAdmin(role [32]byte) ([32]byte, error) {
 	return _IntentManager.Contract.GetRoleAdmin(&_IntentManager.CallOpts, role)
-}
-
-// GetSubnetIntents is a free data retrieval call binding the contract method 0x4cea1bbf.
-//
-// Solidity: function getSubnetIntents(bytes32 subnet_id) view returns(bytes32[] intent_ids)
-func (_IntentManager *IntentManagerCaller) GetSubnetIntents(opts *bind.CallOpts, subnet_id [32]byte) ([][32]byte, error) {
-	var out []interface{}
-	err := _IntentManager.contract.Call(opts, &out, "getSubnetIntents", subnet_id)
-
-	if err != nil {
-		return *new([][32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([][32]byte)).(*[][32]byte)
-
-	return out0, err
-
-}
-
-// GetSubnetIntents is a free data retrieval call binding the contract method 0x4cea1bbf.
-//
-// Solidity: function getSubnetIntents(bytes32 subnet_id) view returns(bytes32[] intent_ids)
-func (_IntentManager *IntentManagerSession) GetSubnetIntents(subnet_id [32]byte) ([][32]byte, error) {
-	return _IntentManager.Contract.GetSubnetIntents(&_IntentManager.CallOpts, subnet_id)
-}
-
-// GetSubnetIntents is a free data retrieval call binding the contract method 0x4cea1bbf.
-//
-// Solidity: function getSubnetIntents(bytes32 subnet_id) view returns(bytes32[] intent_ids)
-func (_IntentManager *IntentManagerCallerSession) GetSubnetIntents(subnet_id [32]byte) ([][32]byte, error) {
-	return _IntentManager.Contract.GetSubnetIntents(&_IntentManager.CallOpts, subnet_id)
-}
-
-// GetTotalEscrowBalance is a free data retrieval call binding the contract method 0x77a1386e.
-//
-// Solidity: function getTotalEscrowBalance(address token) view returns(uint256 amount)
-func (_IntentManager *IntentManagerCaller) GetTotalEscrowBalance(opts *bind.CallOpts, token common.Address) (*big.Int, error) {
-	var out []interface{}
-	err := _IntentManager.contract.Call(opts, &out, "getTotalEscrowBalance", token)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-// GetTotalEscrowBalance is a free data retrieval call binding the contract method 0x77a1386e.
-//
-// Solidity: function getTotalEscrowBalance(address token) view returns(uint256 amount)
-func (_IntentManager *IntentManagerSession) GetTotalEscrowBalance(token common.Address) (*big.Int, error) {
-	return _IntentManager.Contract.GetTotalEscrowBalance(&_IntentManager.CallOpts, token)
-}
-
-// GetTotalEscrowBalance is a free data retrieval call binding the contract method 0x77a1386e.
-//
-// Solidity: function getTotalEscrowBalance(address token) view returns(uint256 amount)
-func (_IntentManager *IntentManagerCallerSession) GetTotalEscrowBalance(token common.Address) (*big.Int, error) {
-	return _IntentManager.Contract.GetTotalEscrowBalance(&_IntentManager.CallOpts, token)
 }
 
 // GetTotalIntentCount is a free data retrieval call binding the contract method 0x40846e54.
@@ -788,6 +839,37 @@ func (_IntentManager *IntentManagerCallerSession) IsIntentExpired(intent_id [32]
 	return _IntentManager.Contract.IsIntentExpired(&_IntentManager.CallOpts, intent_id)
 }
 
+// IsIntentInStatus is a free data retrieval call binding the contract method 0xf2ac7a5e.
+//
+// Solidity: function isIntentInStatus(bytes32 intent_id, uint8 status) view returns(bool exists)
+func (_IntentManager *IntentManagerCaller) IsIntentInStatus(opts *bind.CallOpts, intent_id [32]byte, status uint8) (bool, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "isIntentInStatus", intent_id, status)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// IsIntentInStatus is a free data retrieval call binding the contract method 0xf2ac7a5e.
+//
+// Solidity: function isIntentInStatus(bytes32 intent_id, uint8 status) view returns(bool exists)
+func (_IntentManager *IntentManagerSession) IsIntentInStatus(intent_id [32]byte, status uint8) (bool, error) {
+	return _IntentManager.Contract.IsIntentInStatus(&_IntentManager.CallOpts, intent_id, status)
+}
+
+// IsIntentInStatus is a free data retrieval call binding the contract method 0xf2ac7a5e.
+//
+// Solidity: function isIntentInStatus(bytes32 intent_id, uint8 status) view returns(bool exists)
+func (_IntentManager *IntentManagerCallerSession) IsIntentInStatus(intent_id [32]byte, status uint8) (bool, error) {
+	return _IntentManager.Contract.IsIntentInStatus(&_IntentManager.CallOpts, intent_id, status)
+}
+
 // Paused is a free data retrieval call binding the contract method 0x5c975abb.
 //
 // Solidity: function paused() view returns(bool)
@@ -817,6 +899,37 @@ func (_IntentManager *IntentManagerSession) Paused() (bool, error) {
 // Solidity: function paused() view returns(bool)
 func (_IntentManager *IntentManagerCallerSession) Paused() (bool, error) {
 	return _IntentManager.Contract.Paused(&_IntentManager.CallOpts)
+}
+
+// ProxiableUUID is a free data retrieval call binding the contract method 0x52d1902d.
+//
+// Solidity: function proxiableUUID() view returns(bytes32)
+func (_IntentManager *IntentManagerCaller) ProxiableUUID(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _IntentManager.contract.Call(opts, &out, "proxiableUUID")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// ProxiableUUID is a free data retrieval call binding the contract method 0x52d1902d.
+//
+// Solidity: function proxiableUUID() view returns(bytes32)
+func (_IntentManager *IntentManagerSession) ProxiableUUID() ([32]byte, error) {
+	return _IntentManager.Contract.ProxiableUUID(&_IntentManager.CallOpts)
+}
+
+// ProxiableUUID is a free data retrieval call binding the contract method 0x52d1902d.
+//
+// Solidity: function proxiableUUID() view returns(bytes32)
+func (_IntentManager *IntentManagerCallerSession) ProxiableUUID() ([32]byte, error) {
+	return _IntentManager.Contract.ProxiableUUID(&_IntentManager.CallOpts)
 }
 
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
@@ -1102,48 +1215,6 @@ func (_IntentManager *IntentManagerTransactorSession) SetMaxIntentDuration(max_d
 	return _IntentManager.Contract.SetMaxIntentDuration(&_IntentManager.TransactOpts, max_duration)
 }
 
-// SetMinIntentBudget is a paid mutator transaction binding the contract method 0xd3f80e06.
-//
-// Solidity: function setMinIntentBudget(uint256 min_budget) returns()
-func (_IntentManager *IntentManagerTransactor) SetMinIntentBudget(opts *bind.TransactOpts, min_budget *big.Int) (*types.Transaction, error) {
-	return _IntentManager.contract.Transact(opts, "setMinIntentBudget", min_budget)
-}
-
-// SetMinIntentBudget is a paid mutator transaction binding the contract method 0xd3f80e06.
-//
-// Solidity: function setMinIntentBudget(uint256 min_budget) returns()
-func (_IntentManager *IntentManagerSession) SetMinIntentBudget(min_budget *big.Int) (*types.Transaction, error) {
-	return _IntentManager.Contract.SetMinIntentBudget(&_IntentManager.TransactOpts, min_budget)
-}
-
-// SetMinIntentBudget is a paid mutator transaction binding the contract method 0xd3f80e06.
-//
-// Solidity: function setMinIntentBudget(uint256 min_budget) returns()
-func (_IntentManager *IntentManagerTransactorSession) SetMinIntentBudget(min_budget *big.Int) (*types.Transaction, error) {
-	return _IntentManager.Contract.SetMinIntentBudget(&_IntentManager.TransactOpts, min_budget)
-}
-
-// SubmitIntent is a paid mutator transaction binding the contract method 0x8e1a703c.
-//
-// Solidity: function submitIntent(bytes32 intent_id, bytes32 subnet_id, string intent_type, bytes32 params_hash, uint256 deadline, address payment_token, uint256 amount) payable returns(bytes32)
-func (_IntentManager *IntentManagerTransactor) SubmitIntent(opts *bind.TransactOpts, intent_id [32]byte, subnet_id [32]byte, intent_type string, params_hash [32]byte, deadline *big.Int, payment_token common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _IntentManager.contract.Transact(opts, "submitIntent", intent_id, subnet_id, intent_type, params_hash, deadline, payment_token, amount)
-}
-
-// SubmitIntent is a paid mutator transaction binding the contract method 0x8e1a703c.
-//
-// Solidity: function submitIntent(bytes32 intent_id, bytes32 subnet_id, string intent_type, bytes32 params_hash, uint256 deadline, address payment_token, uint256 amount) payable returns(bytes32)
-func (_IntentManager *IntentManagerSession) SubmitIntent(intent_id [32]byte, subnet_id [32]byte, intent_type string, params_hash [32]byte, deadline *big.Int, payment_token common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _IntentManager.Contract.SubmitIntent(&_IntentManager.TransactOpts, intent_id, subnet_id, intent_type, params_hash, deadline, payment_token, amount)
-}
-
-// SubmitIntent is a paid mutator transaction binding the contract method 0x8e1a703c.
-//
-// Solidity: function submitIntent(bytes32 intent_id, bytes32 subnet_id, string intent_type, bytes32 params_hash, uint256 deadline, address payment_token, uint256 amount) payable returns(bytes32)
-func (_IntentManager *IntentManagerTransactorSession) SubmitIntent(intent_id [32]byte, subnet_id [32]byte, intent_type string, params_hash [32]byte, deadline *big.Int, payment_token common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _IntentManager.Contract.SubmitIntent(&_IntentManager.TransactOpts, intent_id, subnet_id, intent_type, params_hash, deadline, payment_token, amount)
-}
-
 // SubmitIntentsBySignatures is a paid mutator transaction binding the contract method 0x931280e3.
 //
 // Solidity: function submitIntentsBySignatures((bytes32,bytes32,address,string,bytes32,uint256,address,uint256)[] intents, bytes[] signatures) payable returns(bytes32[] intent_ids)
@@ -1165,25 +1236,67 @@ func (_IntentManager *IntentManagerTransactorSession) SubmitIntentsBySignatures(
 	return _IntentManager.Contract.SubmitIntentsBySignatures(&_IntentManager.TransactOpts, intents, signatures)
 }
 
-// ValidateIntentsBySignatures is a paid mutator transaction binding the contract method 0x60e62769.
+// UpgradeToAndCall is a paid mutator transaction binding the contract method 0x4f1ef286.
 //
-// Solidity: function validateIntentsBySignatures((bytes32,bytes32,bytes32,address,bytes32,bytes32,uint64,bytes32,address[],bytes[])[] validations) returns()
-func (_IntentManager *IntentManagerTransactor) ValidateIntentsBySignatures(opts *bind.TransactOpts, validations []IIntentManagerValidationBundleData) (*types.Transaction, error) {
-	return _IntentManager.contract.Transact(opts, "validateIntentsBySignatures", validations)
+// Solidity: function upgradeToAndCall(address newImplementation, bytes data) payable returns()
+func (_IntentManager *IntentManagerTransactor) UpgradeToAndCall(opts *bind.TransactOpts, newImplementation common.Address, data []byte) (*types.Transaction, error) {
+	return _IntentManager.contract.Transact(opts, "upgradeToAndCall", newImplementation, data)
 }
 
-// ValidateIntentsBySignatures is a paid mutator transaction binding the contract method 0x60e62769.
+// UpgradeToAndCall is a paid mutator transaction binding the contract method 0x4f1ef286.
 //
-// Solidity: function validateIntentsBySignatures((bytes32,bytes32,bytes32,address,bytes32,bytes32,uint64,bytes32,address[],bytes[])[] validations) returns()
-func (_IntentManager *IntentManagerSession) ValidateIntentsBySignatures(validations []IIntentManagerValidationBundleData) (*types.Transaction, error) {
-	return _IntentManager.Contract.ValidateIntentsBySignatures(&_IntentManager.TransactOpts, validations)
+// Solidity: function upgradeToAndCall(address newImplementation, bytes data) payable returns()
+func (_IntentManager *IntentManagerSession) UpgradeToAndCall(newImplementation common.Address, data []byte) (*types.Transaction, error) {
+	return _IntentManager.Contract.UpgradeToAndCall(&_IntentManager.TransactOpts, newImplementation, data)
 }
 
-// ValidateIntentsBySignatures is a paid mutator transaction binding the contract method 0x60e62769.
+// UpgradeToAndCall is a paid mutator transaction binding the contract method 0x4f1ef286.
 //
-// Solidity: function validateIntentsBySignatures((bytes32,bytes32,bytes32,address,bytes32,bytes32,uint64,bytes32,address[],bytes[])[] validations) returns()
-func (_IntentManager *IntentManagerTransactorSession) ValidateIntentsBySignatures(validations []IIntentManagerValidationBundleData) (*types.Transaction, error) {
-	return _IntentManager.Contract.ValidateIntentsBySignatures(&_IntentManager.TransactOpts, validations)
+// Solidity: function upgradeToAndCall(address newImplementation, bytes data) payable returns()
+func (_IntentManager *IntentManagerTransactorSession) UpgradeToAndCall(newImplementation common.Address, data []byte) (*types.Transaction, error) {
+	return _IntentManager.Contract.UpgradeToAndCall(&_IntentManager.TransactOpts, newImplementation, data)
+}
+
+// ValidateIntentBySignature is a paid mutator transaction binding the contract method 0x14f07288.
+//
+// Solidity: function validateIntentBySignature((bytes32,bytes32,bytes32,address,bytes32,bytes32,uint64,bytes32,address[],bytes[]) validation) returns()
+func (_IntentManager *IntentManagerTransactor) ValidateIntentBySignature(opts *bind.TransactOpts, validation IIntentManagerValidationBundleData) (*types.Transaction, error) {
+	return _IntentManager.contract.Transact(opts, "validateIntentBySignature", validation)
+}
+
+// ValidateIntentBySignature is a paid mutator transaction binding the contract method 0x14f07288.
+//
+// Solidity: function validateIntentBySignature((bytes32,bytes32,bytes32,address,bytes32,bytes32,uint64,bytes32,address[],bytes[]) validation) returns()
+func (_IntentManager *IntentManagerSession) ValidateIntentBySignature(validation IIntentManagerValidationBundleData) (*types.Transaction, error) {
+	return _IntentManager.Contract.ValidateIntentBySignature(&_IntentManager.TransactOpts, validation)
+}
+
+// ValidateIntentBySignature is a paid mutator transaction binding the contract method 0x14f07288.
+//
+// Solidity: function validateIntentBySignature((bytes32,bytes32,bytes32,address,bytes32,bytes32,uint64,bytes32,address[],bytes[]) validation) returns()
+func (_IntentManager *IntentManagerTransactorSession) ValidateIntentBySignature(validation IIntentManagerValidationBundleData) (*types.Transaction, error) {
+	return _IntentManager.Contract.ValidateIntentBySignature(&_IntentManager.TransactOpts, validation)
+}
+
+// ValidateIntentsBySignatures is a paid mutator transaction binding the contract method 0xbdf22507.
+//
+// Solidity: function validateIntentsBySignatures((bytes32,bytes32,uint64,bytes32,(bytes32,bytes32,address,bytes32,bytes32)[],address[],bytes[])[] batches) returns()
+func (_IntentManager *IntentManagerTransactor) ValidateIntentsBySignatures(opts *bind.TransactOpts, batches []IIntentManagerValidationBatchData) (*types.Transaction, error) {
+	return _IntentManager.contract.Transact(opts, "validateIntentsBySignatures", batches)
+}
+
+// ValidateIntentsBySignatures is a paid mutator transaction binding the contract method 0xbdf22507.
+//
+// Solidity: function validateIntentsBySignatures((bytes32,bytes32,uint64,bytes32,(bytes32,bytes32,address,bytes32,bytes32)[],address[],bytes[])[] batches) returns()
+func (_IntentManager *IntentManagerSession) ValidateIntentsBySignatures(batches []IIntentManagerValidationBatchData) (*types.Transaction, error) {
+	return _IntentManager.Contract.ValidateIntentsBySignatures(&_IntentManager.TransactOpts, batches)
+}
+
+// ValidateIntentsBySignatures is a paid mutator transaction binding the contract method 0xbdf22507.
+//
+// Solidity: function validateIntentsBySignatures((bytes32,bytes32,uint64,bytes32,(bytes32,bytes32,address,bytes32,bytes32)[],address[],bytes[])[] batches) returns()
+func (_IntentManager *IntentManagerTransactorSession) ValidateIntentsBySignatures(batches []IIntentManagerValidationBatchData) (*types.Transaction, error) {
+	return _IntentManager.Contract.ValidateIntentsBySignatures(&_IntentManager.TransactOpts, batches)
 }
 
 // IntentManagerInitializedIterator is returned from FilterInitialized and is used to iterate over the raw logs and unpacked data for Initialized events raised by the IntentManager contract.
@@ -2978,6 +3091,150 @@ func (_IntentManager *IntentManagerFilterer) WatchUnpaused(opts *bind.WatchOpts,
 func (_IntentManager *IntentManagerFilterer) ParseUnpaused(log types.Log) (*IntentManagerUnpaused, error) {
 	event := new(IntentManagerUnpaused)
 	if err := _IntentManager.contract.UnpackLog(event, "Unpaused", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// IntentManagerUpgradedIterator is returned from FilterUpgraded and is used to iterate over the raw logs and unpacked data for Upgraded events raised by the IntentManager contract.
+type IntentManagerUpgradedIterator struct {
+	Event *IntentManagerUpgraded // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *IntentManagerUpgradedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(IntentManagerUpgraded)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(IntentManagerUpgraded)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *IntentManagerUpgradedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *IntentManagerUpgradedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// IntentManagerUpgraded represents a Upgraded event raised by the IntentManager contract.
+type IntentManagerUpgraded struct {
+	Implementation common.Address
+	Raw            types.Log // Blockchain specific contextual infos
+}
+
+// FilterUpgraded is a free log retrieval operation binding the contract event 0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b.
+//
+// Solidity: event Upgraded(address indexed implementation)
+func (_IntentManager *IntentManagerFilterer) FilterUpgraded(opts *bind.FilterOpts, implementation []common.Address) (*IntentManagerUpgradedIterator, error) {
+
+	var implementationRule []interface{}
+	for _, implementationItem := range implementation {
+		implementationRule = append(implementationRule, implementationItem)
+	}
+
+	logs, sub, err := _IntentManager.contract.FilterLogs(opts, "Upgraded", implementationRule)
+	if err != nil {
+		return nil, err
+	}
+	return &IntentManagerUpgradedIterator{contract: _IntentManager.contract, event: "Upgraded", logs: logs, sub: sub}, nil
+}
+
+// WatchUpgraded is a free log subscription operation binding the contract event 0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b.
+//
+// Solidity: event Upgraded(address indexed implementation)
+func (_IntentManager *IntentManagerFilterer) WatchUpgraded(opts *bind.WatchOpts, sink chan<- *IntentManagerUpgraded, implementation []common.Address) (event.Subscription, error) {
+
+	var implementationRule []interface{}
+	for _, implementationItem := range implementation {
+		implementationRule = append(implementationRule, implementationItem)
+	}
+
+	logs, sub, err := _IntentManager.contract.WatchLogs(opts, "Upgraded", implementationRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(IntentManagerUpgraded)
+				if err := _IntentManager.contract.UnpackLog(event, "Upgraded", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseUpgraded is a log parse operation binding the contract event 0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b.
+//
+// Solidity: event Upgraded(address indexed implementation)
+func (_IntentManager *IntentManagerFilterer) ParseUpgraded(log types.Log) (*IntentManagerUpgraded, error) {
+	event := new(IntentManagerUpgraded)
+	if err := _IntentManager.contract.UnpackLog(event, "Upgraded", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

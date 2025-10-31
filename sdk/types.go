@@ -37,7 +37,30 @@ type AssignmentInfo struct {
 	AssignedAt   *big.Int
 }
 
-// ValidationBundle captures the data required to submit a validation bundle on-chain.
+// ValidationItem represents a single validation item (without signatures) within a batch.
+// Corresponds to IIntentManager.ValidationItemData in contracts.
+type ValidationItem struct {
+	IntentID     [32]byte
+	AssignmentID [32]byte
+	Agent        common.Address
+	ResultHash   [32]byte
+	ProofHash    [32]byte
+}
+
+// ValidationBatch represents batch validation data with shared signatures.
+// Corresponds to IIntentManager.ValidationBatchData in contracts.
+type ValidationBatch struct {
+	SubnetID   [32]byte
+	ItemsHash  [32]byte          // keccak256(abi.encode(items)), computed by SDK
+	RootHeight uint64
+	RootHash   [32]byte
+	Items      []ValidationItem  // Multiple validation items
+	Validators []common.Address  // Shared validator addresses
+	Signatures [][]byte          // Shared signatures
+}
+
+// ValidationBundle captures the data required to submit a single validation on-chain (backward compatible).
+// Corresponds to IIntentManager.ValidationBundleData in contracts.
 type ValidationBundle struct {
 	IntentID     [32]byte
 	AssignmentID [32]byte

@@ -106,14 +106,14 @@ func TestComputeIntentDigest_Deterministic(t *testing.T) {
 	contract := common.HexToAddress("0xc3333333333333333333333333333333333333")
 	chainID := big.NewInt(84532)
 
-	// 计算两次
+	// compute twice
 	digest1, err1 := ComputeIntentDigest(input, contract, chainID)
 	require.NoError(t, err1)
 
 	digest2, err2 := ComputeIntentDigest(input, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.Equal(t, digest1, digest2, "相同输入应产生相同的digest（确定性）")
+	assert.Equal(t, digest1, digest2, "same input should produce the same digest (deterministic)")
 }
 
 func TestComputeIntentDigest_DifferentChainID(t *testing.T) {
@@ -135,7 +135,7 @@ func TestComputeIntentDigest_DifferentChainID(t *testing.T) {
 	digestSepolia, err2 := ComputeIntentDigest(input, contract, big.NewInt(11155111)) // Sepolia
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digestBaseSepolia, digestSepolia, "不同chain_id应产生不同的digest（防重放）")
+	assert.NotEqual(t, digestBaseSepolia, digestSepolia, "different chain_id should produce different digest (replay protection)")
 }
 
 func TestComputeIntentDigest_DifferentContract(t *testing.T) {
@@ -160,7 +160,7 @@ func TestComputeIntentDigest_DifferentContract(t *testing.T) {
 	digest2, err2 := ComputeIntentDigest(input, contract2, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同contract_address应产生不同的digest（防跨合约重放）")
+	assert.NotEqual(t, digest1, digest2, "different contract_address should produce different digest (cross-contract replay protection)")
 }
 
 func TestComputeIntentDigest_DifferentIntentType(t *testing.T) {
@@ -188,7 +188,7 @@ func TestComputeIntentDigest_DifferentIntentType(t *testing.T) {
 	digest2, err2 := ComputeIntentDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同IntentType应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different IntentType should produce different digest")
 }
 
 func TestHashBytes(t *testing.T) {
@@ -198,11 +198,11 @@ func TestHashBytes(t *testing.T) {
 	assert.NotEqual(t, [32]byte{}, hash)
 	assert.Len(t, hash, 32)
 
-	// 确定性测试
+	// deterministic test
 	hash2 := HashBytes(data)
 	assert.Equal(t, hash, hash2)
 
-	// 不同数据产生不同哈希
+	// different data produces different hash
 	differentData := []byte("different data")
 	differentHash := HashBytes(differentData)
 	assert.NotEqual(t, hash, differentHash)
@@ -210,11 +210,11 @@ func TestHashBytes(t *testing.T) {
 
 func TestHashBytes_Empty(t *testing.T) {
 	emptyHash := HashBytes([]byte{})
-	assert.NotEqual(t, [32]byte{}, emptyHash, "空数据也应产生有效哈希")
+	assert.NotEqual(t, [32]byte{}, emptyHash, "empty data should also produce valid hash")
 
 	nilHash := HashBytes(nil)
-	assert.NotEqual(t, [32]byte{}, nilHash, "nil数据也应产生有效哈希")
+	assert.NotEqual(t, [32]byte{}, nilHash, "nil data should also produce valid hash")
 
-	// 空数组和nil应产生相同哈希
+	// empty array and nil should produce same hash
 	assert.Equal(t, emptyHash, nilHash)
 }

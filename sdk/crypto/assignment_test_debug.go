@@ -39,6 +39,6 @@ func TestComputeAssignmentDigest_DifferentContract_Debug(t *testing.T) {
 	fmt.Printf("===================\n\n")
 
 	if digest1 == digest2 {
-		t.Errorf("不同contract应产生不同的digest！但它们相等")
+		t.Errorf("different contract should produce different digest! But they are equal")
 	}
 }

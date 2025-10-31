@@ -52,24 +52,24 @@ func TestEncodeCommitmentRoots(t *testing.T) {
 	assert.Equal(t, 256, len(encoded), "Should be 256 bytes after encoding")
 
 	// Verify each root's position
-	assert.Equal(t, roots.AgentRoot[:], encoded[0:32], "AgentRoot位置错误")
-	assert.Equal(t, roots.AgentServiceRoot[:], encoded[32:64], "AgentServiceRoot位置错误")
-	assert.Equal(t, roots.RankRoot[:], encoded[64:96], "RankRoot位置错误")
-	assert.Equal(t, roots.MetricsRoot[:], encoded[96:128], "MetricsRoot位置错误")
-	assert.Equal(t, roots.DataUsageRoot[:], encoded[128:160], "DataUsageRoot位置错误")
-	assert.Equal(t, roots.StateRoot[:], encoded[160:192], "StateRoot位置错误")
-	assert.Equal(t, roots.EventRoot[:], encoded[192:224], "EventRoot位置错误")
-	assert.Equal(t, roots.CrossSubnetRoot[:], encoded[224:256], "CrossSubnetRoot位置错误")
+	assert.Equal(t, roots.AgentRoot[:], encoded[0:32], "AgentRoot position error")
+	assert.Equal(t, roots.AgentServiceRoot[:], encoded[32:64], "AgentServiceRoot position error")
+	assert.Equal(t, roots.RankRoot[:], encoded[64:96], "RankRoot position error")
+	assert.Equal(t, roots.MetricsRoot[:], encoded[96:128], "MetricsRoot position error")
+	assert.Equal(t, roots.DataUsageRoot[:], encoded[128:160], "DataUsageRoot position error")
+	assert.Equal(t, roots.StateRoot[:], encoded[160:192], "StateRoot position error")
+	assert.Equal(t, roots.EventRoot[:], encoded[192:224], "EventRoot position error")
+	assert.Equal(t, roots.CrossSubnetRoot[:], encoded[224:256], "CrossSubnetRoot position error")
 }
 
 func TestEncodeCommitmentRoots_EmptyRoots(t *testing.T) {
-	roots := CommitmentRoots{} // 全部为零值
+	roots := CommitmentRoots{} // all zero values
 	encoded := EncodeCommitmentRoots(roots)
 
 	assert.Equal(t, 256, len(encoded))
 	// All bytes should be 0
 	for i, b := range encoded {
-		assert.Equal(t, byte(0), b, "索引%d应为0", i)
+		assert.Equal(t, byte(0), b, "index %d should be 0", i)
 	}
 }
 
@@ -78,7 +78,7 @@ func TestEncodeDACommitments_Empty(t *testing.T) {
 	encoded, err := EncodeDACommitments(commitments)
 
 	require.NoError(t, err)
-	assert.NotEmpty(t, encoded, "空数组也应产生有效编码")
+	assert.NotEmpty(t, encoded, "empty array should also produce valid encoding")
 }
 
 func TestEncodeDACommitments_Single(t *testing.T) {
@@ -259,7 +259,7 @@ func TestComputeCheckpointDigest_Deterministic(t *testing.T) {
 	digest2, err2 := ComputeCheckpointDigest(input, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.Equal(t, digest1, digest2, "相同输入应产生相同的digest")
+	assert.Equal(t, digest1, digest2, "same input should produce the same digest")
 }
 
 func TestComputeCheckpointDigest_DifferentRoots(t *testing.T) {
@@ -286,7 +286,7 @@ func TestComputeCheckpointDigest_DifferentRoots(t *testing.T) {
 
 	input2 := baseInput
 	roots2 := generateTestRoots()
-	roots2.AgentRoot = [32]byte{0xFF} // 修改一个根
+	roots2.AgentRoot = [32]byte{0xFF} // modify one root
 	input2.Roots = roots2
 
 	digest1, err1 := ComputeCheckpointDigest(input1, contract, chainID)
@@ -295,7 +295,7 @@ func TestComputeCheckpointDigest_DifferentRoots(t *testing.T) {
 	digest2, err2 := ComputeCheckpointDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同Roots应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different Roots should produce different digest")
 }
 
 func TestComputeCheckpointDigest_DifferentDACommitments(t *testing.T) {
@@ -329,7 +329,7 @@ func TestComputeCheckpointDigest_DifferentDACommitments(t *testing.T) {
 	digest2, err2 := ComputeCheckpointDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同DACommitments应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different DACommitments should produce different digest")
 }
 
 func TestComputeCheckpointDigest_DifferentEpoch(t *testing.T) {
@@ -363,7 +363,7 @@ func TestComputeCheckpointDigest_DifferentEpoch(t *testing.T) {
 	digest2, err2 := ComputeCheckpointDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同Epoch应产生不同的digest")
+	assert.NotEqual(t, digest1, digest2, "different Epoch should produce different digest")
 }
 
 func TestComputeCheckpointDigest_DifferentStats(t *testing.T) {
@@ -397,7 +397,7 @@ func TestComputeCheckpointDigest_DifferentStats(t *testing.T) {
 	digest2, err2 := ComputeCheckpointDigest(input2, contract, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同Stats应产生不同的digest（通过statsHash）")
+	assert.NotEqual(t, digest1, digest2, "different Stats should produce different digest (via statsHash)")
 }
 
 func TestComputeCheckpointDigest_DifferentChainID(t *testing.T) {
@@ -425,7 +425,7 @@ func TestComputeCheckpointDigest_DifferentChainID(t *testing.T) {
 	digest2, err2 := ComputeCheckpointDigest(input, contract, big.NewInt(11155111))
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同chain_id应产生不同的digest（防重放）")
+	assert.NotEqual(t, digest1, digest2, "different chain_id should produce different digest (replay protection)")
 }
 
 func TestComputeCheckpointDigest_DifferentContract(t *testing.T) {
@@ -456,17 +456,17 @@ func TestComputeCheckpointDigest_DifferentContract(t *testing.T) {
 	digest2, err2 := ComputeCheckpointDigest(input, contract2, chainID)
 	require.NoError(t, err2)
 
-	assert.NotEqual(t, digest1, digest2, "不同contract应产生不同的digest（防跨合约重放）")
+	assert.NotEqual(t, digest1, digest2, "different contract should produce different digest (cross-contract replay protection)")
 }
 
 func TestNormalizeBigInt(t *testing.T) {
-	// 测试非nil值
+	// Test non-nil value
 	value := big.NewInt(12345)
 	result := normalizeBigInt(value)
-	assert.Equal(t, value, result, "非nil值应原样返回")
+	assert.Equal(t, value, result, "non-nil value should be returned as is")
 
-	// 测试nil值
+	// Test nil value
 	nilResult := normalizeBigInt(nil)
-	assert.NotNil(t, nilResult, "nil应被转换为非nil")
-	assert.Equal(t, big.NewInt(0), nilResult, "nil应被转换为0")
+	assert.NotNil(t, nilResult, "nil should be converted to non-nil")
+	assert.Equal(t, big.NewInt(0), nilResult, "nil should be converted to 0")
 }

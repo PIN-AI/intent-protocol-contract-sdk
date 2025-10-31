@@ -15,17 +15,6 @@ import (
 	"github.com/PIN-AI/intent-protocol-contract-sdk/sdk/txmgr"
 )
 
-// SubmitIntentParams describes the parameters required for submitIntent.
-type SubmitIntentParams struct {
-	IntentID     [32]byte
-	SubnetID     [32]byte
-	IntentType   string
-	ParamsHash   [32]byte
-	Deadline     *big.Int
-	PaymentToken common.Address
-	Amount       *big.Int
-	Value        *big.Int // Optional, defaults to Amount for ETH payments
-}
 
 // SignedIntent describes a single intent's information and signature for batch submission.
 type SignedIntent struct {
@@ -64,24 +53,6 @@ func NewIntentService(backend bind.ContractBackend, txm *txmgr.Manager, contract
 	}
 }
 
-// SubmitIntent calls the contract's submitIntent method.
-func (s *IntentService) SubmitIntent(ctx context.Context, params SubmitIntentParams) (*types.Transaction, error) {
-	if params.Deadline == nil {
-		return nil, errors.New("intent: deadline is required")
-	}
-	if params.Amount == nil {
-		return nil, errors.New("intent: amount is required")
-	}
-	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
-		opts.Context = ctx
-		if params.Value != nil {
-			opts.Value = params.Value
-		} else if params.PaymentToken == ZeroAddress {
-			opts.Value = params.Amount
-		}
-		return s.contract.SubmitIntent(opts, params.IntentID, params.SubnetID, params.IntentType, params.ParamsHash, params.Deadline, params.PaymentToken, params.Amount)
-	})
-}
 
 // SubmitIntentsBySignatures submits intents in batch.
 func (s *IntentService) SubmitIntentsBySignatures(ctx context.Context, params SubmitIntentBatchParams) (*types.Transaction, error) {
@@ -165,23 +136,14 @@ func (s *IntentService) BatchGetIntentInfo(ctx context.Context, ids [][32]byte) 
 	return s.contract.BatchGetIntentInfo(&bind.CallOpts{Context: ctx}, ids)
 }
 
-// GetIntentsByStatus reads the Intent ID list by status.
-func (s *IntentService) GetIntentsByStatus(ctx context.Context, status IntentStatus) ([][32]byte, error) {
-	return s.contract.GetIntentsByStatus(&bind.CallOpts{Context: ctx}, uint8(status))
+// GetIntentCountByStatus queries the Intent count by status.
+func (s *IntentService) GetIntentCountByStatus(ctx context.Context, status IntentStatus) (*big.Int, error) {
+	return s.contract.GetIntentCountByStatus(&bind.CallOpts{Context: ctx}, uint8(status))
 }
 
-// GetSubnetIntents queries all Intent IDs for a specific subnet.
-func (s *IntentService) GetSubnetIntents(ctx context.Context, subnetID [32]byte) ([][32]byte, error) {
-	return s.contract.GetSubnetIntents(&bind.CallOpts{Context: ctx}, subnetID)
-}
-
-// GetPendingIntentCount queries the pending intent count. Queries all if subnetID is nil.
-func (s *IntentService) GetPendingIntentCount(ctx context.Context, subnetID *[32]byte) (*big.Int, error) {
-	var id [32]byte
-	if subnetID != nil {
-		id = *subnetID
-	}
-	return s.contract.GetPendingIntentCount(&bind.CallOpts{Context: ctx}, id)
+// IsIntentInStatus checks if an Intent is in the specified status.
+func (s *IntentService) IsIntentInStatus(ctx context.Context, intentID [32]byte, status IntentStatus) (bool, error) {
+	return s.contract.IsIntentInStatus(&bind.CallOpts{Context: ctx}, intentID, uint8(status))
 }
 
 // GetTotalIntentCount queries the total intent count.
@@ -226,6 +188,11 @@ func (s *IntentService) GovernanceRole(ctx context.Context) ([32]byte, error) {
 	return s.contract.GOVERNANCEROLE(&bind.CallOpts{Context: ctx})
 }
 
+// LeaderValidatorRole returns the leader validator role hash.
+func (s *IntentService) LeaderValidatorRole(ctx context.Context) ([32]byte, error) {
+	return s.contract.LEADERVALIDATORROLE(&bind.CallOpts{Context: ctx})
+}
+
 // GetRoleAdmin returns the admin role for the specified role.
 func (s *IntentService) GetRoleAdmin(ctx context.Context, role [32]byte) ([32]byte, error) {
 	return s.contract.GetRoleAdmin(&bind.CallOpts{Context: ctx}, role)
@@ -255,24 +222,9 @@ func (s *IntentService) DefaultMaxDuration(ctx context.Context) (*big.Int, error
 	return s.contract.DEFAULTMAXDURATION(&bind.CallOpts{Context: ctx})
 }
 
-// DefaultMinBudget returns the default minimum Intent budget.
-func (s *IntentService) DefaultMinBudget(ctx context.Context) (*big.Int, error) {
-	return s.contract.DEFAULTMINBUDGET(&bind.CallOpts{Context: ctx})
-}
-
 // GetMaxIntentDuration returns the current maximum Intent duration configuration.
 func (s *IntentService) GetMaxIntentDuration(ctx context.Context) (*big.Int, error) {
 	return s.contract.GetMaxIntentDuration(&bind.CallOpts{Context: ctx})
-}
-
-// GetMinIntentBudget returns the current minimum Intent budget configuration.
-func (s *IntentService) GetMinIntentBudget(ctx context.Context) (*big.Int, error) {
-	return s.contract.GetMinIntentBudget(&bind.CallOpts{Context: ctx})
-}
-
-// GetTotalEscrowBalance returns the total escrow balance for the specified token.
-func (s *IntentService) GetTotalEscrowBalance(ctx context.Context, token common.Address) (*big.Int, error) {
-	return s.contract.GetTotalEscrowBalance(&bind.CallOpts{Context: ctx}, token)
 }
 
 // Paused returns whether the IntentManager is in a paused state.
@@ -347,14 +299,6 @@ func (s *IntentService) SetMaxIntentDuration(ctx context.Context, maxDuration *b
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
 		return s.contract.SetMaxIntentDuration(opts, maxDuration)
-	})
-}
-
-// SetMinIntentBudget sets the minimum Intent budget (requires GOVERNANCE_ROLE).
-func (s *IntentService) SetMinIntentBudget(ctx context.Context, minBudget *big.Int) (*types.Transaction, error) {
-	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
-		opts.Context = ctx
-		return s.contract.SetMinIntentBudget(opts, minBudget)
 	})
 }
 

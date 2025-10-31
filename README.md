@@ -16,7 +16,7 @@ Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, w
 - **Complete Service Layer** (2025-01 refactor with 138 new methods):
   - **IntentService** (22 methods): Submit/batch signed submit, expiry handling, status queries, role management, emergency controls
   - **AssignmentService**: Batch signed assignment, digest construction, matcher signature helpers
-  - **ValidationService**: Batch validation submission, validator signature digest
+  - **ValidationService** (v2.3 batch optimization): Batch validation with shared signatures (90% signature data reduction, 43% gas savings), backward-compatible single validation, items hash computation
   - **SubnetFactoryService** (30 methods): Subnet creation, query by status/owner, batch participant retrieval, pause/resume/deprecate
   - **SubnetService** (27 methods): Register validator/agent/matcher (ETH or ERC20 staking), participant management, config queries
   - **StakingService** (21 methods): Stake/unstake/withdraw, staking info queries, slashing, role and config management
@@ -146,6 +146,7 @@ sig, _ = client.Assignment.SignDigest(digest)
 
 _, _ = client.Assignment.AssignIntentsBySignatures(ctx, []sdk.SignedAssignment{{Data: assignment, Signature: sig}})
 
+// Option 1: Single validation (backward compatible, v2.2 API)
 bundle := sdk.ValidationBundle{
   IntentID:     assignment.IntentID,
   AssignmentID: assignment.AssignmentID,
@@ -158,8 +159,24 @@ bundle := sdk.ValidationBundle{
   Validators:   []common.Address{common.HexToAddress("0xValidator1")},
   Signatures:   [][]byte{sig}, // Real validator signatures required
 }
+_, _ = client.Validation.ValidateIntentBySignature(ctx, bundle)
 
-_, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle{bundle})
+// Option 2: Batch validation with shared signatures (v2.3, 90% signature data reduction)
+items := []sdk.ValidationItem{
+  {IntentID: intentID1, AssignmentID: assignmentID1, Agent: agent1, ResultHash: result1, ProofHash: proof1},
+  {IntentID: intentID2, AssignmentID: assignmentID2, Agent: agent2, ResultHash: result2, ProofHash: proof2},
+}
+itemsHash, _ := client.Validation.ComputeItemsHash(items)
+batch := sdk.ValidationBatch{
+  SubnetID:   sdk.MustBytes32FromHex("0x..."),
+  ItemsHash:  itemsHash,
+  RootHeight: 123,
+  RootHash:   sdk.HashBytes([]byte("root")),
+  Items:      items,
+  Validators: []common.Address{v1, v2, v3},
+  Signatures: [][]byte{sig1, sig2, sig3}, // Only 3 signatures for 2 intents
+}
+_, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBatch{batch})
 ```
 
 More examples in `docs/quickstart.md`.
@@ -170,6 +187,7 @@ More examples in `docs/quickstart.md`.
 - `examples/send_intent`: Environment-driven CLI, default dry-run, demonstrates single submission and batch submission with signatures (requires `PIN_RPC_URL`/`PIN_PRIVATE_KEY`, optional `SUBNET_ID`, `SIGNED_INTENT_ID`, etc.).
 - `examples/assign_intents`: Matcher-side batch assignment script, supports auto-signing single assignment or using external signatures (requires `INTENT_ID`/`AGENT_ADDRESS`, etc.).
 - `examples/validate_intents`: Validator-side validation script, can compute digest and sign for single validator or load pre-signed multi-validator bundles.
+- `examples/validate_intents_batch` (v2.3): Demonstrates batch validation with shared signatures, 90% signature data reduction, includes items_hash computation and batch digest signing.
 - `examples/register_agent`: Agent registration script based on Subnet contract, configurable `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` and `AGENT_VALUE_WEI` (default dry-run, can override 0 stake requirement).
 - `examples/complete_workflow` (planned): Demonstrates end-to-end flow from Intent → Assignment → Validation → Checkpoint.
 
@@ -263,11 +281,14 @@ Configure in `sdk.Config.Tx` or use defaults. See `docs/txmanager.md` for detail
 ## Signing & Digest
 
 - Batch signing digest:
-  - typeHash: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
-  - digest: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
+  - Intent typeHash: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
+  - Intent digest: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
+  - **Validation Batch typeHash** (v2.3): `PIN_VALIDATION_BATCH_V1(bytes32,bytes32,uint64,bytes32,address,uint256)`
+  - **Validation Batch digest** (v2.3): `keccak256(abi.encode(typeHash, subnet_id, items_hash, root_height, root_hash, address(this), chainid))`
+    - `items_hash = keccak256(abi.encode(items))` computed via `client.Validation.ComputeItemsHash()`
 - Off-chain signing: EIP-191 (eth_sign prefix), aligned with contract `SignatureLib.verifySingleSignature()`
 - Utility functions: `sdkcrypto.ComputeIntentDigest()`, `client.Intent.SignDigest()`
-- Other digests: `client.Assignment.ComputeDigest()`, `client.Validation.ComputeDigest()`, `client.CheckpointManager.ComputeDigest()`
+- Other digests: `client.Assignment.ComputeDigest()`, `client.Validation.ComputeDigest()` (single), `client.Validation.ComputeBatchDigest()` (batch v2.3), `client.CheckpointManager.ComputeDigest()`
 - See: `docs/signing.md`
 
 ## Directory Structure
@@ -328,9 +349,10 @@ See `CLAUDE.md` for complete descriptions.
 ## Compatibility & Security
 
 - **Complete Method Coverage**: All admin/governance functions implemented, including role management, emergency controls, config management
-- **Access Control**: Strictly follow `GUARDIAN_ROLE`/`GOVERNANCE_ROLE`/`ADMIN_ROLE` permission requirements
+- **Access Control**: Strictly follow `GUARDIAN_ROLE`/`GOVERNANCE_ROLE`/`ADMIN_ROLE`/`LEADER_VALIDATOR_ROLE` permission requirements
 - **Signature Security**: Strictly aligned with contract signature/hash, digest binds `address(this)` and `chainId`, providing cross-chain/cross-contract replay protection
-- **Test Coverage**: All digest calculations verified by 52 unit tests
+- **Batch Validation Security** (v2.3): On-chain `items_hash` verification prevents malicious tampering, shared signatures reduce attack surface
+- **Test Coverage**: All digest calculations verified by 64 unit tests (including 12 batch validation tests)
 
 ## Reference Documentation
 
