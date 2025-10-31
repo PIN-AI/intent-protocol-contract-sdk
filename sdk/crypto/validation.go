@@ -113,23 +113,33 @@ func ComputeItemsHash(items []ValidationItem) ([32]byte, error) {
 		return zero, errors.New("crypto: empty items array")
 	}
 
-	// Encode each item and concatenate
-	var allEncoded []byte
+	// Solidity's abi.encode for struct array manually constructed:
+	// - 32 bytes: offset to array data (0x20)
+	// - 32 bytes: array length
+	// - N * 160 bytes: each item data (5 fields × 32 bytes each)
+	var encoded []byte
+
+	// 1. Offset to array data (always 0x20 for single parameter)
+	offset := make([]byte, 32)
+	offset[31] = 0x20
+	encoded = append(encoded, offset...)
+
+	// 2. Array length
+	lengthBytes := make([]byte, 32)
+	lengthBig := big.NewInt(int64(len(items)))
+	lengthBig.FillBytes(lengthBytes)
+	encoded = append(encoded, lengthBytes...)
+
+	// 3. Each item's fields (all 32-byte aligned)
 	for _, item := range items {
-		itemEncoded, err := validationItemArgs.Pack(
-			item.IntentID,
-			item.AssignmentID,
-			item.Agent,
-			item.ResultHash,
-			item.ProofHash,
-		)
-		if err != nil {
-			return zero, err
-		}
-		allEncoded = append(allEncoded, itemEncoded...)
+		encoded = append(encoded, item.IntentID[:]...)                         // bytes32
+		encoded = append(encoded, item.AssignmentID[:]...)                     // bytes32
+		encoded = append(encoded, common.LeftPadBytes(item.Agent.Bytes(), 32)...) // address (left-padded)
+		encoded = append(encoded, item.ResultHash[:]...)                       // bytes32
+		encoded = append(encoded, item.ProofHash[:]...)                        // bytes32
 	}
 
-	return bytesToBytes32(crypto.Keccak256Hash(allEncoded).Bytes()), nil
+	return bytesToBytes32(crypto.Keccak256Hash(encoded).Bytes()), nil
 }
 
 // ComputeValidationBatchDigest returns the keccak256 hash for batch validation (v2.3+).
