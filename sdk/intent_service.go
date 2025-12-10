@@ -28,6 +28,18 @@ type SubmitIntentBatchParams struct {
 	TotalEthValue *big.Int // Optional, auto-calculates sum of PaymentToken==0 amounts if not provided
 }
 
+// SignedDirectIntent describes a single direct intent's information and signature for batch submission.
+type SignedDirectIntent struct {
+	Data      cryptoHelpers.DirectIntentInput
+	Signature []byte
+}
+
+// SubmitDirectIntentBatchParams describes direct intent batch submission parameters.
+type SubmitDirectIntentBatchParams struct {
+	Items         []SignedDirectIntent
+	TotalEthValue *big.Int // Optional, auto-calculates sum of PaymentToken==0 amounts if not provided
+}
+
 // IntentInfo is consistent with the contract return structure.
 type IntentInfo = intentmanager.DataStructuresIntentInfo
 
@@ -94,36 +106,53 @@ func (s *IntentService) SubmitIntentsBySignatures(ctx context.Context, params Su
 	})
 }
 
+// SubmitDirectIntentsBySignatures submits direct intents in batch.
+func (s *IntentService) SubmitDirectIntentsBySignatures(ctx context.Context, params SubmitDirectIntentBatchParams) (*types.Transaction, error) {
+	if len(params.Items) == 0 {
+		return nil, errors.New("intent: empty batch")
+	}
+	intents := make([]intentmanager.IIntentManagerDirectIntentData, len(params.Items))
+	signatures := make([][]byte, len(params.Items))
+	totalEth := new(big.Int)
+	for i, item := range params.Items {
+		if item.Data.Deadline == nil {
+			return nil, errors.New("intent: nil deadline in batch item")
+		}
+		if item.Data.Amount == nil {
+			return nil, errors.New("intent: nil amount in batch item")
+		}
+		intents[i] = intentmanager.IIntentManagerDirectIntentData{
+			IntentId:     item.Data.IntentID,
+			SubnetId:     item.Data.SubnetID,
+			Requester:    item.Data.Requester,
+			IntentType:   item.Data.IntentType,
+			ParamsHash:   item.Data.ParamsHash,
+			Deadline:     item.Data.Deadline,
+			PaymentToken: item.Data.PaymentToken,
+			Amount:       item.Data.Amount,
+			TargetAgent:  item.Data.TargetAgent,
+		}
+		signatures[i] = item.Signature
+		if item.Data.PaymentToken == ZeroAddress {
+			totalEth.Add(totalEth, item.Data.Amount)
+		}
+	}
+	if params.TotalEthValue != nil {
+		totalEth = new(big.Int).Set(params.TotalEthValue)
+	}
+	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
+		opts.Context = ctx
+		opts.Value = totalEth
+		return s.contract.SubmitDirectIntentsBySignatures(opts, intents, signatures)
+	})
+}
+
 // FailIntent calls the failIntent method.
 func (s *IntentService) FailIntent(ctx context.Context, intentID [32]byte, reason string, validators []common.Address, signatures [][]byte) (*types.Transaction, error) {
 	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
 		opts.Context = ctx
 		return s.contract.FailIntent(opts, intentID, reason, validators, signatures)
 	})
-}
-
-// ProcessExpiredIntent calls the processExpiredIntent method.
-func (s *IntentService) ProcessExpiredIntent(ctx context.Context, intentID [32]byte) (*types.Transaction, error) {
-	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
-		opts.Context = ctx
-		return s.contract.ProcessExpiredIntent(opts, intentID)
-	})
-}
-
-// BatchProcessExpiredIntents calls the batchProcessExpiredIntents method.
-func (s *IntentService) BatchProcessExpiredIntents(ctx context.Context, ids [][32]byte) (*types.Transaction, error) {
-	if len(ids) == 0 {
-		return nil, errors.New("intent: empty ids")
-	}
-	return s.txManager.Send(ctx, func(opts *bind.TransactOpts) (*types.Transaction, error) {
-		opts.Context = ctx
-		return s.contract.BatchProcessExpiredIntents(opts, ids)
-	})
-}
-
-// GetIntentInfo reads intent information.
-func (s *IntentService) GetIntentInfo(ctx context.Context, intentID [32]byte) (IntentInfo, error) {
-	return s.contract.GetIntentInfo(&bind.CallOpts{Context: ctx}, intentID)
 }
 
 // BatchGetIntentInfo reads intent information in batch.
@@ -134,21 +163,6 @@ func (s *IntentService) BatchGetIntentInfo(ctx context.Context, ids [][32]byte) 
 		return []IntentInfo{}, nil
 	}
 	return s.contract.BatchGetIntentInfo(&bind.CallOpts{Context: ctx}, ids)
-}
-
-// GetIntentCountByStatus queries the Intent count by status.
-func (s *IntentService) GetIntentCountByStatus(ctx context.Context, status IntentStatus) (*big.Int, error) {
-	return s.contract.GetIntentCountByStatus(&bind.CallOpts{Context: ctx}, uint8(status))
-}
-
-// IsIntentInStatus checks if an Intent is in the specified status.
-func (s *IntentService) IsIntentInStatus(ctx context.Context, intentID [32]byte, status IntentStatus) (bool, error) {
-	return s.contract.IsIntentInStatus(&bind.CallOpts{Context: ctx}, intentID, uint8(status))
-}
-
-// GetTotalIntentCount queries the total intent count.
-func (s *IntentService) GetTotalIntentCount(ctx context.Context) (*big.Int, error) {
-	return s.contract.GetTotalIntentCount(&bind.CallOpts{Context: ctx})
 }
 
 // GetRequiredValidatorCount queries the subnet validator threshold.
@@ -170,6 +184,21 @@ func (s *IntentService) SignDigest(digest [32]byte) ([]byte, error) {
 // Simplifies batch signing workflow, suitable for SubmitIntentsBySignatures scenarios.
 func (s *IntentService) SignIntent(input cryptoHelpers.SignedIntentInput) ([]byte, error) {
 	digest, err := s.ComputeDigest(input)
+	if err != nil {
+		return nil, err
+	}
+	return s.SignDigest(digest)
+}
+
+// ComputeDirectIntentDigest computes the digest for a single direct intent, facilitating batch signing.
+func (s *IntentService) ComputeDirectIntentDigest(input cryptoHelpers.DirectIntentInput) ([32]byte, error) {
+	return cryptoHelpers.ComputeDirectIntentDigest(input, s.contractAddr, s.chainID)
+}
+
+// SignDirectIntent wraps ComputeDirectIntentDigest + SignDigest to complete DirectIntent signing in one step.
+// Simplifies batch signing workflow, suitable for SubmitDirectIntentsBySignatures scenarios.
+func (s *IntentService) SignDirectIntent(input cryptoHelpers.DirectIntentInput) ([]byte, error) {
+	digest, err := s.ComputeDirectIntentDigest(input)
 	if err != nil {
 		return nil, err
 	}

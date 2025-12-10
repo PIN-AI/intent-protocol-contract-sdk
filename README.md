@@ -13,8 +13,8 @@ Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, w
 ## Features
 
 - **Strongly-Typed Contract Bindings**: `IntentManager`, `SubnetFactory`, `Subnet`, `StakingManager`, `CheckpointManager`
-- **Complete Service Layer** (2025-01 refactor with 138 new methods):
-  - **IntentService** (22 methods): Submit/batch signed submit, expiry handling, status queries, role management, emergency controls
+- **Complete Service Layer** (2025-01 refactor with 138+ new methods):
+  - **IntentService** (26 methods): Submit/batch signed submit (standard & direct intents), expiry handling, status queries, role management, emergency controls, dispute mechanism support
   - **AssignmentService**: Batch signed assignment, digest construction, matcher signature helpers
   - **ValidationService** (v2.3 batch optimization): Batch validation with shared signatures (90% signature data reduction, 43% gas savings), backward-compatible single validation, items hash computation
   - **SubnetFactoryService** (30 methods): Subnet creation, query by status/owner, batch participant retrieval, pause/resume/deprecate
@@ -129,7 +129,35 @@ tx, err := client.Intent.SubmitIntentsBySignatures(ctx, sdk.SubmitIntentBatchPar
 })
 ```
 
-4) Assignment & Validation (Matcher & Validator)
+4) Direct Intent submission (target agent specified upfront, with challenge period)
+
+```go
+// Direct Intent bypasses matcher assignment and directly targets a specific agent
+directInput := sdkcrypto.DirectIntentInput{
+  IntentID:     sdk.MustBytes32FromHex("0x..."),
+  SubnetID:     sdk.MustBytes32FromHex("0x..."),
+  Requester:    client.Signer.Address(),
+  IntentType:   "image_generation",
+  ParamsHash:   sdk.MustBytes32FromHex("0x..."),
+  Deadline:     big.NewInt(time.Now().Add(1*time.Hour).Unix()),
+  PaymentToken: common.Address{}, // ETH payment
+  Amount:       big.NewInt(1e16),
+  TargetAgent:  common.HexToAddress("0xAgentAddress"), // Pre-selected agent
+}
+
+// Compute digest and sign (one-step helper)
+sig, _ := client.Intent.SignDirectIntent(directInput)
+
+// Submit direct intent with signature
+tx, err := client.Intent.SubmitDirectIntentsBySignatures(ctx, sdk.SubmitDirectIntentBatchParams{
+  Items: []sdk.SignedDirectIntent{{Data: directInput, Signature: sig}},
+})
+
+// After execution, agent can claim payment after challenge period ends
+// If disputed during challenge period, governance resolves via dispute mechanism
+```
+
+5) Assignment & Validation (Matcher & Validator)
 
 ```go
 assignment := sdk.AssignmentData{
@@ -308,13 +336,15 @@ Configure in `sdk.Config.Tx` or use defaults. See `docs/txmanager.md` for detail
 ## Signing & Digest
 
 - Batch signing digest:
-  - Intent typeHash: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
-  - Intent digest: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
+  - **Intent typeHash**: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
+  - **Intent digest**: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
+  - **Direct Intent typeHash**: `PIN_DIRECT_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,address,uint256)`
+  - **Direct Intent digest**: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, target_agent, address(this), chainid))`
   - **Validation Batch typeHash** (v2.3): `PIN_VALIDATION_BATCH_V1(bytes32,bytes32,uint64,bytes32,address,uint256)`
   - **Validation Batch digest** (v2.3): `keccak256(abi.encode(typeHash, subnet_id, items_hash, root_height, root_hash, address(this), chainid))`
     - `items_hash = keccak256(abi.encode(items))` computed via `client.Validation.ComputeItemsHash()`
 - Off-chain signing: EIP-191 (eth_sign prefix), aligned with contract `SignatureLib.verifySingleSignature()`
-- Utility functions: `sdkcrypto.ComputeIntentDigest()`, `client.Intent.SignDigest()`
+- Utility functions: `sdkcrypto.ComputeIntentDigest()`, `sdkcrypto.ComputeDirectIntentDigest()`, `client.Intent.SignDigest()`, `client.Intent.SignDirectIntent()`
 - Other digests: `client.Assignment.ComputeDigest()`, `client.Validation.ComputeDigest()` (single), `client.Validation.ComputeBatchDigest()` (batch v2.3), `client.CheckpointManager.ComputeDigest()`
 - See: `docs/signing.md`
 
