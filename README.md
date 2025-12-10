@@ -21,8 +21,9 @@ Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, w
   - **SubnetService** (27 methods): Register validator/agent/matcher (ETH or ERC20 staking), participant management, config queries
   - **StakingService** (21 methods): Stake/unstake/withdraw, staking info queries, slashing, role and config management
   - **CheckpointService** (18 methods): Query, verify, submit, finalize, revert checkpoints
+- **Agent Network Authentication**: One-step signature generation for Agent connection (`SignAgentConnectNow`), replay-protected with random nonce, EIP-191 compatible
 - **Configurable TxManager**: EIP-1559 fees, nonce source, stuck transaction replacement (gas bump), dry-run
-- **Signing & Hashing**: EIP-191 (eth_sign) digest signing, batch submission digest construction, EIP-712 reserved
+- **Signing & Hashing**: EIP-191 (eth_sign) digest signing, batch submission digest construction, Agent authentication, EIP-712 reserved
 - **Networks & Addresses**: Pre-configured for `base`/`base_sepolia`/`local`, supports environment variables and code-level overrides
 
 ## Installation & Requirements
@@ -314,6 +315,77 @@ Tips:
   - `subnetSvc.ListActiveParticipants(ctx, sdk.ParticipantValidator)`
   - `subnetSvc.GetParticipantInfo/GetParticipantStakeInfo/GetParticipantCount`
 
+## Agent Network Authentication
+
+When an Agent connects to the PIN AI network, it must sign an authentication message to prove ownership of its wallet address. The SDK provides convenient methods for generating this signature.
+
+### Quick Start (Recommended)
+
+The simplest way to generate an Agent connection signature:
+
+```go
+// One-step signature generation with auto-generated timestamp and nonce
+signature, timestamp, nonce, err := client.SignAgentConnectNow(client.Signer.Address())
+if err != nil {
+    log.Fatal(err)
+}
+
+log.Printf("Signature: %x", signature)
+log.Printf("Timestamp: %d", timestamp)
+log.Printf("Nonce: %x", nonce)
+
+// Send signature to PIN AI network for authentication...
+```
+
+### Manual Control
+
+For custom timestamp or nonce:
+
+```go
+import (
+    "crypto/rand"
+    "time"
+)
+
+// Generate custom nonce
+var nonce [32]byte
+rand.Read(nonce[:])
+
+// Sign with custom parameters
+signature, err := client.SignAgentConnect(
+    client.Signer.Address(),
+    time.Now().Unix(),
+    &nonce,
+)
+```
+
+### Low-Level API
+
+Direct access to digest computation:
+
+```go
+import (
+    "math/big"
+    cryptoHelpers "github.com/PIN-AI/intent-protocol-contract-sdk/sdk/crypto"
+)
+
+input := cryptoHelpers.AgentConnectInput{
+    AgentAddress: client.Signer.Address(),
+    Timestamp:    big.NewInt(time.Now().Unix()),
+    RandomNonce:  [32]byte{1, 2, 3, 4, 5},
+}
+
+digest, _ := cryptoHelpers.ComputeAgentConnectDigest(input)
+signature, _ := client.Signer.SignDigest(digest)
+```
+
+### Security Features
+
+- **Replay Protection**: Each connection uses a unique 32-byte random nonce
+- **Timestamp Validation**: Server can verify signature freshness
+- **EIP-191 Standard**: Compatible with MetaMask and other wallets
+- **No Chain Binding**: Network-level authentication, not tied to specific chain or contract
+
 ## Networks & Addresses
 
 - Pre-configured networks: `base`(8453), `base_sepolia`(84532), `local`(31337)
@@ -343,8 +415,14 @@ Configure in `sdk.Config.Tx` or use defaults. See `docs/txmanager.md` for detail
   - **Validation Batch typeHash** (v2.3): `PIN_VALIDATION_BATCH_V1(bytes32,bytes32,uint64,bytes32,address,uint256)`
   - **Validation Batch digest** (v2.3): `keccak256(abi.encode(typeHash, subnet_id, items_hash, root_height, root_hash, address(this), chainid))`
     - `items_hash = keccak256(abi.encode(items))` computed via `client.Validation.ComputeItemsHash()`
+  - **Agent Connect typeHash**: `PIN_AGENT_CONNECT_V1(address,uint256,bytes32)`
+  - **Agent Connect digest**: `keccak256(abi.encode(typeHash, agent_address, timestamp, random_nonce))`
+    - Note: No contract address or chainid binding (network-level authentication)
 - Off-chain signing: EIP-191 (eth_sign prefix), aligned with contract `SignatureLib.verifySingleSignature()`
-- Utility functions: `sdkcrypto.ComputeIntentDigest()`, `sdkcrypto.ComputeDirectIntentDigest()`, `client.Intent.SignDigest()`, `client.Intent.SignDirectIntent()`
+- Utility functions:
+  - `sdkcrypto.ComputeIntentDigest()`, `sdkcrypto.ComputeDirectIntentDigest()`, `sdkcrypto.ComputeAgentConnectDigest()`
+  - `client.Intent.SignDigest()`, `client.Intent.SignDirectIntent()`
+  - `client.SignAgentConnect()`, `client.SignAgentConnectNow()`
 - Other digests: `client.Assignment.ComputeDigest()`, `client.Validation.ComputeDigest()` (single), `client.Validation.ComputeBatchDigest()` (batch v2.3), `client.CheckpointManager.ComputeDigest()`
 - See: `docs/signing.md`
 
@@ -407,9 +485,10 @@ See `CLAUDE.md` for complete descriptions.
 
 - **Complete Method Coverage**: All admin/governance functions implemented, including role management, emergency controls, config management
 - **Access Control**: Strictly follow `GUARDIAN_ROLE`/`GOVERNANCE_ROLE`/`ADMIN_ROLE`/`LEADER_VALIDATOR_ROLE` permission requirements
-- **Signature Security**: Strictly aligned with contract signature/hash, digest binds `address(this)` and `chainId`, providing cross-chain/cross-contract replay protection
+- **Signature Security**: Strictly aligned with contract signature/hash, digest binds `address(this)` and `chainId` (except Agent authentication which is network-level), providing cross-chain/cross-contract replay protection
 - **Batch Validation Security** (v2.3): On-chain `items_hash` verification prevents malicious tampering, shared signatures reduce attack surface
-- **Test Coverage**: All digest calculations verified by 64 unit tests (including 12 batch validation tests)
+- **Agent Authentication Security**: Replay protection via random nonce, timestamp validation for signature freshness, EIP-191 standard compatibility
+- **Test Coverage**: All digest calculations verified by 60+ unit tests (including 12 batch validation tests, 8 Agent authentication tests)
 
 ## Reference Documentation
 
