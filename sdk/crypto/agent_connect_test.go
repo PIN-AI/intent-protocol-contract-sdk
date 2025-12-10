@@ -1,11 +1,13 @@
 package crypto
 
 import (
+	"crypto/ecdsa"
 	"math/big"
 	"testing"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 func TestComputeAgentConnectDigest_Valid(t *testing.T) {
@@ -22,6 +24,100 @@ func TestComputeAgentConnectDigest_Valid(t *testing.T) {
 		t.Fatal("digest is zero")
 	}
 	t.Logf("Digest: %x", digest)
+}
+
+// TestComputeAgentConnectDigest_ServerCompatibility verifies our implementation
+// matches the server-side digest calculation exactly
+func TestComputeAgentConnectDigest_ServerCompatibility(t *testing.T) {
+	// Use the same test data
+	agentAddr := common.HexToAddress("0xABCDEF1234567890ABCDEF1234567890ABCDEF12")
+	timestamp := int64(1704067200) // 2024-01-01 00:00:00 UTC
+	randomNonce := [32]byte{0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}
+
+	// Calculate digest using SDK
+	input := AgentConnectInput{
+		AgentAddress: agentAddr,
+		Timestamp:    big.NewInt(timestamp),
+		RandomNonce:  randomNonce,
+	}
+	sdkDigest, err := ComputeAgentConnectDigest(input)
+	if err != nil {
+		t.Fatalf("SDK digest failed: %v", err)
+	}
+
+	// Calculate digest using server method (direct byte concatenation)
+	typeHashDef := "PIN_AGENT_CONNECT_V1(address,uint256,bytes32)"
+	typeHash := crypto.Keccak256Hash([]byte(typeHashDef))
+	serverDigest := crypto.Keccak256Hash(
+		common.LeftPadBytes(typeHash[:], 32),
+		common.LeftPadBytes(agentAddr.Bytes(), 32),
+		common.LeftPadBytes(big.NewInt(timestamp).Bytes(), 32),
+		randomNonce[:],
+	)
+
+	// Verify they match
+	if sdkDigest != serverDigest {
+		t.Errorf("Digest mismatch!\nSDK:    %x\nServer: %x", sdkDigest, serverDigest)
+	}
+
+	t.Logf("✓ SDK digest matches server digest: %x", sdkDigest)
+}
+
+// TestAgentConnectSignature_FullFlow tests the complete signature flow
+// matching the server-side implementation
+func TestAgentConnectSignature_FullFlow(t *testing.T) {
+	// Generate key
+	privateKey, err := crypto.GenerateKey()
+	if err != nil {
+		t.Fatalf("Failed to generate key: %v", err)
+	}
+
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		t.Fatal("Failed to cast public key")
+	}
+
+	agentAddr := crypto.PubkeyToAddress(*publicKeyECDSA)
+	timestamp := time.Now().Unix()
+	randomNonce := [32]byte{0x01, 0x02, 0x03, 0x04, 0x05}
+
+	// Compute digest using SDK
+	input := AgentConnectInput{
+		AgentAddress: agentAddr,
+		Timestamp:    big.NewInt(timestamp),
+		RandomNonce:  randomNonce,
+	}
+	digest, err := ComputeAgentConnectDigest(input)
+	if err != nil {
+		t.Fatalf("ComputeAgentConnectDigest failed: %v", err)
+	}
+
+	// Apply EIP-191 prefix and sign
+	ethSignedHash := crypto.Keccak256Hash(
+		[]byte("\x19Ethereum Signed Message:\n32"),
+		digest[:],
+	)
+	signature, err := crypto.Sign(ethSignedHash.Bytes(), privateKey)
+	if err != nil {
+		t.Fatalf("Signing failed: %v", err)
+	}
+
+	// Verify signature
+	pubKey, err := crypto.SigToPub(ethSignedHash.Bytes(), signature)
+	if err != nil {
+		t.Fatalf("Failed to recover public key: %v", err)
+	}
+
+	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
+	if recoveredAddr != agentAddr {
+		t.Errorf("Address mismatch!\nExpected: %s\nRecovered: %s", agentAddr.Hex(), recoveredAddr.Hex())
+	}
+
+	t.Logf("✓ Signature verified successfully")
+	t.Logf("  Agent Address: %s", agentAddr.Hex())
+	t.Logf("  Digest: %x", digest)
+	t.Logf("  Signature: %x", signature)
 }
 
 func TestComputeAgentConnectDigest_NilTimestamp(t *testing.T) {
