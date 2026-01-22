@@ -29,6 +29,9 @@ type Config struct {
 	Addresses     *addressbook.Addresses
 	Tx            *TxOptions
 	Signer        signer.Signer
+
+	// Optional RootLayer gRPC endpoint (e.g. "localhost:9001").
+	RootLayerURL string
 }
 
 // TxOptions describes optional settings for TxManager.
@@ -54,6 +57,9 @@ type Client struct {
 	Addresses addressbook.Addresses
 	Signer    signer.Signer
 	TxManager *txmgr.Manager
+
+	// Optional RootLayer gRPC client.
+	RootLayer *RootLayerClient
 
 	Intent            *IntentService
 	Assignment        *AssignmentService
@@ -154,6 +160,15 @@ func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 		StakingManager:    stakingService,
 		CheckpointManager: checkpointService,
 	}
+
+	if strings.TrimSpace(cfg.RootLayerURL) != "" {
+		rl, err := newRootLayerClient(ctx, cfg.RootLayerURL)
+		if err != nil {
+			txManager.Close()
+			return nil, fmt.Errorf("sdk: dial rootlayer: %w", err)
+		}
+		client.RootLayer = rl
+	}
 	return client, nil
 }
 
@@ -161,6 +176,9 @@ func NewClient(ctx context.Context, cfg Config) (*Client, error) {
 func (c *Client) Close() {
 	if c == nil {
 		return
+	}
+	if c.RootLayer != nil {
+		_ = c.RootLayer.Close()
 	}
 	if c.TxManager != nil {
 		c.TxManager.Close()

@@ -237,6 +237,65 @@ _, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBatch{
 
 More examples in `docs/quickstart.md`.
 
+## RootLayer gRPC (Optional)
+
+If you want to submit intents directly to RootLayer (off-chain), pass `RootLayerURL` when initializing the SDK client. The SDK uses protobuf stubs from `github.com/PIN-AI/pin-protocol-proto`.
+
+### Submit standard intent to RootLayer
+
+```go
+import (
+  rootlayerpb "github.com/PIN-AI/pin-protocol-proto/rootlayer/proto"
+)
+
+client, err := sdk.NewClient(ctx, sdk.Config{
+  RPCURL:        os.Getenv("PIN_RPC_URL"),
+  PrivateKeyHex: os.Getenv("PIN_PRIVATE_KEY"),
+  Network:       os.Getenv("PIN_NETWORK"),
+  RootLayerURL:  os.Getenv("ROOTLAYER_ENDPOINT"), // e.g. "localhost:9001"
+})
+if err != nil { log.Fatal(err) }
+defer client.Close()
+
+resp, err := client.SubmitIntentToRootLayer(ctx, &rootlayerpb.SubmitIntentRequest{
+  IntentId:    "0x...",
+  SubnetId:    "0x...",
+  SettleChain: "base_sepolia",
+  IntentType:  "book_flight",
+  Params: &rootlayerpb.IntentParams{
+    IntentRaw: []byte(`{"from":"NYC","to":"LAX"}`),
+  },
+  TipsToken:   "0x0000000000000000000000000000000000000000",
+  Tips:        "0",
+  BudgetToken: "0x0000000000000000000000000000000000000000",
+  Budget:      "0",
+  Deadline:    time.Now().Add(1 * time.Hour).Unix(),
+  // Signature can be omitted; SDK will auto-sign.
+})
+if err != nil { log.Fatal(err) }
+log.Printf("ok=%v intent_id=%s", resp.Ok, resp.IntentId)
+```
+
+### Submit Direct Mode intent to RootLayer (requires `target_agent_id`)
+
+```go
+resp, err := client.SubmitDirectIntentToRootLayer(ctx, &rootlayerpb.SubmitDirectIntentRequest{
+  IntentId:      "0x...",
+  SubnetId:      "0x...",
+  SettleChain:   "base_sepolia",
+  IntentType:    "weather_query",
+  Params:        &rootlayerpb.IntentParams{IntentRaw: []byte(`{"city":"NYC"}`)},
+  PaymentToken:  "0x0000000000000000000000000000000000000000",
+  Amount:        "0", // RootLayer Direct Mode requires amount == 0
+  Deadline:      time.Now().Add(10 * time.Minute).Unix(),
+  TargetAgent:   "0xAgentAddress",
+  TargetAgentId: "123", // ERC-8004 tokenId (uint256 string)
+  // Signature can be omitted; SDK will auto-sign.
+})
+if err != nil { log.Fatal(err) }
+log.Printf("status=%s intent_id=%s", resp.Status, resp.IntentId)
+```
+
 ### Example Scripts
 
 - `examples/list_subnets`: **Optimized** listing of active subnets, uses `GetSubnetsByStatus` for efficient queries, displays detailed participant info (address, reputation, endpoint, etc.), avoids redundant RPC calls.

@@ -166,7 +166,7 @@ func runValidateIntents(cfg runConfig) error {
 	bundle.Validators = validators
 	bundle.Signatures = signatures
 
-	tx, err := client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBundle{bundle})
+	tx, err := client.Validation.ValidateIntentBySignature(ctx, bundle)
 	if err != nil {
 		// Check if this is a gas ceiling exceeded error
 		var gasCeilErr *txmgr.ErrGasCeilExceeded
