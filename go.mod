@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.7
 
 require (
-	github.com/PIN-AI/pin-protocol-proto v0.0.0-20260122013251-59279d0e5e0a
+	github.com/PIN-AI/pin-protocol-proto v0.0.0-20260125090225-307d0e0f99df
 	github.com/ethereum/go-ethereum v1.16.4
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.78.0

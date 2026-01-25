@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	pb "github.com/PIN-AI/pin-protocol-proto/rootlayer/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 )
 
 // RootLayerClient wraps gRPC stubs for RootLayer APIs.
@@ -28,7 +30,13 @@ func newRootLayerClient(ctx context.Context, rootLayerURL string) (*RootLayerCli
 		return nil, errors.New("sdk: RootLayerURL is required")
 	}
 
-	conn, err := grpc.DialContext(ctx, endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ka := keepalive.ClientParameters{Time: 50 * time.Second, Timeout: 10 * time.Second, PermitWithoutStream: true}
+	conn, err := grpc.DialContext(
+		ctx,
+		endpoint,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(ka),
+	)
 	if err != nil {
 		return nil, err
 	}

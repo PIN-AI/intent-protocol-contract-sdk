@@ -22,6 +22,7 @@ Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, w
   - **StakingService** (21 methods): Stake/unstake/withdraw, staking info queries, slashing, role and config management
   - **CheckpointService** (18 methods): Query, verify, submit, finalize, revert checkpoints
 - **Agent Network Authentication**: AgentConnect (V2) signature generation with `agent_id` (ERC-8004 tokenId), replay-protected with random nonce, EIP-191 compatible
+- **Agent Direct Mode (RootLayer gRPC)**: AgentConnect stream + Heartbeat + SubmitDirectResult helpers for Agent processes
 - **Configurable TxManager**: EIP-1559 fees, nonce source, stuck transaction replacement (gas bump), dry-run
 - **Signing & Hashing**: EIP-191 (eth_sign) digest signing, batch submission digest construction, Agent authentication, EIP-712 reserved
 - **Networks & Addresses**: Pre-configured for `base`/`base_sepolia`/`local`, supports environment variables and code-level overrides
@@ -294,6 +295,69 @@ resp, err := client.SubmitDirectIntentToRootLayer(ctx, &rootlayerpb.SubmitDirect
 })
 if err != nil { log.Fatal(err) }
 log.Printf("status=%s intent_id=%s", resp.Status, resp.IntentId)
+```
+
+### Agent Direct Mode: connect to RootLayer, receive tasks, and submit results
+
+For an Agent process (similar to `rootlayer/scripts/mock-agent.go`), you can use the lightweight client that does **not** require any RPC configuration:
+
+```go
+package main
+
+import (
+  "context"
+  "log"
+  "os"
+  "time"
+
+  sdk "github.com/PIN-AI/intent-protocol-contract-sdk/sdk"
+  "github.com/PIN-AI/intent-protocol-contract-sdk/sdk/signer"
+)
+
+func main() {
+  ctx := context.Background()
+
+  s, err := signer.NewLocalSigner(os.Getenv("PRIVATE_KEY"))
+  if err != nil { log.Fatal(err) }
+
+  agent, err := sdk.NewRootLayerAgentClient(ctx, os.Getenv("ROOTLAYER_ENDPOINT"), s)
+  if err != nil { log.Fatal(err) }
+  defer agent.Close()
+
+  // ERC-8004 tokenId (uint256 string)
+  agentID := os.Getenv("TARGET_AGENT_ID")
+  sess, err := agent.AgentConnect(ctx, agentID, "my-agent/1.0.0")
+  if err != nil { log.Fatal(err) }
+
+  // Optional: periodic heartbeat
+  go func() {
+    ticker := time.NewTicker(30 * time.Second)
+    defer ticker.Stop()
+    for {
+      <-ticker.C
+      hbCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+      _ = sess.Heartbeat(hbCtx)
+      cancel()
+    }
+  }()
+
+  // Receive tasks and submit results
+  for {
+    push, err := sess.Recv()
+    if err != nil { log.Fatal(err) }
+
+    _, err = sess.SubmitDirectResultFromPush(context.Background(), push, []byte("ok"), true, "")
+    if err != nil {
+      log.Printf("submit result failed: %v", err)
+    }
+  }
+}
+```
+
+If you already have a full `sdk.Client` (with `RootLayerURL` configured), you can also connect via:
+
+```go
+sess, err := client.AgentConnectToRootLayer(ctx, agentID, "my-agent/1.0.0")
 ```
 
 ### Example Scripts
