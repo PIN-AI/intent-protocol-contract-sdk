@@ -15,6 +15,7 @@ func TestComputeAgentConnectDigest_Valid(t *testing.T) {
 		AgentAddress: common.HexToAddress("0x1234567890123456789012345678901234567890"),
 		Timestamp:    big.NewInt(time.Now().Unix()),
 		RandomNonce:  [32]byte{1, 2, 3, 4, 5},
+		AgentID:      big.NewInt(1),
 	}
 	digest, err := ComputeAgentConnectDigest(input)
 	if err != nil {
@@ -33,12 +34,14 @@ func TestComputeAgentConnectDigest_ServerCompatibility(t *testing.T) {
 	agentAddr := common.HexToAddress("0xABCDEF1234567890ABCDEF1234567890ABCDEF12")
 	timestamp := int64(1704067200) // 2024-01-01 00:00:00 UTC
 	randomNonce := [32]byte{0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}
+	agentID := big.NewInt(10)
 
 	// Calculate digest using SDK
 	input := AgentConnectInput{
 		AgentAddress: agentAddr,
 		Timestamp:    big.NewInt(timestamp),
 		RandomNonce:  randomNonce,
+		AgentID:      agentID,
 	}
 	sdkDigest, err := ComputeAgentConnectDigest(input)
 	if err != nil {
@@ -46,13 +49,14 @@ func TestComputeAgentConnectDigest_ServerCompatibility(t *testing.T) {
 	}
 
 	// Calculate digest using server method (direct byte concatenation)
-	typeHashDef := "PIN_AGENT_CONNECT_V1(address,uint256,bytes32)"
+	typeHashDef := "PIN_AGENT_CONNECT_V2(address,uint256,bytes32,uint256)"
 	typeHash := crypto.Keccak256Hash([]byte(typeHashDef))
 	serverDigest := crypto.Keccak256Hash(
 		common.LeftPadBytes(typeHash[:], 32),
 		common.LeftPadBytes(agentAddr.Bytes(), 32),
 		common.LeftPadBytes(big.NewInt(timestamp).Bytes(), 32),
 		randomNonce[:],
+		common.LeftPadBytes(agentID.Bytes(), 32),
 	)
 
 	// Verify they match
@@ -87,6 +91,7 @@ func TestAgentConnectSignature_FullFlow(t *testing.T) {
 		AgentAddress: agentAddr,
 		Timestamp:    big.NewInt(timestamp),
 		RandomNonce:  randomNonce,
+		AgentID:      big.NewInt(1),
 	}
 	digest, err := ComputeAgentConnectDigest(input)
 	if err != nil {
@@ -125,6 +130,7 @@ func TestComputeAgentConnectDigest_NilTimestamp(t *testing.T) {
 		AgentAddress: common.HexToAddress("0x1234567890123456789012345678901234567890"),
 		Timestamp:    nil,
 		RandomNonce:  [32]byte{1, 2, 3, 4, 5},
+		AgentID:      big.NewInt(1),
 	}
 	_, err := ComputeAgentConnectDigest(input)
 	if err == nil {
@@ -140,6 +146,7 @@ func TestComputeAgentConnectDigest_Deterministic(t *testing.T) {
 		AgentAddress: common.HexToAddress("0xABCDEF1234567890ABCDEF1234567890ABCDEF12"),
 		Timestamp:    big.NewInt(1704067200), // 2024-01-01 00:00:00 UTC
 		RandomNonce:  [32]byte{0xAA, 0xBB, 0xCC, 0xDD},
+		AgentID:      big.NewInt(1),
 	}
 	digest1, err := ComputeAgentConnectDigest(input)
 	if err != nil {
@@ -161,11 +168,13 @@ func TestComputeAgentConnectDigest_DifferentAgent(t *testing.T) {
 		AgentAddress: common.HexToAddress("0x1111111111111111111111111111111111111111"),
 		Timestamp:    timestamp,
 		RandomNonce:  nonce,
+		AgentID:      big.NewInt(1),
 	}
 	input2 := AgentConnectInput{
 		AgentAddress: common.HexToAddress("0x2222222222222222222222222222222222222222"),
 		Timestamp:    timestamp,
 		RandomNonce:  nonce,
+		AgentID:      big.NewInt(1),
 	}
 	digest1, _ := ComputeAgentConnectDigest(input1)
 	digest2, _ := ComputeAgentConnectDigest(input2)
@@ -181,11 +190,13 @@ func TestComputeAgentConnectDigest_DifferentTimestamp(t *testing.T) {
 		AgentAddress: agent,
 		Timestamp:    big.NewInt(1000000),
 		RandomNonce:  nonce,
+		AgentID:      big.NewInt(1),
 	}
 	input2 := AgentConnectInput{
 		AgentAddress: agent,
 		Timestamp:    big.NewInt(2000000),
 		RandomNonce:  nonce,
+		AgentID:      big.NewInt(1),
 	}
 	digest1, _ := ComputeAgentConnectDigest(input1)
 	digest2, _ := ComputeAgentConnectDigest(input2)
@@ -201,11 +212,13 @@ func TestComputeAgentConnectDigest_DifferentNonce(t *testing.T) {
 		AgentAddress: agent,
 		Timestamp:    timestamp,
 		RandomNonce:  [32]byte{1, 2, 3, 4, 5},
+		AgentID:      big.NewInt(1),
 	}
 	input2 := AgentConnectInput{
 		AgentAddress: agent,
 		Timestamp:    timestamp,
 		RandomNonce:  [32]byte{5, 4, 3, 2, 1},
+		AgentID:      big.NewInt(1),
 	}
 	digest1, _ := ComputeAgentConnectDigest(input1)
 	digest2, _ := ComputeAgentConnectDigest(input2)
@@ -219,6 +232,7 @@ func TestComputeAgentConnectDigest_ZeroAddress(t *testing.T) {
 		AgentAddress: common.Address{},
 		Timestamp:    big.NewInt(time.Now().Unix()),
 		RandomNonce:  [32]byte{1, 2, 3},
+		AgentID:      big.NewInt(1),
 	}
 	digest, err := ComputeAgentConnectDigest(input)
 	if err != nil {
@@ -234,6 +248,7 @@ func TestComputeAgentConnectDigest_EmptyNonce(t *testing.T) {
 		AgentAddress: common.HexToAddress("0x1234567890123456789012345678901234567890"),
 		Timestamp:    big.NewInt(time.Now().Unix()),
 		RandomNonce:  [32]byte{},
+		AgentID:      big.NewInt(1),
 	}
 	digest, err := ComputeAgentConnectDigest(input)
 	if err != nil {

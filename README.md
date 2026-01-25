@@ -21,7 +21,7 @@ Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, w
   - **SubnetService** (27 methods): Register validator/agent/matcher (ETH or ERC20 staking), participant management, config queries
   - **StakingService** (21 methods): Stake/unstake/withdraw, staking info queries, slashing, role and config management
   - **CheckpointService** (18 methods): Query, verify, submit, finalize, revert checkpoints
-- **Agent Network Authentication**: One-step signature generation for Agent connection (`SignAgentConnectNow`), replay-protected with random nonce, EIP-191 compatible
+- **Agent Network Authentication**: AgentConnect (V2) signature generation with `agent_id` (ERC-8004 tokenId), replay-protected with random nonce, EIP-191 compatible
 - **Configurable TxManager**: EIP-1559 fees, nonce source, stuck transaction replacement (gas bump), dry-run
 - **Signing & Hashing**: EIP-191 (eth_sign) digest signing, batch submission digest construction, Agent authentication, EIP-712 reserved
 - **Networks & Addresses**: Pre-configured for `base`/`base_sepolia`/`local`, supports environment variables and code-level overrides
@@ -376,7 +376,7 @@ Tips:
 
 ## Agent Network Authentication
 
-When an Agent connects to the PIN AI network, it must sign an authentication message to prove ownership of its wallet address. The SDK provides convenient methods for generating this signature.
+When an Agent connects to the PIN AI network, it must sign an authentication message to prove ownership of its wallet address and bind the connection to a specific `agent_id` (ERC-8004 tokenId). The SDK provides convenient methods for generating this signature.
 
 ### Quick Start (Recommended)
 
@@ -384,7 +384,8 @@ The simplest way to generate an Agent connection signature:
 
 ```go
 // One-step signature generation with auto-generated timestamp and nonce
-signature, timestamp, nonce, err := client.SignAgentConnectNow(client.Signer.Address())
+agentID := "123" // ERC-8004 tokenId (uint256 string)
+signature, timestamp, nonce, err := client.SignAgentConnectNow(client.Signer.Address(), agentID)
 if err != nil {
     log.Fatal(err)
 }
@@ -410,9 +411,12 @@ import (
 var nonce [32]byte
 rand.Read(nonce[:])
 
+agentID := "123" // ERC-8004 tokenId (uint256 string)
+
 // Sign with custom parameters
 signature, err := client.SignAgentConnect(
     client.Signer.Address(),
+    agentID,
     time.Now().Unix(),
     &nonce,
 )
@@ -432,6 +436,7 @@ input := cryptoHelpers.AgentConnectInput{
     AgentAddress: client.Signer.Address(),
     Timestamp:    big.NewInt(time.Now().Unix()),
     RandomNonce:  [32]byte{1, 2, 3, 4, 5},
+    AgentID:      big.NewInt(123),
 }
 
 digest, _ := cryptoHelpers.ComputeAgentConnectDigest(input)
@@ -440,6 +445,7 @@ signature, _ := client.Signer.SignDigest(digest)
 
 ### Security Features
 
+- **Agent ID Binding**: Signature includes `agent_id`, enabling multiple agent processes under the same owner address
 - **Replay Protection**: Each connection uses a unique 32-byte random nonce
 - **Timestamp Validation**: Server can verify signature freshness
 - **EIP-191 Standard**: Compatible with MetaMask and other wallets
@@ -474,8 +480,8 @@ Configure in `sdk.Config.Tx` or use defaults. See `docs/txmanager.md` for detail
   - **Validation Batch typeHash** (v2.3): `PIN_VALIDATION_BATCH_V1(bytes32,bytes32,uint64,bytes32,address,uint256)`
   - **Validation Batch digest** (v2.3): `keccak256(abi.encode(typeHash, subnet_id, items_hash, root_height, root_hash, address(this), chainid))`
     - `items_hash = keccak256(abi.encode(items))` computed via `client.Validation.ComputeItemsHash()`
-  - **Agent Connect typeHash**: `PIN_AGENT_CONNECT_V1(address,uint256,bytes32)`
-  - **Agent Connect digest**: `keccak256(abi.encode(typeHash, agent_address, timestamp, random_nonce))`
+  - **Agent Connect typeHash**: `PIN_AGENT_CONNECT_V2(address,uint256,bytes32,uint256)`
+  - **Agent Connect digest**: `keccak256(abi.encode(typeHash, agent_address, timestamp, random_nonce, agent_id))`
     - Note: No contract address or chainid binding (network-level authentication)
 - Off-chain signing: EIP-191 (eth_sign prefix), aligned with contract `SignatureLib.verifySingleSignature()`
 - Utility functions:

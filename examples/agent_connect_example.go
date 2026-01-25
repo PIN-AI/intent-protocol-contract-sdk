@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"strings"
 	"time"
 
 	sdk "github.com/PIN-AI/intent-protocol-contract-sdk/sdk"
@@ -30,10 +31,30 @@ func main() {
 	agentAddr := client.Signer.Address()
 	fmt.Printf("Agent Address: %s\n\n", agentAddr.Hex())
 
+	agentID := strings.TrimSpace(os.Getenv("PIN_AGENT_ID"))
+	if agentID == "" {
+		agentID = strings.TrimSpace(os.Getenv("AGENT_ID"))
+	}
+	if agentID == "" {
+		log.Fatal("Missing PIN_AGENT_ID (or AGENT_ID)")
+	}
+
+	agentIDInt := new(big.Int)
+	if strings.HasPrefix(agentID, "0x") || strings.HasPrefix(agentID, "0X") {
+		agentIDInt, _ = agentIDInt.SetString(strings.TrimPrefix(strings.TrimPrefix(agentID, "0x"), "0X"), 16)
+	} else {
+		agentIDInt, _ = agentIDInt.SetString(agentID, 10)
+	}
+	if agentIDInt == nil {
+		log.Fatalf("Invalid agent id: %q", agentID)
+	}
+
+	fmt.Printf("Agent ID: %s\n\n", agentIDInt.String())
+
 	// Method 1: Quick Start (Recommended)
 	fmt.Println("Method 1: One-step signature generation")
 	fmt.Println("---------------------------------------")
-	signature1, timestamp1, nonce1, err := client.SignAgentConnectNow(agentAddr)
+	signature1, timestamp1, nonce1, err := client.SignAgentConnectNow(agentAddr, agentIDInt.String())
 	if err != nil {
 		log.Fatalf("SignAgentConnectNow failed: %v", err)
 	}
@@ -50,7 +71,7 @@ func main() {
 		log.Fatalf("Failed to generate nonce: %v", err)
 	}
 
-	signature2, err := client.SignAgentConnect(agentAddr, timestamp2, &nonce2)
+	signature2, err := client.SignAgentConnect(agentAddr, agentIDInt.String(), timestamp2, &nonce2)
 	if err != nil {
 		log.Fatalf("SignAgentConnect failed: %v", err)
 	}
@@ -71,6 +92,7 @@ func main() {
 		AgentAddress: agentAddr,
 		Timestamp:    big.NewInt(timestamp3),
 		RandomNonce:  nonce3,
+		AgentID:      agentIDInt,
 	}
 
 	digest, err := cryptoHelpers.ComputeAgentConnectDigest(input)
@@ -93,6 +115,7 @@ func main() {
 	fmt.Println("-------------------------------")
 	fmt.Printf("{\n")
 	fmt.Printf("  \"agent_address\": \"%s\",\n", agentAddr.Hex())
+	fmt.Printf("  \"agent_id\": \"%s\",\n", agentIDInt.String())
 	fmt.Printf("  \"signature\": \"%x\",\n", signature1)
 	fmt.Printf("  \"timestamp\": %d,\n", timestamp1)
 	fmt.Printf("  \"random_nonce\": \"%x\",\n", nonce1)
