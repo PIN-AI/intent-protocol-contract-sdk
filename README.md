@@ -1,19 +1,31 @@
 # intent-protocol-contract-sdk
 
-Go SDK for PIN AI Intent Protocol RootLayer smart contracts.
+Go SDK for PIN AI Intent Protocol RootLayer.
 
-Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, with pre-configured contract addresses for Base mainnet/testnet and local development networks (configurable via environment variables or code). Features EIP-1559 transaction management, EIP-191 digest signing utilities, and exposes high-level APIs for common operations (submit/batch submit Intents, query subnets/validators/checkpoints, staking operations, etc.).
+This SDK includes **two parts**:
 
-• Quick Navigation: `docs/README.md`
+1. **On-chain (smart contracts) SDK**: typed bindings + high-level services for RootLayer / Subnet contracts.
+2. **RootLayer backend Client SDK (gRPC)**: submit intents off-chain + Direct Mode agent runtime (AgentConnect/Heartbeat/Recv/SubmitDirectResult).
+
+> **Repo location**: https://github.com/PIN-AI/pin-rootlayer-sdk-go/tree/main/intent-protocol-contract-sdk
+>
+> **Go module path**: `github.com/PIN-AI/pin-rootlayer-sdk-go`
+
+• Docs index: `docs/README.md`
 • Examples: `examples/`
-• Environment Variables: `.env.example`
+• Environment variables: `.env.example`
 
----
+## Quick Navigation
 
-## Features
+- Part 1 (On-chain): [Features](#part-1--on-chain-smart-contracts-sdk) · [Installation](#installation--requirements) · [Quick Start](#quick-start) · [Example Scripts](#example-scripts)
+- Part 2 (RootLayer backend): [RootLayer gRPC Client](#part-2--rootlayer-backend-client-sdk-grpc) · [Agent Direct Mode](#agent-direct-mode-connect-receive-tasks-submit-results)
 
-- **Strongly-Typed Contract Bindings**: `IntentManager`, `SubnetFactory`, `Subnet`, `StakingManager`, `CheckpointManager`
-- **Complete Service Layer** (2025-01 refactor with 138+ new methods):
+## Part 1 — On-chain (Smart Contracts) SDK
+
+### Features
+
+- **Strongly-typed contract bindings**: `IntentManager`, `SubnetFactory`, `Subnet`, `StakingManager`, `CheckpointManager`
+- **Complete service layer** (2025-01 refactor with 138+ new methods):
   - **IntentService** (26 methods): Submit/batch signed submit (standard & direct intents), expiry handling, status queries, role management, emergency controls, dispute mechanism support
   - **AssignmentService**: Batch signed assignment, digest construction, matcher signature helpers
   - **ValidationService** (v2.3 batch optimization): Batch validation with shared signatures (90% signature data reduction, 43% gas savings), backward-compatible single validation, items hash computation
@@ -21,19 +33,17 @@ Provides comprehensive on-chain interaction wrappers for RootLayer and Subnet, w
   - **SubnetService** (27 methods): Register validator/agent/matcher (ETH or ERC20 staking), participant management, config queries
   - **StakingService** (21 methods): Stake/unstake/withdraw, staking info queries, slashing, role and config management
   - **CheckpointService** (18 methods): Query, verify, submit, finalize, revert checkpoints
-- **Agent Network Authentication**: AgentConnect (V2) signature generation with `agent_id` (ERC-8004 tokenId), replay-protected with random nonce, EIP-191 compatible
-- **Agent Direct Mode (RootLayer gRPC)**: AgentConnect stream + Heartbeat + SubmitDirectResult helpers for Agent processes
 - **Configurable TxManager**: EIP-1559 fees, nonce source, stuck transaction replacement (gas bump), dry-run
-- **Signing & Hashing**: EIP-191 (eth_sign) digest signing, batch submission digest construction, Agent authentication, EIP-712 reserved
-- **Networks & Addresses**: Pre-configured for `base`/`base_sepolia`/`local`, supports environment variables and code-level overrides
+- **Signing & hashing**: EIP-191 (eth_sign) digest signing, batch submission digest construction
+- **Networks & addresses**: pre-configured for `base`/`base_sepolia`/`local`, supports environment variables and code-level overrides
 
-## Installation & Requirements
+### Installation & Requirements
 
 - **Go Version**: `go 1.24+` (see `go.mod`)
 - **Get SDK**:
 
 ```bash
-go get github.com/PIN-AI/intent-protocol-contract-sdk@latest
+go get github.com/PIN-AI/pin-rootlayer-sdk-go@latest
 ```
 
 - **Build & Test**:
@@ -49,7 +59,7 @@ go test ./...
 go test -v ./sdk/crypto/
 ```
 
-## Quick Start
+### Quick Start
 
 1) Prepare environment variables (refer to `.env.example`)
 
@@ -77,7 +87,7 @@ import (
   "os"
   "time"
 
-  sdk "github.com/PIN-AI/intent-protocol-contract-sdk/sdk"
+  sdk "github.com/PIN-AI/pin-rootlayer-sdk-go/sdk"
   "github.com/ethereum/go-ethereum/common"
 )
 
@@ -237,129 +247,6 @@ _, _ = client.Validation.ValidateIntentsBySignatures(ctx, []sdk.ValidationBatch{
 ```
 
 More examples in `docs/quickstart.md`.
-
-## RootLayer gRPC (Optional)
-
-If you want to submit intents directly to RootLayer (off-chain), pass `RootLayerURL` when initializing the SDK client. The SDK uses protobuf stubs from `github.com/PIN-AI/pin-protocol-proto`.
-
-### Submit standard intent to RootLayer
-
-```go
-import (
-  rootlayerpb "github.com/PIN-AI/pin-protocol-proto/rootlayer/proto"
-)
-
-client, err := sdk.NewClient(ctx, sdk.Config{
-  RPCURL:        os.Getenv("PIN_RPC_URL"),
-  PrivateKeyHex: os.Getenv("PIN_PRIVATE_KEY"),
-  Network:       os.Getenv("PIN_NETWORK"),
-  RootLayerURL:  os.Getenv("ROOTLAYER_ENDPOINT"), // e.g. "localhost:9001"
-})
-if err != nil { log.Fatal(err) }
-defer client.Close()
-
-resp, err := client.SubmitIntentToRootLayer(ctx, &rootlayerpb.SubmitIntentRequest{
-  IntentId:    "0x...",
-  SubnetId:    "0x...",
-  SettleChain: "base_sepolia",
-  IntentType:  "book_flight",
-  Params: &rootlayerpb.IntentParams{
-    IntentRaw: []byte(`{"from":"NYC","to":"LAX"}`),
-  },
-  TipsToken:   "0x0000000000000000000000000000000000000000",
-  Tips:        "0",
-  BudgetToken: "0x0000000000000000000000000000000000000000",
-  Budget:      "0",
-  Deadline:    time.Now().Add(1 * time.Hour).Unix(),
-  // Signature can be omitted; SDK will auto-sign.
-})
-if err != nil { log.Fatal(err) }
-log.Printf("ok=%v intent_id=%s", resp.Ok, resp.IntentId)
-```
-
-### Submit Direct Mode intent to RootLayer (requires `target_agent_id`)
-
-```go
-resp, err := client.SubmitDirectIntentToRootLayer(ctx, &rootlayerpb.SubmitDirectIntentRequest{
-  IntentId:      "0x...",
-  SubnetId:      "0x...",
-  SettleChain:   "base_sepolia",
-  IntentType:    "weather_query",
-  Params:        &rootlayerpb.IntentParams{IntentRaw: []byte(`{"city":"NYC"}`)},
-  PaymentToken:  "0x0000000000000000000000000000000000000000",
-  Amount:        "0", // RootLayer Direct Mode requires amount == 0
-  Deadline:      time.Now().Add(10 * time.Minute).Unix(),
-  TargetAgent:   "0xAgentAddress",
-  TargetAgentId: "123", // ERC-8004 tokenId (uint256 string)
-  // Signature can be omitted; SDK will auto-sign.
-})
-if err != nil { log.Fatal(err) }
-log.Printf("status=%s intent_id=%s", resp.Status, resp.IntentId)
-```
-
-### Agent Direct Mode: connect to RootLayer, receive tasks, and submit results
-
-For an Agent process (similar to `rootlayer/scripts/mock-agent.go`), you can use the lightweight client that does **not** require any RPC configuration:
-
-```go
-package main
-
-import (
-  "context"
-  "log"
-  "os"
-  "time"
-
-  sdk "github.com/PIN-AI/intent-protocol-contract-sdk/sdk"
-  "github.com/PIN-AI/intent-protocol-contract-sdk/sdk/signer"
-)
-
-func main() {
-  ctx := context.Background()
-
-  s, err := signer.NewLocalSigner(os.Getenv("PRIVATE_KEY"))
-  if err != nil { log.Fatal(err) }
-
-  agent, err := sdk.NewRootLayerAgentClient(ctx, os.Getenv("ROOTLAYER_ENDPOINT"), s)
-  if err != nil { log.Fatal(err) }
-  defer agent.Close()
-
-  // ERC-8004 tokenId (uint256 string)
-  agentID := os.Getenv("TARGET_AGENT_ID")
-  sess, err := agent.AgentConnect(ctx, agentID, "my-agent/1.0.0")
-  if err != nil { log.Fatal(err) }
-
-  // Optional: periodic heartbeat
-  go func() {
-    ticker := time.NewTicker(30 * time.Second)
-    defer ticker.Stop()
-    for {
-      <-ticker.C
-      hbCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-      _ = sess.Heartbeat(hbCtx)
-      cancel()
-    }
-  }()
-
-  // Receive tasks and submit results
-  for {
-    push, err := sess.Recv()
-    if err != nil { log.Fatal(err) }
-
-    _, err = sess.SubmitDirectResultFromPush(context.Background(), push, []byte("ok"), true, "")
-    if err != nil {
-      log.Printf("submit result failed: %v", err)
-    }
-  }
-}
-```
-
-If you already have a full `sdk.Client` (with `RootLayerURL` configured), you can also connect via:
-
-```go
-sess, err := client.AgentConnectToRootLayer(ctx, agentID, "my-agent/1.0.0")
-```
-
 ### Example Scripts
 
 - `examples/list_subnets`: **Optimized** listing of active subnets, uses `GetSubnetsByStatus` for efficient queries, displays detailed participant info (address, reputation, endpoint, etc.), avoids redundant RPC calls.
@@ -370,7 +257,7 @@ sess, err := client.AgentConnectToRootLayer(ctx, agentID, "my-agent/1.0.0")
 - `examples/register_agent`: Agent registration script based on Subnet contract, configurable `AGENT_DOMAIN`/`AGENT_ENDPOINT`/`AGENT_METADATA_URI` and `AGENT_VALUE_WEI` (default dry-run, can override 0 stake requirement).
 - `examples/complete_workflow` (planned): Demonstrates end-to-end flow from Intent → Assignment → Validation → Checkpoint.
 
-## Connecting to Subnet & Role Registration
+### Connecting to Subnet & Role Registration
 
 ### Connecting to Subnet Contract (two methods)
 
@@ -438,11 +325,220 @@ Tips:
   - `subnetSvc.ListActiveParticipants(ctx, sdk.ParticipantValidator)`
   - `subnetSvc.GetParticipantInfo/GetParticipantStakeInfo/GetParticipantCount`
 
-## Agent Network Authentication
+### Networks & Addresses
+
+- Pre-configured networks: `base`(8453), `base_sepolia`(84532), `local`(31337)
+- Override priority: Code-level override > Environment variables > SDK defaults (mock/local)
+- Environment variable naming (examples):
+  - `PIN_BASE_INTENT_MANAGER` / `PIN_BASE_SEPOLIA_SUBNET_FACTORY` / `PIN_LOCAL_CHECKPOINT_MANAGER`
+- See: `docs/addresses.md` and `.env.example`
+
+### TxManager (Transaction Management)
+
+Configurable EIP-1559 transaction manager supporting:
+
+- Nonce source: `pending`/`latest`
+- Gas estimation with multiplier, suggested fees, `MaxFeePerGas`/`MaxPriorityFee`
+- Replacement strategy: After `ReplaceAfter` timeout, bump by `BumpPercent` and resend
+- Dry-run: `NoSend` constructs transaction without sending
+
+Configure in `sdk.Config.Tx` or use defaults. See `docs/txmanager.md` for details.
+
+### Signing & Digest
+
+- Batch signing digest:
+  - **Intent typeHash**: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
+  - **Intent digest**: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
+  - **Direct Intent typeHash**: `PIN_DIRECT_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,address,uint256)`
+  - **Direct Intent digest**: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, target_agent, address(this), chainid))`
+  - **Validation Batch typeHash** (v2.3): `PIN_VALIDATION_BATCH_V1(bytes32,bytes32,uint64,bytes32,address,uint256)`
+  - **Validation Batch digest** (v2.3): `keccak256(abi.encode(typeHash, subnet_id, items_hash, root_height, root_hash, address(this), chainid))`
+    - `items_hash = keccak256(abi.encode(items))` computed via `client.Validation.ComputeItemsHash()`
+  - **Agent Connect typeHash**: `PIN_AGENT_CONNECT_V2(address,uint256,bytes32,uint256)`
+  - **Agent Connect digest**: `keccak256(abi.encode(typeHash, agent_address, timestamp, random_nonce, agent_id))`
+    - Note: No contract address or chainid binding (network-level authentication)
+- Off-chain signing: EIP-191 (eth_sign prefix), aligned with contract `SignatureLib.verifySingleSignature()`
+- Utility functions:
+  - `sdkcrypto.ComputeIntentDigest()`, `sdkcrypto.ComputeDirectIntentDigest()`, `sdkcrypto.ComputeAgentConnectDigest()`
+  - `client.Intent.SignDigest()`, `client.Intent.SignDirectIntent()`
+  - `client.SignAgentConnect()`, `client.SignAgentConnectNow()`
+- Other digests: `client.Assignment.ComputeDigest()`, `client.Validation.ComputeDigest()` (single), `client.Validation.ComputeBatchDigest()` (batch v2.3), `client.CheckpointManager.ComputeDigest()`
+- See: `docs/signing.md`
+
+### Directory Structure
+
+- `sdk/`: Public API (Client, TxManager, Signer, AddressBook, high-level Services)
+  - 7 complete Services: Intent, Assignment, Validation, SubnetFactory, Subnet, Staking, Checkpoint
+  - All Services implement full contract ABI method coverage (read + write)
+- `contracts/`: abigen bindings organized by contract module (pre-generated)
+- `examples/`: Runnable example scripts
+- `docs/`: Documentation and specifications
+- `CLAUDE.md`: Claude Code project guide (architecture, commands, conventions)
+
+### Generating Contract Bindings (Developers)
+
+Bindings are provided with the repository. To regenerate from `RootLayer/artifacts`, refer to:
+
+```bash
+# Requires abigen and jq
+for name in IntentManager SubnetFactory Subnet StakingManager CheckpointManager; do
+  jq -r '.abi' /path/to/RootLayer/artifacts/contracts/${name}.sol/${name}.json > /tmp/${name}.abi
+  pkg=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+  abigen --abi /tmp/${name}.abi --pkg $pkg --type ${name} --out contracts/$pkg/${pkg}.go
+done
+```
+
+### Service Layer Method Categories
+
+All Services provide complete method coverage, categorized as:
+
+### Read-Only Methods
+- **Roles & Permissions**: `DefaultAdminRole()`, `GovernanceRole()`, `HasRole()`, `GetRoleAdmin()`
+- **Config Queries**: `GetMinStakeCreateSubnet()`, `GetStakingManager()`, `GetMaxIntentDuration()`
+- **State Queries**: `IsSubnetActive()`, `IntentExists()`, `Paused()`, `CanFinalizeCheckpoint()`
+- **Stats Queries**: `GetTotalSubnetCount()`, `GetActiveSubnetCount()`, `GetParticipantCount()`
+- **Batch Queries**: `GetSubnetsByStatus()`, `GetSubnetsByOwner()`, `GetAllSubnetInfo()`
+
+### Write Methods
+- **Role Management**: `GrantRole()`, `RevokeRole()`, `RenounceRole()`
+- **Emergency Controls**: `EmergencyPause()`, `EmergencyUnpause()`, `EmergencyRefundBatch()`
+- **Config Management**: `SetMinStakeCreateSubnet()`, `SetMaxIntentDuration()`, `SetStakingToken()`
+- **Subnet Management**: `CreateSubnet()`, `PauseSubnet()`, `ResumeSubnet()`, `DeprecateSubnet()`
+- **Participant Management**: `ApproveParticipant()`, `RejectParticipant()`, `SuspendParticipant()`
+- **Staking & Slashing**: `Slash()`, `DepositStakeFor()`, `RequestUnstake()`, `Withdraw()`
+
+
+## Part 2 — RootLayer Backend Client SDK (gRPC)
+
+If you want to submit intents directly to RootLayer (off-chain), or you are building an **Agent** that receives Direct Mode tasks, use the gRPC client APIs. The SDK uses protobuf stubs from `github.com/PIN-AI/pin-protocol-proto`.
+
+### RootLayer gRPC client (user-side)
+
+Pass `RootLayerURL` when initializing `sdk.Client`.
+
+#### Submit standard intent to RootLayer
+
+```go
+import (
+  rootlayerpb "github.com/PIN-AI/pin-protocol-proto/rootlayer/proto"
+)
+
+client, err := sdk.NewClient(ctx, sdk.Config{
+  RPCURL:        os.Getenv("PIN_RPC_URL"),
+  PrivateKeyHex: os.Getenv("PIN_PRIVATE_KEY"),
+  Network:       os.Getenv("PIN_NETWORK"),
+  RootLayerURL:  os.Getenv("ROOTLAYER_ENDPOINT"), // e.g. "localhost:9001"
+})
+if err != nil { log.Fatal(err) }
+defer client.Close()
+
+resp, err := client.SubmitIntentToRootLayer(ctx, &rootlayerpb.SubmitIntentRequest{
+  IntentId:    "0x...",
+  SubnetId:    "0x...",
+  SettleChain: "base_sepolia",
+  IntentType:  "book_flight",
+  Params: &rootlayerpb.IntentParams{
+    IntentRaw: []byte(`{"from":"NYC","to":"LAX"}`),
+  },
+  TipsToken:   "0x0000000000000000000000000000000000000000",
+  Tips:        "0",
+  BudgetToken: "0x0000000000000000000000000000000000000000",
+  Budget:      "0",
+  Deadline:    time.Now().Add(1 * time.Hour).Unix(),
+  // Signature can be omitted; SDK will auto-sign.
+})
+if err != nil { log.Fatal(err) }
+log.Printf("ok=%v intent_id=%s", resp.Ok, resp.IntentId)
+```
+
+#### Submit Direct Mode intent to RootLayer (requires `target_agent_id`)
+
+```go
+resp, err := client.SubmitDirectIntentToRootLayer(ctx, &rootlayerpb.SubmitDirectIntentRequest{
+  IntentId:      "0x...",
+  SubnetId:      "0x...",
+  SettleChain:   "base_sepolia",
+  IntentType:    "weather_query",
+  Params:        &rootlayerpb.IntentParams{IntentRaw: []byte(`{"city":"NYC"}`)},
+  PaymentToken:  "0x0000000000000000000000000000000000000000",
+  Amount:        "0", // RootLayer Direct Mode requires amount == 0
+  Deadline:      time.Now().Add(10 * time.Minute).Unix(),
+  TargetAgent:   "0xAgentAddress",
+  TargetAgentId: "123", // ERC-8004 tokenId (uint256 string)
+  // Signature can be omitted; SDK will auto-sign.
+})
+if err != nil { log.Fatal(err) }
+log.Printf("status=%s intent_id=%s", resp.Status, resp.IntentId)
+```
+
+### Agent Direct Mode: connect, receive tasks, submit results
+
+For an Agent process (similar to `rootlayer/scripts/mock-agent.go`), use the lightweight client that does **not** require any RPC configuration:
+
+```go
+package main
+
+import (
+  "context"
+  "log"
+  "os"
+  "time"
+
+  sdk "github.com/PIN-AI/pin-rootlayer-sdk-go/sdk"
+  "github.com/PIN-AI/pin-rootlayer-sdk-go/sdk/signer"
+)
+
+func main() {
+  ctx := context.Background()
+
+  s, err := signer.NewLocalSigner(os.Getenv("PRIVATE_KEY"))
+  if err != nil { log.Fatal(err) }
+
+  agent, err := sdk.NewRootLayerAgentClient(ctx, os.Getenv("ROOTLAYER_ENDPOINT"), s)
+  if err != nil { log.Fatal(err) }
+  defer agent.Close()
+
+  // ERC-8004 tokenId (uint256 string)
+  agentID := os.Getenv("TARGET_AGENT_ID")
+  sess, err := agent.AgentConnect(ctx, agentID, "my-agent/1.0.0")
+  if err != nil { log.Fatal(err) }
+
+  // Optional: periodic heartbeat
+  go func() {
+    ticker := time.NewTicker(30 * time.Second)
+    defer ticker.Stop()
+    for {
+      <-ticker.C
+      hbCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+      _ = sess.Heartbeat(hbCtx)
+      cancel()
+    }
+  }()
+
+  // Receive tasks and submit results
+  for {
+    push, err := sess.Recv()
+    if err != nil { log.Fatal(err) }
+
+    _, err = sess.SubmitDirectResultFromPush(context.Background(), push, []byte("ok"), true, "")
+    if err != nil {
+      log.Printf("submit result failed: %v", err)
+    }
+  }
+}
+```
+
+If you already have a full `sdk.Client` (with `RootLayerURL` configured), you can also connect via:
+
+```go
+sess, err := client.AgentConnectToRootLayer(ctx, agentID, "my-agent/1.0.0")
+```
+
+### Agent Network Authentication (AgentConnect V2 signature)
 
 When an Agent connects to the PIN AI network, it must sign an authentication message to prove ownership of its wallet address and bind the connection to a specific `agent_id` (ERC-8004 tokenId). The SDK provides convenient methods for generating this signature.
 
-### Quick Start (Recommended)
+#### Quick Start (Recommended)
 
 The simplest way to generate an Agent connection signature:
 
@@ -461,7 +557,7 @@ log.Printf("Nonce: %x", nonce)
 // Send signature to PIN AI network for authentication...
 ```
 
-### Manual Control
+#### Manual Control
 
 For custom timestamp or nonce:
 
@@ -486,14 +582,14 @@ signature, err := client.SignAgentConnect(
 )
 ```
 
-### Low-Level API
+#### Low-Level API
 
 Direct access to digest computation:
 
 ```go
 import (
     "math/big"
-    cryptoHelpers "github.com/PIN-AI/intent-protocol-contract-sdk/sdk/crypto"
+    cryptoHelpers "github.com/PIN-AI/pin-rootlayer-sdk-go/sdk/crypto"
 )
 
 input := cryptoHelpers.AgentConnectInput{
@@ -507,97 +603,13 @@ digest, _ := cryptoHelpers.ComputeAgentConnectDigest(input)
 signature, _ := client.Signer.SignDigest(digest)
 ```
 
-### Security Features
+#### Security Features
 
 - **Agent ID Binding**: Signature includes `agent_id`, enabling multiple agent processes under the same owner address
 - **Replay Protection**: Each connection uses a unique 32-byte random nonce
 - **Timestamp Validation**: Server can verify signature freshness
 - **EIP-191 Standard**: Compatible with MetaMask and other wallets
 - **No Chain Binding**: Network-level authentication, not tied to specific chain or contract
-
-## Networks & Addresses
-
-- Pre-configured networks: `base`(8453), `base_sepolia`(84532), `local`(31337)
-- Override priority: Code-level override > Environment variables > SDK defaults (mock/local)
-- Environment variable naming (examples):
-  - `PIN_BASE_INTENT_MANAGER` / `PIN_BASE_SEPOLIA_SUBNET_FACTORY` / `PIN_LOCAL_CHECKPOINT_MANAGER`
-- See: `docs/addresses.md` and `.env.example`
-
-## TxManager (Transaction Management)
-
-Configurable EIP-1559 transaction manager supporting:
-
-- Nonce source: `pending`/`latest`
-- Gas estimation with multiplier, suggested fees, `MaxFeePerGas`/`MaxPriorityFee`
-- Replacement strategy: After `ReplaceAfter` timeout, bump by `BumpPercent` and resend
-- Dry-run: `NoSend` constructs transaction without sending
-
-Configure in `sdk.Config.Tx` or use defaults. See `docs/txmanager.md` for details.
-
-## Signing & Digest
-
-- Batch signing digest:
-  - **Intent typeHash**: `PIN_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,uint256)`
-  - **Intent digest**: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, address(this), chainid))`
-  - **Direct Intent typeHash**: `PIN_DIRECT_INTENT_V1(bytes32,bytes32,address,bytes32,bytes32,uint256,address,uint256,address,address,uint256)`
-  - **Direct Intent digest**: `keccak256(abi.encode(typeHash, intent_id, subnet_id, requester, keccak256(bytes(intent_type)), params_hash, deadline, payment_token, amount, target_agent, address(this), chainid))`
-  - **Validation Batch typeHash** (v2.3): `PIN_VALIDATION_BATCH_V1(bytes32,bytes32,uint64,bytes32,address,uint256)`
-  - **Validation Batch digest** (v2.3): `keccak256(abi.encode(typeHash, subnet_id, items_hash, root_height, root_hash, address(this), chainid))`
-    - `items_hash = keccak256(abi.encode(items))` computed via `client.Validation.ComputeItemsHash()`
-  - **Agent Connect typeHash**: `PIN_AGENT_CONNECT_V2(address,uint256,bytes32,uint256)`
-  - **Agent Connect digest**: `keccak256(abi.encode(typeHash, agent_address, timestamp, random_nonce, agent_id))`
-    - Note: No contract address or chainid binding (network-level authentication)
-- Off-chain signing: EIP-191 (eth_sign prefix), aligned with contract `SignatureLib.verifySingleSignature()`
-- Utility functions:
-  - `sdkcrypto.ComputeIntentDigest()`, `sdkcrypto.ComputeDirectIntentDigest()`, `sdkcrypto.ComputeAgentConnectDigest()`
-  - `client.Intent.SignDigest()`, `client.Intent.SignDirectIntent()`
-  - `client.SignAgentConnect()`, `client.SignAgentConnectNow()`
-- Other digests: `client.Assignment.ComputeDigest()`, `client.Validation.ComputeDigest()` (single), `client.Validation.ComputeBatchDigest()` (batch v2.3), `client.CheckpointManager.ComputeDigest()`
-- See: `docs/signing.md`
-
-## Directory Structure
-
-- `sdk/`: Public API (Client, TxManager, Signer, AddressBook, high-level Services)
-  - 7 complete Services: Intent, Assignment, Validation, SubnetFactory, Subnet, Staking, Checkpoint
-  - All Services implement full contract ABI method coverage (read + write)
-- `contracts/`: abigen bindings organized by contract module (pre-generated)
-- `examples/`: Runnable example scripts
-- `docs/`: Documentation and specifications
-- `CLAUDE.md`: Claude Code project guide (architecture, commands, conventions)
-
-## Generating Contract Bindings (Developers)
-
-Bindings are provided with the repository. To regenerate from `RootLayer/artifacts`, refer to:
-
-```bash
-# Requires abigen and jq
-for name in IntentManager SubnetFactory Subnet StakingManager CheckpointManager; do
-  jq -r '.abi' /path/to/RootLayer/artifacts/contracts/${name}.sol/${name}.json > /tmp/${name}.abi
-  pkg=$(echo "$name" | tr '[:upper:]' '[:lower:]')
-  abigen --abi /tmp/${name}.abi --pkg $pkg --type ${name} --out contracts/$pkg/${pkg}.go
-done
-```
-
-## Service Layer Method Categories
-
-All Services provide complete method coverage, categorized as:
-
-### Read-Only Methods
-- **Roles & Permissions**: `DefaultAdminRole()`, `GovernanceRole()`, `HasRole()`, `GetRoleAdmin()`
-- **Config Queries**: `GetMinStakeCreateSubnet()`, `GetStakingManager()`, `GetMaxIntentDuration()`
-- **State Queries**: `IsSubnetActive()`, `IntentExists()`, `Paused()`, `CanFinalizeCheckpoint()`
-- **Stats Queries**: `GetTotalSubnetCount()`, `GetActiveSubnetCount()`, `GetParticipantCount()`
-- **Batch Queries**: `GetSubnetsByStatus()`, `GetSubnetsByOwner()`, `GetAllSubnetInfo()`
-
-### Write Methods
-- **Role Management**: `GrantRole()`, `RevokeRole()`, `RenounceRole()`
-- **Emergency Controls**: `EmergencyPause()`, `EmergencyUnpause()`, `EmergencyRefundBatch()`
-- **Config Management**: `SetMinStakeCreateSubnet()`, `SetMaxIntentDuration()`, `SetStakingToken()`
-- **Subnet Management**: `CreateSubnet()`, `PauseSubnet()`, `ResumeSubnet()`, `DeprecateSubnet()`
-- **Participant Management**: `ApproveParticipant()`, `RejectParticipant()`, `SuspendParticipant()`
-- **Staking & Slashing**: `Slash()`, `DepositStakeFor()`, `RequestUnstake()`, `Withdraw()`
-
-See `CLAUDE.md` for complete descriptions.
 
 ## FAQ
 
